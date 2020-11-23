@@ -1,0 +1,34 @@
+# Test package every time
+
+name: Update context collection
+
+# Controls when the action will run.
+
+# Trigger this code when a new release is published
+on:
+  workflow_dispatch:
+  release:
+    types: [created]
+ 
+jobs:
+  update:
+    runs-on: ubuntu-latest
+    steps:
+    - name: Setup python
+      uses: actions/setup-python@v2
+      with:
+        python-version: '3.6'
+    - name: Checkout repo
+      uses: actions/checkout@v2
+    - name: Install python dependencies
+      uses: py-actions/py-dependency-install@v2
+    - name: Install peak_matching
+      run: bash .github/scripts/install_peak_matching.sh
+    - name: Install pytest
+      run: pip install pytest
+    - name: Test package
+      run: |
+            cd ~/straxen ;
+            pytest
+    - name: goodbye
+      run: echo goodbye
