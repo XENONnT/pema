@@ -99,12 +99,11 @@ def _match_peaks(allpeaks1, allpeaks2, windows, deep_windows, unknown_types):
         if l1 == r1:
             continue
 
-        # Matching the other way around using deep_windows
-        l2, r2 = deep_windows[peaks_1_i]
-        peaks_2 = allpeaks2[l2:r2]
-        matching_peaks = peaks_2
-
         for p1_i, p1 in enumerate(peaks_1):
+            # Matching the other way around using deep_windows
+            l2, r2 = deep_windows[peaks_1_i]
+            peaks_2 = allpeaks2[l2:r2]
+            matching_peaks = peaks_2
             if len(matching_peaks) == 0:
                 pass
 
