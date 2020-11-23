@@ -32,7 +32,7 @@ class MatchPeaks(strax.Plugin):
             match_to = 'peaks' if dtype_for == 'truth' else 'truth'
             dtype = strax.dtypes.time_fields + [
                 ((f'Id of element in {dtype_for}', 'id'), np.float64),
-                ((f'Outcome of matching to {match_to}', 'outcome'), peak_matching.OUTCOME_DTYPE),
+                ((f'Outcome of matching to {match_to}', 'outcome'), peak_matching.matching.OUTCOME_DTYPE),
                 ((f'Id of matching element in {match_to}', 'matched_to'), np.float64)
             ]
             dtypes[dtype_for + '_matched'] = dtype
@@ -40,7 +40,7 @@ class MatchPeaks(strax.Plugin):
 
     def compute(self, truth, peaks):
         truth = peak_matching.append_fields(truth, 'area', truth['n_photon'])
-        truth_vs_peak, peak_vs_truth = peak_matching.match_peaks_strax(truth, peaks)
+        truth_vs_peak, peak_vs_truth = peak_matching.match_peaks(truth, peaks)
 
         # Truth
         res_truth = {}

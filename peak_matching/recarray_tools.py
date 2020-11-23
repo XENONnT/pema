@@ -125,8 +125,8 @@ def group_by(x, group_by_fields='Event', return_group_indices=False):
 
 def dict_group_by(x, group_by_fields='Event', return_group_indices=False):
     """
-    Same as group_by, but returns OrderedDict of value -> group, where value is
-    the value (or tuple of values) of group_by_fields in each
+    Same as group_by, but returns OrderedDict of value -> group, where
+    value is the value (or tuple of values) of group_by_fields in each
     subgroup
     """
     groups = group_by(x, group_by_fields, return_group_indices)
