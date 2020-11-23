@@ -31,7 +31,8 @@ jobs:
       run: pip install pytest
     - name: Test package
       run: |
-            cd ~/peak_matching ;
+            ls
+            ls ~
             pytest
     - name: goodbye
       run: echo goodbye
