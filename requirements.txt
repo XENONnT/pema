@@ -1,4 +1,4 @@
 strax
 straxen
-wfsim
+git+git://github.com/XENONnT/WFSim
 multihist
