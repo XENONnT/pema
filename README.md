@@ -1,5 +1,11 @@
 # Peak validation using the WFsim
 
+# Install
+```bash
+git clone https://github.com/XENONnT/peak_matching
+pip install -e ./peak_matching
+```
+
 # TODO
  - example
  - setup
