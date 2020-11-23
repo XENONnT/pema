@@ -1,6 +1,6 @@
 # Test package every time
 
-name: Update context collection
+name: Test package
 
 # Controls when the action will run.
 
@@ -9,7 +9,10 @@ on:
   workflow_dispatch:
   release:
     types: [created]
- 
+  pull_request:
+    branches:
+      - master
+
 jobs:
   update:
     runs-on: ubuntu-latest
