@@ -1,4 +1,5 @@
 strax
+git+git://github.com/XENONnT/utilix
 straxen
 git+git://github.com/XENONnT/WFSim
 multihist
