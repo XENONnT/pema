@@ -1,4 +1,4 @@
 strax
 straxen
-wfsim >= 0.0.6
+wfsim
 multihist
