@@ -1,10 +1,6 @@
 import numpy as np
-import os
 import pandas as pd
-import time
-from threading import Thread
 import wfsim
-import strax
 import straxen
 
 instruction_dtype = [('event_number', np.int), ('type', np.int), ('t', np.int),

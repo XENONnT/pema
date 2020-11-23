@@ -1,14 +1,12 @@
 """
 Utility to match peaks from results of different processor versions / processor and simulator
-Joran Angevaare, oktober, november 2020
+Joran Angevaare, october, november 2020
 Joey Howlett, February 2020
 Joran Angevaare, September 2019
 Mike Clark, September 2019
 Jelle Aalbers, Nikhef, September 2015
 """
 
-
-from warnings import warn
 import numpy as np
 import peak_matching
 import strax
@@ -17,11 +15,6 @@ import numba
 INT_NAN = -99999
 
 OUTCOME_DTYPE = '<U32'
-
-
-def match_peaks(*args, **kwargs):
-    warn('Changed, now using match_peaks_strax', DeprecationWarning, 2)
-    return match_peaks_strax(*args, **kwargs)
 
 
 def match_peaks(allpeaks1, allpeaks2,

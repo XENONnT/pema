@@ -1,6 +1,11 @@
-from .match_peaks import *
-from .recarray_tools import *
-from .wfsim_utils import *
-from .match_plugins import *
-from .summary_plots import *
+# Should be available though peak_matching.match_peaks
+from .match_peaks import match_peaks
+from .match_plugins import SortTruth, MatchPeaks
+
+# Should be available though peak_matching.match_peaks.some_function
+from . import match_peaks
+from . import match_plugins
+from . import recarray_tools
+from . import summary_plots
+from . import wfsim_utils
 
