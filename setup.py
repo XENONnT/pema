@@ -12,7 +12,7 @@ with open('README.md') as file:
 with open('HISTORY.md') as file:
     history = file.read()
 
-setuptools.setup(name='peak_matching',
+setuptools.setup(name='pema',
                  version='0.0.0',
                  description='Peak matching for XENON simulations',
                  author='The XENON collaboration',

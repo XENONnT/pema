@@ -1,5 +1,5 @@
 #!/bin/bash
 
-cd peak_matching/peak_matching
+cd pema/pema
 python setup.py install
 cd ~

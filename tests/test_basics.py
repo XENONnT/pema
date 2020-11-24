@@ -1,8 +1,8 @@
 def test_import():
-    import peak_matching
+    import pema
 
-    from peak_matching import match_peaks
-    from peak_matching import MatchPeaks
-    from peak_matching import append_fields
+    from pema import match_peaks
+    from pema import MatchPeaks
+    from pema import append_fields
 
     print('done')

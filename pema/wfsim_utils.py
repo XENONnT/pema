@@ -14,7 +14,7 @@ def rand_instructions(input_inst: dict,
     """
     Given instructions in a dict (first arg) generate the instructions
     that can be fed to wfsim
-    :param inst: dict of
+    :param input_inst: dict of
     :param z_max: max depth of interactions in TPC
     :param r_max: max radius of interactions in TPC
     :return: dict with filled instructions
@@ -53,13 +53,13 @@ def rand_instructions(input_inst: dict,
     return inst
 
 
-def kr83_instructions(inst: dict,
+def kr83_instructions(input_inst: dict,
                       z_max=-148.1,
                       r_max=straxen.tpc_r) -> dict:
     """
     Given instructions in a dict (first arg) generate the instructions
     that can be fed to wfsim. Will generate a KR-like dataset!
-    :param inst: dict of
+    :param input_inst: dict of
     :param z_max: max depth of interactions in TPC
     :param r_max: max radius of interactions in TPC
     :return: dict with filled instructions
@@ -69,13 +69,13 @@ def kr83_instructions(inst: dict,
     half_life = 156.94e-9  # Kr intermediate state half-life in ns
     decay_energies = [32.2, 9.4]  # Decay energies in kev
 
-    n = inst['nevents'] = inst['event_rate'] * inst['chunk_size'] * inst['nchunk']
-    inst['total_time'] = inst['chunk_size'] * inst['nchunk']
+    n = input_inst['nevents'] = input_inst['event_rate'] * input_inst['chunk_size'] * input_inst['nchunk']
+    input_inst['total_time'] = input_inst['chunk_size'] * input_inst['nchunk']
 
     instructions = np.zeros(4 * n, dtype=wfsim.instruction_dtype)
     instructions['event_number'] = np.digitize(
         instructions['time'],
-        1e9 * np.arange(inst['nchunk']) * inst['chunk_size']) - 1
+        1e9 * np.arange(input_inst['nchunk']) * input_inst['chunk_size']) - 1
 
     instructions['type'] = np.tile([1, 2], 2 * n)
     instructions['recoil'] = ['er' for i in range(4 * n)]
@@ -88,13 +88,13 @@ def kr83_instructions(inst: dict,
 
     # To get the correct times we'll need to include the 156.94 ns half
     # life of the intermediate state.
-    if inst.get('timing', 'uniform') == 'uniform':
-        uniform_times = inst['total_time'] * (np.arange(n) + 0.5) / n
-    elif inst['timing'] == 'increasing':
-        uniform_times = inst['total_time'] * np.sort(
+    if input_inst.get('timing', 'uniform') == 'uniform':
+        uniform_times = input_inst['total_time'] * (np.arange(n) + 0.5) / n
+    elif input_inst['timing'] == 'increasing':
+        uniform_times = input_inst['total_time'] * np.sort(
             np.random.triangular(0, 0.9, 1, n))
     else:
-        timing = inst['timing']
+        timing = input_inst['timing']
         raise ValueError(f'Timing {timing} unknown, Choose "uniform" or "increasing"')
     delayed_times = uniform_times + np.random.exponential(half_life / np.log(2), len(uniform_times))
     instructions['time'] = np.repeat(list(zip(uniform_times, delayed_times)), 2) * 1e9
@@ -103,8 +103,8 @@ def kr83_instructions(inst: dict,
     nc = nestpy.NESTcalc(nestpy.VDetector())
     A = 131.293
     Z = 54.
-    density = inst.get('density', 2.862)  # g/cm^3   #SR1 Value
-    drift_field = inst.get('drift_field', 82)  # V/cm    #SR1 Value
+    density = input_inst.get('density', 2.862)  # g/cm^3   #SR1 Value
+    drift_field = input_inst.get('drift_field', 82)  # V/cm    #SR1 Value
     interaction = nestpy.INTERACTION_TYPE(7)
 
     energy = np.tile(decay_energies, n)

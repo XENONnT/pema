@@ -8,7 +8,7 @@ Jelle Aalbers, Nikhef, September 2015
 """
 
 import numpy as np
-import peak_matching
+import pema
 import strax
 import numba
 
@@ -60,13 +60,13 @@ def match_peaks(allpeaks1, allpeaks2,
             raise ValueError(m)
 
     # Append id, outcome and matched_to fields
-    allpeaks1 = peak_matching.append_fields(
+    allpeaks1 = pema.append_fields(
         allpeaks1,
         ('id', 'outcome', 'matched_to'),
         (np.arange(len(allpeaks1)),
          np.array(['missed'] * len(allpeaks1), dtype=OUTCOME_DTYPE),
          INT_NAN * np.ones(len(allpeaks1), dtype=np.int64)))
-    allpeaks2 = peak_matching.append_fields(
+    allpeaks2 = pema.append_fields(
         allpeaks2,
         ('id', 'outcome', 'matched_to'),
         (np.arange(len(allpeaks2)),
