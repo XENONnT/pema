@@ -80,7 +80,13 @@ def match_peaks(allpeaks1, allpeaks2,
     deep_windows = np.array(
         [strax.touching_windows(allpeaks2, allpeaks1[l1:r1], window=matching_fuzz)[0]
          if r1 - l1 else [-1, -1]  # placeholder for numba
-         for l1, r1 in windows])
+         for l1, r1 in windows], dtype=(np.int64, np.int64))
+
+    if not len(deep_windows):
+        # patch for empty data
+        deep_windows = np.array([[-1, -1]], dtype=(np.int64, np.int64))
+    assert np.shape(np.shape(deep_windows))[0] == 2, (
+        f'deep_windows shape is wrong {np.shape(deep_windows)}\n{deep_windows}')
 
     # make array for numba
     unknown_types = np.array(unknown_types)
@@ -90,7 +96,7 @@ def match_peaks(allpeaks1, allpeaks2,
     return allpeaks1, allpeaks2
 
 
-@numba.jit(nopython=True)
+@numba.jit(nopython=True, nogil=True, cache=True)
 def _match_peaks(allpeaks1, allpeaks2, windows, deep_windows, unknown_types):
     """See match_peaks_strax where we do the functional matching here"""
     # Loop over left and right bounds for peaks 1 by matching to peaks 2
@@ -102,6 +108,7 @@ def _match_peaks(allpeaks1, allpeaks2, windows, deep_windows, unknown_types):
         for p1_i, p1 in enumerate(peaks_1):
             # Matching the other way around using deep_windows
             l2, r2 = deep_windows[peaks_1_i]
+
             peaks_2 = allpeaks2[l2:r2]
             matching_peaks = peaks_2
             if len(matching_peaks) == 0:

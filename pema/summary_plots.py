@@ -45,7 +45,6 @@ def peak_matching_histogram(results, histogram_key, bin_edges):
         # Histogram the # of peaks that have this outcome
         hist = Hist1d(results[results['outcome'] == outcome][histogram_key],
                       bins=n_peaks_hist.bin_edges)
-        outcome = outcome.decode()
         hists[outcome] = hist
 
     return hists
