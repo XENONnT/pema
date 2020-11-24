@@ -1,7 +1,8 @@
 # PEMAX
+![Test package](https://github.com/XENONnT/peak_matching/workflows/Test%20package/badge.svg)
 ## PeakMatching for analysing XENON
 Peak clustering and classification validation using the WFsim
-![Test package](https://github.com/XENONnT/peak_matching/workflows/Test%20package/badge.svg)
+
 
 # Install
 ```bash
