@@ -79,7 +79,7 @@ def match_peaks(allpeaks1, allpeaks2,
     # I'm calling deep_windows below.
     deep_windows = np.array(
         [strax.touching_windows(allpeaks2, allpeaks1[l1:r1], window=matching_fuzz)[0]
-         if r1 - l1 else [INT_NAN, INT_NAN]  # placeholder for numba
+         if r1 - l1 else [-1, -1]  # placeholder for numba
          for l1, r1 in windows])
 
     # make array for numba
