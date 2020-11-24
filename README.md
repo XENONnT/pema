@@ -6,6 +6,11 @@
 git clone https://github.com/XENONnT/peak_matching
 pip install -e ./peak_matching
 ```
+## Test installation
+```bash
+cd ~
+python -c "import peak_matching ; print(peak_matching.__version__) ; print('great succes')
+```
 
 # TODO
  - example
