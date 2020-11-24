@@ -139,5 +139,3 @@ def fields_data(arr, ignore_fields=None):
         ignore_fields = []
     """Returns list of arrays of data for each single field in arr"""
     return [arr[fn] for fn in arr.dtype.names if fn not in ignore_fields]
-
-

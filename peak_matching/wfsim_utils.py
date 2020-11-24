@@ -124,7 +124,7 @@ def kr83_instructions(inst: dict,
     return instructions
 
 
-def inst_to_csv(instructions:dict,
+def inst_to_csv(instructions: dict,
                 csv_file: str,
                 get_inst_from=rand_instructions,
                 **kwargs):
