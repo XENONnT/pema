@@ -11,12 +11,13 @@ import numpy as np
 import pema
 import strax
 import numba
+export, __all__ = strax.exporter()
 
 INT_NAN = -99999
-
 OUTCOME_DTYPE = '<U32'
 
 
+@export
 def match_peaks(allpeaks1, allpeaks2,
                 matching_fuzz=0,
                 unknown_types=(0,)):

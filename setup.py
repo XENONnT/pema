@@ -27,6 +27,7 @@ setuptools.setup(name='pema',
                      'boltons'],
                  python_requires=">=3.6",
                  packages=setuptools.find_packages(),
+                 scripts=['bin/pema_straxer'],
                  classifiers=[
                      'Development Status :: 4 - Beta',
                      'License :: OSI Approved :: BSD License',

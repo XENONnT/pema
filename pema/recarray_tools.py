@@ -1,10 +1,13 @@
 import numpy as np
 from numpy.lib import recfunctions
 from collections import OrderedDict
+import strax
+export, __all__ = strax.exporter()
 
 rename_fields = recfunctions.rename_fields
 
 
+@export
 def append_fields(base, names, data, dtypes=None, fill_value=-1,
                   usemask=False,  # Different from recfunctions default
                   asrecarray=False):

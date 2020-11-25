@@ -2,12 +2,16 @@ import numpy as np
 import pandas as pd
 import wfsim
 import straxen
+import strax
+export, __all__ = strax.exporter()
+
 
 instruction_dtype = [('event_number', np.int), ('type', np.int), ('t', np.int),
                      ('x', np.float32), ('y', np.float32), ('z', np.float32),
                      ('amp', np.int), ('recoil', '<U2')]
 
 
+@export
 def rand_instructions(input_inst: dict,
                       z_max=-148.1,
                       r_max=straxen.tpc_r) -> dict:
@@ -53,6 +57,7 @@ def rand_instructions(input_inst: dict,
     return inst
 
 
+@export
 def kr83_instructions(input_inst: dict,
                       z_max=-148.1,
                       r_max=straxen.tpc_r) -> dict:
@@ -124,6 +129,7 @@ def kr83_instructions(input_inst: dict,
     return instructions
 
 
+@export
 def inst_to_csv(instructions: dict,
                 csv_file: str,
                 get_inst_from=rand_instructions,

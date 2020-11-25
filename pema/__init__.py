@@ -1,11 +1,7 @@
-# Should be available though peak_matching.match_peaks
-from .matching import match_peaks
-from .match_plugins import MatchPeaks
-from .recarray_tools import append_fields
-
-# Should be available though peak_matching.match_peaks.some_function
-from . import match_peaks
-from . import match_plugins
-from . import recarray_tools
-from . import summary_plots
-from . import wfsim_utils
+__version__ = '0.0.0'
+# import parts
+from .matching import *
+from .match_plugins import *
+from .recarray_tools import *
+from .summary_plots import *
+from .wfsim_utils import *

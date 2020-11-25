@@ -3,6 +3,8 @@ from scipy.stats import beta
 from scipy import stats
 import numpy as np
 from multihist import Hist1d
+import strax
+export, __all__ = strax.exporter()
 
 outcome_colors = {
     'found': 'darkblue',
@@ -25,6 +27,7 @@ outcome_colors = {
 }
 
 
+@export
 def peak_matching_histogram(results, histogram_key, bin_edges):
     """
     Make 1D histogram of peak matching results (=peaks with extra fields
@@ -50,6 +53,7 @@ def peak_matching_histogram(results, histogram_key, bin_edges):
     return hists
 
 
+@export
 def plot_peak_matching_histogram(*args, **kwargs):
     hists = peak_matching_histogram(*args, **kwargs)
     _plot_peak_matching_histogram(hists)
@@ -111,6 +115,7 @@ def _plot_peak_matching_histogram(hists):
         legend.get_frame().set_alpha(0.8)
 
 
+@export
 def binom_interval(success, total, conf_level=0.95):
     """
     Confidence interval on binomial - using Jeffreys interval
@@ -150,6 +155,7 @@ def get_interval(x, n, found):
     return eff, yerr
 
 
+@export
 def acceptance_plot_simple(data, on_axis, bin_edges, plot_label=""):
     hists = peak_matching_histogram(data, on_axis, bin_edges)
     bin_centers, total, found = get_efficiency(hists)

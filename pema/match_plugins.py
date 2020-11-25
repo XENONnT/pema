@@ -3,8 +3,10 @@ import straxen
 from immutabledict import immutabledict
 import numpy as np
 import pema
+export, __all__ = strax.exporter()
 
 
+@export
 class MatchPeaks(strax.Plugin):
     __version__ = '0.0.2'
     depends_on = ('truth', 'peak_basics')
