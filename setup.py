@@ -13,7 +13,7 @@ with open('HISTORY.md') as file:
     history = file.read()
 
 setuptools.setup(name='pema',
-                 version='0.0.0',
+                 version='0.0.1',
                  description='Peak matching for XENON simulations',
                  author='The XENON collaboration',
                  url='https://github.com/XENONnT/peakmatching',
