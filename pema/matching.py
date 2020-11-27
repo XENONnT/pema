@@ -11,6 +11,7 @@ import numpy as np
 import pema
 import strax
 import numba
+
 export, __all__ = strax.exporter()
 
 INT_NAN = -99999
@@ -260,6 +261,6 @@ def _bool_flip(arr):
     """Use True ^ array"""
     res = np.zeros(len(arr), dtype=np.bool_)
     for i, a in enumerate(arr):
-        if not a  or a == 0:
+        if not a or a == 0:
             res[i] = 1
     return res

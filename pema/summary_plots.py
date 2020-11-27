@@ -4,6 +4,7 @@ from scipy import stats
 import numpy as np
 from multihist import Hist1d
 import strax
+
 export, __all__ = strax.exporter()
 
 outcome_colors = {

@@ -1,14 +1,11 @@
 import pema
-import strax
-
 import numpy as np
 from hypothesis import given, strategies, example, settings
-import tempfile
 
 
 @settings(max_examples=100, deadline=None)
 @given(strategies.integers(min_value=0, max_value=100),
-       strategies.integers(min_value=0, max_value=2),)
+       strategies.integers(min_value=0, max_value=2), )
 @example(length=3, dtypenum=0)
 def test_combine_and_flip(length, dtypenum):
     """Check that combine and flip works correctly"""
@@ -48,7 +45,7 @@ def test_matching(data_length, truth_length, max_duration, n_data_types, n_truth
     if max_duration:
         # randint does not work for 0, 0 interval, hence we only add it if max_duration>0
         data['endtime'] += np.random.randint(0, max_duration, data_length)
-    data['type'] = np.random.randint(0, n_data_types+1, data_length)
+    data['type'] = np.random.randint(0, n_data_types + 1, data_length)
     data.sort(order='time')
 
     truth = np.zeros(truth_length, dtype=dtype)

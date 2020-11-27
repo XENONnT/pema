@@ -2,6 +2,7 @@ import numpy as np
 from numpy.lib import recfunctions
 from collections import OrderedDict
 import strax
+
 export, __all__ = strax.exporter()
 
 rename_fields = recfunctions.rename_fields
