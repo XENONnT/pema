@@ -8,7 +8,7 @@ export, __all__ = strax.exporter()
 
 @export
 class MatchPeaks(strax.Plugin):
-    __version__ = '0.0.2'
+    __version__ = '0.0.3'
     depends_on = ('truth', 'peak_basics')
     provides = ('truth_matched', 'peaks_matched')
     data_kind = immutabledict(truth_matched='truth',
