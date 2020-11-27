@@ -28,9 +28,14 @@ jobs:
       - name: Install peak_matching
         run: bash .github/scripts/install_peak_matching.sh
       - name: Install pytest and hypothesis
-        run: pip install pytest hypothesis
+        run: pip install pytest hypothesis flake8 pytest-cov
       - name: Test package
         run: |
           pytest
+      - name: Build coverage file
+        run: |
+          pytest --cache-clear --cov=app test/ > pytest-coverage.txt
+      - name: Comment coverage
+        uses: coroo/pytest-coverage-commentator@v1.0.2
       - name: goodbye
         run: echo goodbye
