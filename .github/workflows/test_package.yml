@@ -14,7 +14,7 @@ on:
       - main
 
 jobs:
-  Run pytest:
+  update:
     runs-on: ubuntu-latest
     steps:
       - name: Setup python
