@@ -26,7 +26,7 @@ jobs:
       - name: Install python dependencies
         uses: py-actions/py-dependency-install@v2
       - name: Install peak_matching
-        run: bash .github/scripts/install_peak_matching.sh
+        run: bash .github/scripts/install_pema.sh
       - name: Install pytest and hypothesis
         run: pip install pytest hypothesis flake8 pytest-cov
       - name: Test package
@@ -34,7 +34,7 @@ jobs:
           pytest
       - name: Build coverage file
         run: |
-          pytest --cache-clear --cov=app test/ > pytest-coverage.txt
+          pytest --cache-clear --cov=pema tests/ > pytest-coverage.txt
       - name: Comment coverage
         uses: coroo/pytest-coverage-commentator@v1.0.2
       - name: goodbye
