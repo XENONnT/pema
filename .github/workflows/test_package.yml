@@ -14,8 +14,7 @@ on:
       - main
 
 jobs:
-  update:
-
+  Run pytest:
     runs-on: ubuntu-latest
     steps:
       - name: Setup python
@@ -28,8 +27,8 @@ jobs:
         uses: py-actions/py-dependency-install@v2
       - name: Install peak_matching
         run: bash .github/scripts/install_peak_matching.sh
-      - name: Install pytest
-        run: pip install pytest
+      - name: Install pytest and hypothesis
+        run: pip install pytest hypothesis
       - name: Test package
         run: |
           pytest

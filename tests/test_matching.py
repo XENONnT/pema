@@ -16,7 +16,7 @@ def test_combine_and_flip(length, dtypenum):
     dtype = known_dtypes[dtypenum]
     arr1 = np.random.randint(0, 2, length).astype(dtype)
     arr2 = np.random.randint(0, 2, length).astype(dtype)
-    res = (True ^ arr1) & (True ^arr2)
+    res = (True ^ arr1) & (True ^ arr2)
     numba_res = pema.matching._combine_and_flip(arr1, arr2)
     assert np.all(res == numba_res)
 
@@ -34,6 +34,7 @@ def test_combine_and_flip(length, dtypenum):
     # Number of peak-types in truth
     strategies.integers(min_value=0, max_value=10),
 )
+@example(data_length=0, truth_length=10, max_duration=10, n_data_types=2, n_truth_types=2)
 def test_matching(data_length, truth_length, max_duration, n_data_types, n_truth_types):
     dtype = [(('Start time since unix epoch [ns]', 'time'), np.int64),
              (('Exclusive end time since unix epoch [ns]', 'endtime'), np.int64),
