@@ -3,8 +3,8 @@ import pandas as pd
 import wfsim
 import straxen
 import strax
-export, __all__ = strax.exporter()
 
+export, __all__ = strax.exporter()
 
 instruction_dtype = [('event_number', np.int), ('type', np.int), ('t', np.int),
                      ('x', np.float32), ('y', np.float32), ('z', np.float32),
@@ -74,7 +74,8 @@ def kr83_instructions(input_inst: dict,
     half_life = 156.94e-9  # Kr intermediate state half-life in ns
     decay_energies = [32.2, 9.4]  # Decay energies in kev
 
-    n = input_inst['nevents'] = input_inst['event_rate'] * input_inst['chunk_size'] * input_inst['nchunk']
+    n = input_inst['nevents'] = input_inst['event_rate'] * input_inst['chunk_size'] * input_inst[
+        'nchunk']
     input_inst['total_time'] = input_inst['chunk_size'] * input_inst['nchunk']
 
     instructions = np.zeros(4 * n, dtype=wfsim.instruction_dtype)

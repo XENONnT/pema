@@ -11,6 +11,7 @@ import numpy as np
 import pema
 import strax
 import numba
+
 export, __all__ = strax.exporter()
 
 INT_NAN = -99999
@@ -53,6 +54,7 @@ def match_peaks(allpeaks1, allpeaks2,
     """
     # Check required fields
     for i, d in enumerate((allpeaks1, allpeaks2)):
+        assert hasattr(d, 'dtype'), 'Cannot work with non-numpy arrays'
         m = ''
         for k in ('area', 'type'):
             if k not in d.dtype.names:
@@ -172,7 +174,7 @@ def handle_peak_merge(parent, fragments, unknown_types):
     found_types = fragments['type']
     is_ok = found_types == parent['type']
     is_unknown = _in1d(found_types, unknown_types)
-    is_misclass = (True ^ is_ok) & (True ^ is_unknown)
+    is_misclass = _combine_and_flip(is_ok, is_unknown)
     # We have to loop over the fragments to avoid making a copy
     for i in range(len(fragments)):
         if is_unknown[i] or is_misclass[i]:
@@ -246,3 +248,19 @@ def _argmax(arr):
             m = arr[j]
             i = j
     return i
+
+
+@numba.njit
+def _combine_and_flip(arr1, arr2):
+    """Combine the flipped arrays"""
+    return _bool_flip(arr1).astype(np.bool_) & _bool_flip(arr2.astype(np.bool_))
+
+
+@numba.njit
+def _bool_flip(arr):
+    """Use True ^ array"""
+    res = np.zeros(len(arr), dtype=np.bool_)
+    for i, a in enumerate(arr):
+        if not a or a == 0:
+            res[i] = 1
+    return res
