@@ -176,7 +176,7 @@ def main(args):
         st.config['run_start_time'] = md['start'].timestamp()
         st.context_config['free_options'] = tuple(
             list(st.context_config['free_options']) + ['run_start_time'])
-    except strax.RunMetadataNotAvailable:
+    except (strax.RunMetadataNotAvailable, IndexError):
         t_start, t_end = st.estimate_run_start_and_end(args.run_id, 'raw_records')
         t_start, t_end = t_start/1e9, t_end/1e9
     run_duration = t_end - t_start
