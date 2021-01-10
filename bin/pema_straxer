@@ -14,7 +14,7 @@ import psutil
 import sys
 import json
 import pema
-
+import gc
 
 def parse_args():
     parser = argparse.ArgumentParser(
@@ -121,6 +121,8 @@ def main(args):
     print(f"\tstraxen {straxen.__version__} at {osp.dirname(straxen.__file__)}")
 
     st = getattr(straxen.contexts, args.context)()
+    # ignore strax warnings
+    st.set_context_config({'free_options': tuple(st.config.keys())})
 
     # Add peak matching plugins
     st.register_all(pema.match_plugins)
@@ -220,7 +222,7 @@ def main(args):
             msg += f"ETA {clock_time_left:.2f} sec."
         else:
             clock_start = time.time()
-
+        print('GC', gc.collect())
         print(msg, flush=True)
 
     logging.info(f"\npema_straxer is done! "
