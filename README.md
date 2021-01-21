@@ -10,7 +10,6 @@ pip install pema
 ```
 ## Test installation
 ```bash
-cd ~
 python -c "import pema ; print(pema.__version__) ; print('great succes')
 ```
 
