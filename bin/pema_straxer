@@ -141,7 +141,9 @@ def main(args):
     if args.build_lowlevel:
         st.context_config['forbid_creation_of'] = tuple()
         if args.rechunk_rr:
-            straxen.DAQReader
+            st._plugin_class_registry['raw_records'].rechunk_on_save = True
+            st._plugin_class_registry['records'].rechunk_on_save = True
+            st._plugin_class_registry['peaklets'].rechunk_on_save = True
     else:
         st.context_config['forbid_creation_of'] = straxen.DAQReader.provides
 
