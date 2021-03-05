@@ -35,7 +35,8 @@ def rand_instructions(input_inst: dict,
                                        1e9 * np.arange(input_inst['nchunk']) *
                                        input_inst['chunk_size']) - 1
     inst['type'] = np.tile([1, 2], n)
-    inst['recoil'] = ['er' for i in range(n * 2)]
+    # TODO fix this 7
+    inst['recoil'] = [7 for i in range(n * 2)]
 
     r = np.sqrt(np.random.uniform(0, r_max ** 2, n))
     t = np.random.uniform(-np.pi, np.pi, n)
@@ -84,7 +85,8 @@ def kr83_instructions(input_inst: dict,
         1e9 * np.arange(input_inst['nchunk']) * input_inst['chunk_size']) - 1
 
     instructions['type'] = np.tile([1, 2], 2 * n)
-    instructions['recoil'] = ['er' for i in range(4 * n)]
+    # TODO fix this 7
+    instructions['recoil'] = [7 for i in range(4 * n)]
 
     r = np.sqrt(np.random.uniform(0, r_max ** 2, n))
     t = np.random.uniform(-np.pi, np.pi, n)
