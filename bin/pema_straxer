@@ -1,8 +1,10 @@
 #!/usr/bin/env python
+
 """
 Process a single run with straxen using pema
 Copy of straxen/bin/straxer with some nice new features
 """
+
 import argparse
 import datetime
 import logging
