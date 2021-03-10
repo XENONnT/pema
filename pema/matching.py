@@ -80,10 +80,22 @@ def match_peaks(allpeaks1, allpeaks2,
     # Each of the windows projects to a set of peaks in allpeaks2
     # belonging to allpeaks1. We also need to go the reverse way, which
     # I'm calling deep_windows below.
-    deep_windows = np.array(
-        [strax.touching_windows(allpeaks2, allpeaks1[l1:r1], window=matching_fuzz)[0]
-         if r1 - l1 else [-1, -1]  # placeholder for numba
-         for l1, r1 in windows], dtype=(np.int64, np.int64))
+    _deep_windows = []
+    for l1, r1 in windows:
+        this_window = [-1, -1]
+        if r1 - l1:
+            match = strax.touching_windows(allpeaks2, 
+                                           allpeaks1[l1:r1], 
+                                           window=matching_fuzz)
+            if len(match):
+                this_window = match[0]
+        _deep_windows.append(this_window)
+    deep_windows = np.array(_deep_windows, dtype=(np.int64, np.int64))
+        
+#     deep_windows = np.array(
+#         [strax.touching_windows(allpeaks2, allpeaks1[l1:r1], window=matching_fuzz)[0]
+#          if r1 - l1 else [-1, -1]  # placeholder for numba
+#          for l1, r1 in windows], dtype=(np.int64, np.int64))
 
     if not len(deep_windows):
         # patch for empty data

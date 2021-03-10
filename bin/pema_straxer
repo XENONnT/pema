@@ -102,6 +102,10 @@ def parse_args():
         '--add_folder',
         default='',
         help='Also add folder to st.storage')
+    parser.add_argument(
+        '--input_folder',
+        default='',
+        help='Add a readonly folder to st.storage')
     return parser.parse_args()
 
 
@@ -168,10 +172,11 @@ def main(args):
             sf.readonly = True
         if os.path.exists(args.add_folder):
             st.storage += [strax.DataDirectory(args.add_folder)]
-
-    if st.is_stored(args.run_id, args.target):
-        logging.info("This data is already available.")
-        return 1
+    if args.input_folder != '':
+        st.storage += [strax.DataDirectory(args.input_folder, readonly=True)]
+    #if st.is_stored(args.run_id, args.target):
+    #    logging.info("This data is already available.")
+    #    return 1
 
     try:
         md = st.run_metadata(args.run_id)

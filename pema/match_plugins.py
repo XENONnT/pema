@@ -9,7 +9,7 @@ export, __all__ = strax.exporter()
 
 @export
 class MatchPeaks(strax.Plugin):
-    __version__ = '0.0.3'
+    __version__ = '0.0.4'
     depends_on = ('truth', 'peak_basics')
     provides = ('truth_matched', 'peaks_matched')
     data_kind = immutabledict(truth_matched='truth',
@@ -33,6 +33,8 @@ class MatchPeaks(strax.Plugin):
         truth.sort(order='time')
 
         truth = pema.append_fields(truth, 'area', truth['n_photon'])
+        # hack endtime
+        truth['endtime'] = truth['t_last_photon'].copy()
         truth_vs_peak, peak_vs_truth = pema.match_peaks(truth, peaks)
 
         # Truth
