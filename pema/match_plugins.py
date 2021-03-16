@@ -3,13 +3,18 @@ import straxen
 from immutabledict import immutabledict
 import numpy as np
 import pema
-
+import logging
 export, __all__ = strax.exporter()
+
+logging.basicConfig(
+    level=logging.INFO,
+    format='%(asctime)s - %(threadName)s - %(name)s - %(levelname)s - %(message)s')
+log = logging.getLogger('Pema matching')
 
 
 @export
 class MatchPeaks(strax.Plugin):
-    __version__ = '0.0.3'
+    __version__ = '0.0.5'
     depends_on = ('truth', 'peak_basics')
     provides = ('truth_matched', 'peaks_matched')
     data_kind = immutabledict(truth_matched='truth',
@@ -28,11 +33,19 @@ class MatchPeaks(strax.Plugin):
         return dtypes
 
     def compute(self, truth, peaks):
+        log.debug(f'Starting {self.__class__.__name__}')
+
+        log.debug(f'Sort by time and add area')
         # Shouldn't be needed, just double checking
         truth = truth.copy()
         truth.sort(order='time')
 
         truth = pema.append_fields(truth, 'area', truth['n_photon'])
+        # hack endtime
+        log.warning(f'Patching endtime in the truth')
+        truth['endtime'] = truth['t_last_photon'].copy()
+
+        log.info('Starting matching')
         truth_vs_peak, peak_vs_truth = pema.match_peaks(truth, peaks)
 
         # Truth

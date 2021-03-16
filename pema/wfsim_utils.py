@@ -6,7 +6,7 @@ import strax
 
 export, __all__ = strax.exporter()
 
-instruction_dtype = [('event_number', np.int), ('type', np.int), ('t', np.int),
+instruction_dtype = [('event_number', np.int), ('type', np.int), ('time', np.int64),
                      ('x', np.float32), ('y', np.float32), ('z', np.float32),
                      ('amp', np.int), ('recoil', '<U2')]
 
@@ -30,12 +30,13 @@ def rand_instructions(input_inst: dict,
     inst = np.zeros(2 * n, dtype=instruction_dtype)
     uniform_times = input_inst['total_time'] * (np.arange(n) + 0.5) / n
 
-    inst['t'] = np.repeat(uniform_times, 2) * int(1e9)
-    inst['event_number'] = np.digitize(inst['t'],
+    inst['time'] = np.repeat(uniform_times, 2) * int(1e9)
+    inst['event_number'] = np.digitize(inst['time'],
                                        1e9 * np.arange(input_inst['nchunk']) *
                                        input_inst['chunk_size']) - 1
     inst['type'] = np.tile([1, 2], n)
-    inst['recoil'] = ['er' for i in range(n * 2)]
+    # TODO fix this 7
+    inst['recoil'] = [7 for i in range(n * 2)]
 
     r = np.sqrt(np.random.uniform(0, r_max ** 2, n))
     t = np.random.uniform(-np.pi, np.pi, n)
@@ -84,7 +85,8 @@ def kr83_instructions(input_inst: dict,
         1e9 * np.arange(input_inst['nchunk']) * input_inst['chunk_size']) - 1
 
     instructions['type'] = np.tile([1, 2], 2 * n)
-    instructions['recoil'] = ['er' for i in range(4 * n)]
+    # TODO fix this 7
+    instructions['recoil'] = [7 for i in range(4 * n)]
 
     r = np.sqrt(np.random.uniform(0, r_max ** 2, n))
     t = np.random.uniform(-np.pi, np.pi, n)

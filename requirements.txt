@@ -1,5 +1,7 @@
 strax
-git+git://github.com/XENONnT/utilix
-straxen
-git+git://github.com/XENONnT/WFSim
+utilix>=0.4.1
+straxen>=0.15.7
+wfsim>=0.2.5
 multihist
+numba
+numpy

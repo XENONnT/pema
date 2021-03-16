@@ -29,11 +29,10 @@ jobs:
         run: bash .github/scripts/install_pema.sh
       - name: Install pytest and hypothesis
         run: pip install pytest hypothesis flake8 pytest-cov
-      - name: Test package
-        run: |
-          pytest
       - name: Build coverage file
         run: |
+          ls
+          ls pema
           pytest --cache-clear --cov=pema > pytest-coverage.txt
       - name: Comment coverage
         uses: coroo/pytest-coverage-commentator@v1.0.2
