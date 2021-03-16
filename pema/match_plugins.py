@@ -34,6 +34,7 @@ class MatchPeaks(strax.Plugin):
 
     def compute(self, truth, peaks):
         log.debug(f'Starting {self.__class__.__name__}')
+
         log.debug(f'Sort by time and add area')
         # Shouldn't be needed, just double checking
         truth = truth.copy()
