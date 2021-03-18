@@ -31,7 +31,7 @@ def pema_context(
         **straxen.contexts.common_opts)
     st.set_config(config)
     # Disable warning for these two options
-    st.set_context_config({'free_options': ('n_nveto_pmts', 'channel_map')})
+    st.set_context_config({'free_options': ('n_nveto_pmts', 'channel_map', 'n_mveto_pmts', 'gain_model_nv', 'gain_model_mv')})
 
     st.register(wfsim.RawRecordsFromFaxNT)
     st.register_all(pema.match_plugins)

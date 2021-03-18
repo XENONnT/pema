@@ -16,6 +16,7 @@ from tqdm.notebook import tqdm
 # Use nice fancy tqdm for simulating
 wfsim.core.tqdm = tqdm
 import matplotlib.pyplot as plt
+from matplotlib.colors import LogNorm
 
 straxen.print_versions(['strax', 'straxen', 'wfsim', 'nestpy', 'ntauxfiles', 'pema'])
 

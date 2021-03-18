@@ -5,6 +5,8 @@ import strax
 import typing as ty
 from immutabledict import immutabledict
 import subprocess
+from collections import defaultdict
+import pandas
 
 job_script = """\
 #!/bin/bash
@@ -45,7 +47,7 @@ def write_dict_to_json(path: str,
         f.write(json.dumps(to_write, **json_options))
 
 
-class ScriptWriter:
+class ProcessRun:
     log_file = None
     script_file = None
     base_dir_requires = ('configs', 'logs', 'scripts')
@@ -56,15 +58,40 @@ class ScriptWriter:
                  target: ty.Union[str, tuple],
                  config: ty.Union[dict, immutabledict, None] = None,
                  ):
-        self.st = st
+        self.st = st.new_context()
         self.run_id = strax.to_str_tuple(run_id)
         self.target = strax.to_str_tuple(target)
         if config is None:
             config = {}
         self.config = config
+        self.st.set_config(config)
+
         self.base_dir = self.extract_base_dir(st)
         for subdir in self.base_dir_requires:
             os.makedirs(os.path.join(self.base_dir, subdir), exist_ok=True)
+
+    def __repr__(self):
+        repr = f'ProcessRun {self.run_id} - {self.target}:\n{self.config}'
+        repr += f'\nwrite to {self.log_file} from {self.script_file}'
+        return repr
+
+    def all_stored(self, show_key=False, return_bool=False):
+        bool_stored = True
+        res = defaultdict(list)
+        for r in self.run_id:
+            res['number'].append(r)
+            for t in self.target:
+                stored = self.st.is_stored(r, t)
+                bool_stored &= stored
+                res[t].append(stored)
+                if show_key:
+                    res[f'{t}-key'] = self.st.key_for(r, t)
+
+        df = pandas.DataFrame(res)
+        df.set_index('number')
+        if return_bool:
+            return bool_stored
+        return df
 
     @staticmethod
     def extract_base_dir(st):
@@ -91,16 +118,13 @@ class ScriptWriter:
         """
         st = self.st
         tot_config = st.config.copy()
-        tot_config.update(self.config)
         if 'channel_map' in tot_config:
             # Not saveable to JSON
             del tot_config['channel_map']
-        st_validation = st.new_context()
-        st_validation.set_config(tot_config)
 
         run_id = self.run_id[0]
         target = self.target[0]
-        this_key = st_validation.key_for(run_id, target)
+        this_key = st.key_for(run_id, target)
         if len(self.run_id) > 1:
             job_name = f'{run_id}_{self.run_id[-1]}_{this_key}'
         else:
@@ -131,17 +155,17 @@ class ScriptWriter:
                             )
         if debug:
             cmd += ' --debug'
-        if not st_validation.is_stored(run_id, 'raw_records'):
+        if not sum([st.is_stored(run_id, 'raw_records') for run_id in self.run_id]):
             cmd += ' --build_lowlevel --rechunk_rr'
 
         write_dict_to_json(conf_file, context_init)
-        return job_name, cmd
+        return cmd, job_name
 
     def exec_dali(self,
-                   cmd,
-                   job_name,
-                   bash_activate,
-                   mem=2000,
+                  cmd,
+                  job_name,
+                  bash_activate,
+                  mem=2000,
                    partition='xenon1t',
                    max_hours="04:00:00"
                    ):
@@ -154,15 +178,38 @@ class ScriptWriter:
             mem=mem,
             partition=partition,
             max_hours=max_hours)
-        write_script(self.script_file,
-                     script)
+        write_script(self.script_file, script)
+        cp = subprocess.run(f'sbatch {self.script_file}', shell=True, capture_output=True)
+        self.job_id = cp.stdout
+        return self.job_id
 
     def exec_local(self, cmd, job_name):
         self.log_file = self._fmt('logs', f'{job_name}.log')
         self.script_file = f'{cmd} &>{self.log_file}'
         # subprocess.Popen(self.script_file.split(' '), shell=True)
-        cp = subprocess.run(self.script_file, shell=True, capture_output=True)
-        return cp
+        # cp = subprocess.run(self.script_file, shell=True, capture_output=True)
+        # return cp
+        cmd = cmd.replace('  ', ' ')
+        p = subprocess.Popen(cmd.split(' '),
+                             stdout=subprocess.PIPE,
+                             stderr=subprocess.PIPE,
+                             universal_newlines=True)
+        self.log_file = p
 
+    def read_log(self):
+        if self.log_file is None:
+            raise RuntimeError('No logfile')
+        f = open(self.log_file, "r")
+        lines = [l for l in f]
+        f.close()
+        return lines
 
+    def job_finished(self):
+        finished = False
+        for line in self.read_log()[-10:]:
+            if 'Error' in line:
+                raise ValueError(line)
+            elif 'ended' in line:
+                finished = True
+        return finished
 
