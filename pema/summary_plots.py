@@ -174,11 +174,8 @@ def acceptance_plot_simple(data, on_axis, bin_edges, plot_label=""):
     plt.xlabel(on_axis.replace('_', ' '))
 
 
-def acceptance_plot(data, on_axis, bin_edges, nbins=None, plot_label=""):
-    """
-    Compute acceptance from data using acceptance_fraction
-    (this is an arbirary weighing of the acceptance based on the outcome of matching)
-    """
+def calc_arb_acceptance(data, on_axis, bin_edges, nbins=None,)->tuple:
+    """Calculate acceptance on given axis"""
     if nbins is None:
         nbins = bin_edges[-1] - bin_edges[0]
     be = np.linspace(*bin_edges, nbins + 1)
@@ -194,7 +191,15 @@ def acceptance_plot(data, on_axis, bin_edges, nbins=None, plot_label=""):
         data_remaining = data_remaining[~mask]
 
     values, yerr = get_interval(bin_centers, total, found)
+    return bin_centers, values, yerr
 
+
+def acceptance_plot(data, on_axis, bin_edges, nbins=None, plot_label=""):
+    """
+    Compute acceptance from data using acceptance_fraction
+    (this is an arbitrary weighing of the acceptance based on the outcome of matching)
+    """
+    bin_centers, values, yerr = calc_arb_acceptance(data, on_axis, bin_edges, nbins)
     plt.errorbar(x=bin_centers,
                  y=values,
                  yerr=yerr,

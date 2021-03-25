@@ -4,7 +4,7 @@ import numpy as np
 import matplotlib.pyplot as plt
 from straxen.analyses.waveform_plot import time_and_samples, seconds_range_xaxis
 import pema
-
+from tqdm.notebook import tqdm
 
 @straxen.mini_analysis(
     requires=('truth'),
@@ -118,13 +118,21 @@ def compare_outcomes(st_default, truth_vs_default,
                      custom_label='custom',
                      fig_dir=None,
                      show=True,
+                     randomize=True,
+                     only_different=True
                      ):
-    for peak_i in range(len(truth_vs_custom)):
+    if only_different:
+        peaks_idx = np.where(truth_vs_default['outcome'] != truth_vs_custom['outcome'])[0]
+    else:
+        peaks_idx = np.arange(len(truth_vs_default))
+    if randomize:
+        np.random.shuffle(peaks_idx)
+    for peak_i in tqdm(peaks_idx[:max_peaks]):
         try:
             if truth_vs_custom[peak_i]['outcome'] != truth_vs_default[peak_i]['outcome']:
 
-                t_range = truth_vs_custom[peak_i]['time'] - fuzz, truth_vs_custom[peak_i][
-                    'endtime'] + fuzz
+                t_range = (truth_vs_custom[peak_i]['time'] - fuzz,
+                           truth_vs_custom[peak_i]['endtime'] + fuzz)
 
                 f, axes = plt.subplots(3, 1,
                                        figsize=(10, 10),
@@ -136,10 +144,10 @@ def compare_outcomes(st_default, truth_vs_default,
                 start_end = np.zeros(1, dtype=strax.time_fields)
                 start_end['time'] = t_range[0]
                 start_end['endtime'] = t_range[1]
-
+                run_mask = truth_vs_custom['run_id'] == truth_vs_custom[peak_i]['run_id']
                 for pk, pi in enumerate(
-                        range(*strax.touching_windows(truth_vs_custom, start_end)[0])):
-                    tpeak = truth_vs_custom[pi]
+                        range(*strax.touching_windows(truth_vs_custom[run_mask], start_end)[0])):
+                    tpeak = truth_vs_custom[run_mask][pi]
                     hatch_cycle = ['/', '*', '+', '|']
                     _t_range = tpeak[['time', 'endtime']]
                     x = np.array(list(_t_range))
@@ -225,11 +233,9 @@ def compare_outcomes(st_default, truth_vs_default,
                     pema.save_canvas(f'example_wf_{peak_i}', save_dir=fig_dir)
                 if show:
                     plt.show()
-        except ValueError as e:
+        except (ValueError, RuntimeError) as e:
             print(f'Error making {peak_i}: {type(e)}, {e}')
             plt.show()
-        if peak_i > max_peaks:
-            break
 
 
 def axvline(v, **kwargs):

@@ -89,6 +89,7 @@ def match_peaks(allpeaks1, allpeaks2,
     # Each of the windows projects to a set of peaks in allpeaks2
     # belonging to allpeaks1. We also need to go the reverse way, which
     # I'm calling deep_windows below.
+    # TODO Numbafy
     _deep_windows = []
     for l1, r1 in tqdm(windows, desc='Get deep windows'):
         this_window = [-1, -1]

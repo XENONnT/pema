@@ -7,6 +7,7 @@ from immutabledict import immutabledict
 import subprocess
 from collections import defaultdict
 import pandas
+import shutil
 
 job_script = """\
 #!/bin/bash
@@ -112,7 +113,9 @@ class ProcessRun:
         return os.path.join(self.base_dir, directory, name)
 
     def make_cmd(self,
-                 debug=True):
+                 debug=True,
+                 not_lazy=True,
+                 ):
         """
         return_command = just return the command, don't do the actual file stuf
         """
@@ -123,7 +126,7 @@ class ProcessRun:
             del tot_config['channel_map']
 
         run_id = self.run_id[0]
-        target = self.target[0]
+        target = self.target[-1]
         this_key = st.key_for(run_id, target)
         if len(self.run_id) > 1:
             job_name = f'{run_id}_{self.run_id[-1]}_{this_key}'
@@ -155,6 +158,8 @@ class ProcessRun:
                             )
         if debug:
             cmd += ' --debug'
+        if not_lazy:
+            cmd += ' --notlazy'
         if not sum([st.is_stored(run_id, 'raw_records') for run_id in self.run_id]):
             cmd += ' --build_lowlevel --rechunk_rr'
 
@@ -213,3 +218,33 @@ class ProcessRun:
                 finished = True
         return finished
 
+    def purge_below(self,
+                    delete_below='peaklets',
+                    exclude=('raw_records', 'records',)):
+        """
+        Delete all the data below the given peaklet
+        :param delete_below: target where below all the data
+        :param exclude:
+        :return:
+        """
+        for run_id in self.run_id:
+            exclude_extended = ()
+            for p in exclude:
+                exclude_extended += self.st._plugin_class_registry[p].provides
+            purgable = tuple(self.st._get_plugins((delete_below,), self.run_id[0]).keys())
+            for p in purgable:
+                if p in exclude_extended:
+                    continue
+                for sf in self.st.storage:
+                    key = self.st.key_for(run_id, p)
+                    try:
+                        sbe, path = sf.find(key)
+                    except strax.DataNotAvailable:
+                        continue
+                    if sbe != 'FileSytemBackend':
+                        continue
+                    for _path in [path, path + '_temp']:
+                        if not os.path.exists(_path):
+                            continue
+                        print(_path)
+                        shutil.rmtree(_path)
