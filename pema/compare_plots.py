@@ -129,110 +129,108 @@ def compare_outcomes(st_default, truth_vs_default,
         np.random.shuffle(peaks_idx)
     for peak_i in tqdm(peaks_idx[:max_peaks]):
         try:
-            if truth_vs_custom[peak_i]['outcome'] != truth_vs_default[peak_i]['outcome']:
+            t_range = (truth_vs_custom[peak_i]['time'] - fuzz,
+                       truth_vs_custom[peak_i]['endtime'] + fuzz)
 
-                t_range = (truth_vs_custom[peak_i]['time'] - fuzz,
-                           truth_vs_custom[peak_i]['endtime'] + fuzz)
+            f, axes = plt.subplots(3, 1,
+                                   figsize=(10, 10),
+                                   gridspec_kw={'height_ratios': [0.5, 1, 1]})
+            xlim = (t_range[0] - plot_fuzz) / 1e9, (t_range[1] + plot_fuzz) / 1e9
 
-                f, axes = plt.subplots(3, 1,
-                                       figsize=(10, 10),
-                                       gridspec_kw={'height_ratios': [0.5, 1, 1]})
-                xlim = (t_range[0] - plot_fuzz) / 1e9, (t_range[1] + plot_fuzz) / 1e9
+            plt.sca(axes[0])
+            plt.title('Instructions')
+            start_end = np.zeros(1, dtype=strax.time_fields)
+            start_end['time'] = t_range[0]
+            start_end['endtime'] = t_range[1]
+            run_mask = truth_vs_custom['run_id'] == truth_vs_custom[peak_i]['run_id']
+            for pk, pi in enumerate(
+                    range(*strax.touching_windows(truth_vs_custom[run_mask], start_end)[0])):
+                tpeak = truth_vs_custom[run_mask][pi]
+                hatch_cycle = ['/', '*', '+', '|']
+                _t_range = tpeak[['time', 'endtime']]
+                x = np.array(list(_t_range))
+                y = tpeak['n_photon'] / np.diff(x)
+                ct = tpeak['t_mean_photon']
+                stype = tpeak['type']
+                plt.gca()
+                plt.fill_between([x[0] / 1e9, ct / 1e9, x[-1] / 1e9, ],
+                                 [0, 0, 0], [0, 2 * y[0], 0],
+                                 color={1: 'blue',
+                                        2: 'green',
+                                        0: 'gray',
+                                        6: 'orange',
+                                        4: 'purple',
+                                        }[stype],
+                                 label=f'Peak S{stype}. {tpeak["n_photon"]} PE',
+                                 alpha=0.4,
+                                 hatch=hatch_cycle[pk]
+                                 )
+                plt.ylabel('Intensity [PE/ns]')
+            for t in t_range:
+                axvline(t / 1e9, label=f't = {t}')
 
-                plt.sca(axes[0])
-                plt.title('Instructions')
-                start_end = np.zeros(1, dtype=strax.time_fields)
-                start_end['time'] = t_range[0]
-                start_end['endtime'] = t_range[1]
-                run_mask = truth_vs_custom['run_id'] == truth_vs_custom[peak_i]['run_id']
-                for pk, pi in enumerate(
-                        range(*strax.touching_windows(truth_vs_custom[run_mask], start_end)[0])):
-                    tpeak = truth_vs_custom[run_mask][pi]
-                    hatch_cycle = ['/', '*', '+', '|']
-                    _t_range = tpeak[['time', 'endtime']]
-                    x = np.array(list(_t_range))
-                    y = tpeak['n_photon'] / np.diff(x)
-                    ct = tpeak['t_mean_photon']
-                    stype = tpeak['type']
-                    plt.gca()
-                    plt.fill_between([x[0] / 1e9, ct / 1e9, x[-1] / 1e9, ],
-                                     [0, 0, 0], [0, 2 * y[0], 0],
-                                     color={1: 'blue',
-                                            2: 'green',
-                                            0: 'gray',
-                                            6: 'orange',
-                                            4: 'purple',
-                                            }[stype],
-                                     label=f'Peak S{stype}. {tpeak["n_photon"]} PE',
-                                     alpha=0.4,
-                                     hatch=hatch_cycle[pk]
-                                     )
-                    plt.ylabel('Intensity [PE/ns]')
-                for t in t_range:
-                    axvline(t / 1e9, label=f't = {t}')
+            plt.legend(loc='lower left', fontsize='x-small')
 
-                plt.legend(loc='lower left', fontsize='x-small')
+            plt.xlim(*xlim)
 
-                plt.xlim(*xlim)
+            plt.sca(axes[1])
+            plt.title(default_label)
+            st_default.plot_peaks(truth_vs_custom[peak_i]['run_id'],
+                                  single_figure=False,
+                                  include_info=['area', 'rise_time', 'tight_coincidence'],
+                                  time_range=t_range)
+            for t in t_range:
+                axvline(t / 1e9, label=t)
+            plt.xlim(*xlim)
+            plt.gca().set_xticklabels([])
+            plt.xlabel('')
+            plt.text(0.05, 0.95,
+                     truth_vs_default[peak_i]['outcome'],
+                     transform=plt.gca().transAxes,
+                     ha='left',
+                     va='top',
+                     bbox=dict(boxstyle="round", fc="w")
+                     )
 
-                plt.sca(axes[1])
-                plt.title(default_label)
-                st_default.plot_peaks(truth_vs_custom[peak_i]['run_id'],
-                                      single_figure=False,
-                                      include_info=['area', 'rise_time', 'tight_coincidence'],
-                                      time_range=t_range)
-                for t in t_range:
-                    axvline(t / 1e9, label=t)
-                plt.xlim(*xlim)
-                plt.gca().set_xticklabels([])
-                plt.xlabel('')
-                plt.text(0.05, 0.95,
-                         truth_vs_default[peak_i]['outcome'],
-                         transform=plt.gca().transAxes,
-                         ha='left',
-                         va='top',
-                         bbox=dict(boxstyle="round", fc="w")
-                         )
+            plt.text(0.05, 0.1,
+                     '\n'.join(f'{prop[:10]}: {truth_vs_default[peak_i][prop]:.1f}' for prop in ['rec_bias', 'acceptance_fraction']),
+                     transform=plt.gca().transAxes,
+                     fontsize='small',
+                     ha='left',
+                     va='bottom',
+                     bbox=dict(boxstyle="round", fc="w"),
+                     alpha=0.8,
+                     )
 
-                plt.text(0.05, 0.1,
-                         '\n'.join(f'{prop[:10]}: {truth_vs_default[peak_i][prop]:.1f}' for prop in ['rec_bias', 'acceptance_fraction']),
-                         transform=plt.gca().transAxes,
-                         fontsize='small',
-                         ha='left',
-                         va='bottom',
-                         bbox=dict(boxstyle="round", fc="w"),
-                         alpha=0.8,
-                         )
-
-                plt.sca(axes[2])
-                plt.title(custom_label)
-                st_custom.plot_peaks(truth_vs_custom[peak_i]['run_id'],
-                                     single_figure=False,
-                                     include_info=['area', 'rise_time', 'tight_coincidence'],
-                                     time_range=t_range)
-                plt.text(0.05, 0.95,
-                         truth_vs_custom[peak_i]['outcome'],
-                         transform=plt.gca().transAxes,
-                         ha='left',
-                         va='top',
-                         bbox=dict(boxstyle="round", fc="w")
-                         )
-                plt.text(0.05, 0.1,
-                         '\n'.join(f'{prop[:10]}: {truth_vs_custom[peak_i][prop]:.1f}' for prop in ['rec_bias', 'acceptance_fraction']),
-                         transform=plt.gca().transAxes,
-                         fontsize='small',
-                         ha='left',
-                         va='bottom',
-                         bbox=dict(boxstyle="round", fc="w"),
-                         alpha=0.8,
-                         )
-                for t in t_range:
-                    axvline(t / 1e9, label=t)
-                plt.xlim(*xlim)
-                if fig_dir:
-                    pema.save_canvas(f'example_wf_{peak_i}', save_dir=fig_dir)
-                if show:
-                    plt.show()
+            plt.sca(axes[2])
+            plt.title(custom_label)
+            st_custom.plot_peaks(truth_vs_custom[peak_i]['run_id'],
+                                 single_figure=False,
+                                 include_info=['area', 'rise_time', 'tight_coincidence'],
+                                 time_range=t_range)
+            plt.text(0.05, 0.95,
+                     truth_vs_custom[peak_i]['outcome'],
+                     transform=plt.gca().transAxes,
+                     ha='left',
+                     va='top',
+                     bbox=dict(boxstyle="round", fc="w")
+                     )
+            plt.text(0.05, 0.1,
+                     '\n'.join(f'{prop[:10]}: {truth_vs_custom[peak_i][prop]:.1f}' for prop in ['rec_bias', 'acceptance_fraction']),
+                     transform=plt.gca().transAxes,
+                     fontsize='small',
+                     ha='left',
+                     va='bottom',
+                     bbox=dict(boxstyle="round", fc="w"),
+                     alpha=0.8,
+                     )
+            for t in t_range:
+                axvline(t / 1e9, label=t)
+            plt.xlim(*xlim)
+            if fig_dir:
+                pema.save_canvas(f'example_wf_{peak_i}', save_dir=fig_dir)
+            if show:
+                plt.show()
         except (ValueError, RuntimeError) as e:
             print(f'Error making {peak_i}: {type(e)}, {e}')
             plt.show()
