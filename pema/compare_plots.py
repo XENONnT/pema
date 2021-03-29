@@ -6,6 +6,7 @@ from straxen.analyses.waveform_plot import time_and_samples, seconds_range_xaxis
 import pema
 from tqdm.notebook import tqdm
 
+
 @straxen.mini_analysis(
     requires=('truth'),
     default_time_selection='touching',

@@ -15,11 +15,16 @@ log = logging.getLogger('Pema matching')
 
 @export
 class MatchPeaks(strax.Plugin):
-    __version__ = '0.0.5'
+    __version__ = '0.0.10'
     depends_on = ('truth', 'peak_basics')
     provides = ('truth_matched', 'peaks_matched')
     data_kind = immutabledict(truth_matched='truth',
                               peaks_matched='peaks')
+
+    def setup(self):
+        # keep track of number of peaks/truths seen for id of each.
+        self.truth_seen = 0
+        self.peaks_seen = 0
 
     def infer_dtype(self):
         dtypes = {}
@@ -41,7 +46,19 @@ class MatchPeaks(strax.Plugin):
         truth = truth.copy()
         truth.sort(order='time')
 
+        # Append fields
         truth = pema.append_fields(truth, 'area', truth['n_photon'])
+        truth = pema.append_fields(
+            truth,
+            'id',
+            np.arange(len(truth))+self.truth_seen,
+            dtypes=np.int64)
+        peaks = pema.append_fields(
+            peaks,
+            'id',
+            np.arange(len(peaks))+self.peaks_seen,
+            dtypes=np.int64)
+
         # hack endtime
         log.warning(f'Patching endtime in the truth')
         truth['endtime'] = truth['t_last_photon'].copy()
@@ -59,6 +76,8 @@ class MatchPeaks(strax.Plugin):
         for k in self.dtype['peaks_matched'].names:
             res_peak[k] = peak_vs_truth[k]
 
+        self.truth_seen += len(truth)
+        self.peaks_seen += len(peaks)
         return {'truth_matched': res_truth,
                 'peaks_matched': res_peak}
 

@@ -63,7 +63,7 @@ def match_peaks(allpeaks1, allpeaks2,
     for i, d in enumerate((allpeaks1, allpeaks2)):
         assert hasattr(d, 'dtype'), 'Cannot work with non-numpy arrays'
         m = ''
-        for k in ('area', 'type'):
+        for k in ('area', 'type', 'id'):
             if k not in d.dtype.names:
                 m += f'Argument {i} misses field {k} required for matching \n'
         if m != '':
@@ -72,16 +72,18 @@ def match_peaks(allpeaks1, allpeaks2,
     # Append id, outcome and matched_to fields
     allpeaks1 = pema.append_fields(
         allpeaks1,
-        ('id', 'outcome', 'matched_to'),
-        (np.arange(len(allpeaks1)),
-         np.array(['missed'] * len(allpeaks1), dtype=OUTCOME_DTYPE),
-         INT_NAN * np.ones(len(allpeaks1), dtype=np.int64)))
+        ('outcome', 'matched_to'),
+        (np.array(['missed'] * len(allpeaks1), dtype=OUTCOME_DTYPE),
+         INT_NAN * np.ones(len(allpeaks1), dtype=np.int64)),
+        dtypes=(OUTCOME_DTYPE, np.int64),
+    )
     allpeaks2 = pema.append_fields(
         allpeaks2,
-        ('id', 'outcome', 'matched_to'),
-        (np.arange(len(allpeaks2)),
-         np.array(['missed'] * len(allpeaks2), dtype=OUTCOME_DTYPE),
-         INT_NAN * np.ones(len(allpeaks2), dtype=np.int64)))
+        ('outcome', 'matched_to'),
+        (np.array(['missed'] * len(allpeaks2), dtype=OUTCOME_DTYPE),
+         INT_NAN * np.ones(len(allpeaks2), dtype=np.int64)),
+        dtypes=(OUTCOME_DTYPE, np.int64),
+    )
 
     log.debug('Getting windows')
     windows = strax.touching_windows(allpeaks1, allpeaks2, window=matching_fuzz)
