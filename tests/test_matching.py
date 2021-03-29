@@ -35,10 +35,12 @@ def test_combine_and_flip(length, dtypenum):
 def test_matching(data_length, truth_length, max_duration, n_data_types, n_truth_types):
     dtype = [(('Start time since unix epoch [ns]', 'time'), np.int64),
              (('Exclusive end time since unix epoch [ns]', 'endtime'), np.int64),
+             (('Number', 'id'), np.int64),
              (('type of p', 'type'), np.int16),
              (('area of p', 'area'), np.float64)]
 
     data = np.zeros(data_length, dtype=dtype)
+    data['id'] = np.arange(data_length)
     data['time'] = np.random.randint(0, 1e9, data_length)
 
     data['endtime'] = data['time']
