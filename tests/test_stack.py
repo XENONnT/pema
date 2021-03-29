@@ -1,21 +1,10 @@
 import pema
 import os
-import socket
 import strax
 import straxen
 import wfsim
 import os
-import pandas
-import numba
-import time
-import numpy as np
 import pema
-import ntauxfiles
-import json
-import nestpy
-from tqdm import tqdm
-import matplotlib.pyplot as plt
-from matplotlib.colors import LogNorm
 import logging
 import tempfile
 straxen.print_versions(['strax', 'straxen', 'wfsim', 'nestpy', 'pema'])
