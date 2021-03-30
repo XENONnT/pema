@@ -92,19 +92,8 @@ def match_peaks(allpeaks1, allpeaks2,
     # belonging to allpeaks1. We also need to go the reverse way, which
     # I'm calling deep_windows below.
     # TODO Numbafy
-    _deep_windows = []
-    for l1, r1 in tqdm(windows, desc='Get deep windows'):
-        this_window = [-1, -1]
-        if r1 - l1:
-            match = strax.touching_windows(allpeaks2,
-                                           allpeaks1[l1:r1],
-                                           window=matching_fuzz)
-            if len(match):
-                this_window = match[0]
-            else:
-                log.debug(f'No match for {l1}-{r1}?')
-        _deep_windows.append(this_window)
-    deep_windows = np.array(_deep_windows, dtype=(np.int64, np.int64))
+    deep_windows = get_deepwindows(windows, allpeaks1, allpeaks2, matching_fuzz)
+    # deep_windows = np.array(_deep_windows, dtype=(np.int64, np.int64))
     log.debug(f'Got {len(deep_windows)} deep windows and {len(windows)} windows')
 
     if not len(deep_windows):
@@ -227,6 +216,23 @@ def handle_peak_merge(parent, fragments, unknown_types):
 
 # --- Numba functions where numpy does not suffice ---
 # TODO write tests
+
+@numba.jit
+def get_deepwindows(windows, peaks_a, peaks_b, matching_fuzz):
+    _deep_windows = []
+    for l1, r1 in windows:
+        this_window = [-1, -1]
+        if r1 - l1:
+            match = strax.touching_windows(peaks_a,
+                                           peaks_b[l1:r1],
+                                           window=matching_fuzz)
+            if len(match):
+                this_window = match[0]
+            else:
+                # No match
+                pass
+        _deep_windows.append(this_window)
+    return np.array(_deep_windows, dtype=(np.int64, np.int64))
 
 
 @numba.njit
