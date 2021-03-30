@@ -217,22 +217,24 @@ def handle_peak_merge(parent, fragments, unknown_types):
 # --- Numba functions where numpy does not suffice ---
 # TODO write tests
 
-@numba.jit
+# @numba.jit
 def get_deepwindows(windows, peaks_a, peaks_b, matching_fuzz):
-    _deep_windows = []
-    for l1, r1 in windows:
-        this_window = [-1, -1]
+    """Get matching window of the matched peak versus the original peak"""
+    n_windows = len(windows)
+    _deep_windows = np.ones((n_windows, 2), dtype=np.int64)*-1
+    for window_i, w in enumerate(windows):
+        l1, r1 = w
         if r1 - l1:
             match = strax.touching_windows(peaks_a,
                                            peaks_b[l1:r1],
                                            window=matching_fuzz)
             if len(match):
                 this_window = match[0]
+                _deep_windows[window_i] = this_window
             else:
                 # No match
                 pass
-        _deep_windows.append(this_window)
-    return np.array(_deep_windows, dtype=(np.int64, np.int64))
+    return _deep_windows
 
 
 @numba.njit
