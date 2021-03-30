@@ -95,7 +95,7 @@ def match_peaks(allpeaks1, allpeaks2,
         deep_windows = get_deepwindows(windows, allpeaks1, allpeaks2, matching_fuzz)
         log.debug(f'Got {len(deep_windows)} deep windows and {len(windows)} windows')
 
-    if not len(windows) or not len(deep_windows):
+    if not len(windows):
         # patch for empty data
         deep_windows = np.array([[-1, -1]], dtype=(np.int64, np.int64))
     assert np.shape(np.shape(deep_windows))[0] == 2, (
