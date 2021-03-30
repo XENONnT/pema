@@ -217,7 +217,7 @@ def handle_peak_merge(parent, fragments, unknown_types):
 # --- Numba functions where numpy does not suffice ---
 # TODO write tests
 
-# @numba.jit
+@numba.njit
 def get_deepwindows(windows, peaks_a, peaks_b, matching_fuzz):
     """Get matching window of the matched peak versus the original peak"""
     n_windows = len(windows)
@@ -225,9 +225,10 @@ def get_deepwindows(windows, peaks_a, peaks_b, matching_fuzz):
     for window_i, w in enumerate(windows):
         l1, r1 = w
         if r1 - l1:
-            match = strax.touching_windows(peaks_a,
-                                           peaks_b[l1:r1],
-                                           window=matching_fuzz)
+            match = strax.processing.general._touching_windows(
+                peaks_a['time'], strax.endtime(peaks_a),
+                peaks_b[l1:r1]['time'], strax.endtime(peaks_b[l1:r1]),
+                window=matching_fuzz)
             if len(match):
                 this_window = match[0]
                 _deep_windows[window_i] = this_window
