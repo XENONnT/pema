@@ -87,7 +87,7 @@ def match_peaks(allpeaks1, allpeaks2,
 
     log.debug('Getting windows')
     windows = strax.touching_windows(allpeaks1, allpeaks2, window=matching_fuzz)
-
+    deep_windows = np.empty((0, 2), dtype=(np.int64, np.int64))
     # Each of the windows projects to a set of peaks in allpeaks2
     # belonging to allpeaks1. We also need to go the reverse way, which
     # I'm calling deep_windows below.
