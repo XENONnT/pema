@@ -38,6 +38,8 @@ jobs:
         run: |
             pytest -v
       - name: Build coverage file
+        env:
+          NUMBA_DISABLE_JIT: 1
         run: |
           pytest --cache-clear --cov=pema > pytest-coverage.txt
       - name: Comment coverage
