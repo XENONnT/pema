@@ -57,7 +57,7 @@ def test_matching(data_length,
     if max_duration:
         # randint does not work for 0, 0 interval, hence we only add it if max_duration>0
         data['endtime'] += np.random.randint(0, max_duration, data_length)
-        data['endtime'][:-1] = np.clip(data['endtime'][:-1], data['time'][:-1], data['time'][1:],)
+        data['endtime'][:-1] = np.clip(data['endtime'][:-1], data['time'][:-1], data['time'][1:], )
     data['type'] = np.random.randint(0, n_data_types + 1, data_length)
 
     truth = np.zeros(truth_length, dtype=dtype)
@@ -68,7 +68,8 @@ def test_matching(data_length,
     if max_duration:
         # randint does not work for 0, 0 interval, hence we only add it if max_duration>0
         truth['endtime'] += np.random.randint(0, max_duration, truth_length)
-        truth['endtime'][:-1] = np.clip(truth['endtime'][:-1], truth['time'][:-1], truth['time'][1:])
+        truth['endtime'][:-1] = np.clip(truth['endtime'][:-1], truth['time'][:-1],
+                                        truth['time'][1:])
     truth['type'] = np.random.randint(0, n_truth_types + 1, truth_length)
 
     print(len(data), len(truth))
