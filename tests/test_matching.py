@@ -26,7 +26,7 @@ def test_combine_and_flip(length, dtypenum):
     # Max length of the truth
     strategies.integers(min_value=0, max_value=1000),
     # Max duration in [ns]
-    strategies.integers(min_value=0, max_value=1_000_000),
+    strategies.integers(min_value=0, max_value=10_000),
     # Number of peak-types in data
     strategies.integers(min_value=1, max_value=10),
     # Number of peak-types in truth
@@ -84,7 +84,7 @@ def test_matching(data_length,
     # Max length of the truth
     strategies.integers(min_value=0, max_value=1000),
     # Max duration in [ns]
-    strategies.integers(min_value=0, max_value=1_000_000),
+    strategies.integers(min_value=0, max_value=10_000),
     # Number of peak-types in data
     strategies.integers(min_value=0, max_value=10),
     # Number of peak-types in truth
