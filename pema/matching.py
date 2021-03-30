@@ -91,12 +91,11 @@ def match_peaks(allpeaks1, allpeaks2,
     # Each of the windows projects to a set of peaks in allpeaks2
     # belonging to allpeaks1. We also need to go the reverse way, which
     # I'm calling deep_windows below.
-    # TODO Numbafy
-    deep_windows = get_deepwindows(windows, allpeaks1, allpeaks2, matching_fuzz)
-    # deep_windows = np.array(_deep_windows, dtype=(np.int64, np.int64))
-    log.debug(f'Got {len(deep_windows)} deep windows and {len(windows)} windows')
+    if len(windows):
+        deep_windows = get_deepwindows(windows, allpeaks1, allpeaks2, matching_fuzz)
+        log.debug(f'Got {len(deep_windows)} deep windows and {len(windows)} windows')
 
-    if not len(deep_windows):
+    if not len(windows) or not len(deep_windows):
         # patch for empty data
         deep_windows = np.array([[-1, -1]], dtype=(np.int64, np.int64))
     assert np.shape(np.shape(deep_windows))[0] == 2, (
@@ -214,14 +213,11 @@ def handle_peak_merge(parent, fragments, unknown_types):
     parent['matched_to'] = fragments[_max_idx]['id']
 
 
-# --- Numba functions where numpy does not suffice ---
-# TODO write tests
-
-@numba.njit
+@numba.jit
 def get_deepwindows(windows, peaks_a, peaks_b, matching_fuzz):
     """Get matching window of the matched peak versus the original peak"""
     n_windows = len(windows)
-    _deep_windows = np.ones((n_windows, 2), dtype=np.int64)*-1
+    _deep_windows = np.ones((n_windows, 2), dtype=np.int64) * -1
     for window_i, w in enumerate(windows):
         l1, r1 = w
         if r1 - l1:
@@ -238,6 +234,7 @@ def get_deepwindows(windows, peaks_a, peaks_b, matching_fuzz):
     return _deep_windows
 
 
+# --- Numba functions where numpy does not suffice ---
 @numba.njit
 def _in1d(arr1, arr2):
     """
