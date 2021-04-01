@@ -213,7 +213,7 @@ def handle_peak_merge(parent, fragments, unknown_types):
     parent['matched_to'] = fragments[_max_idx]['id']
 
 
-@numba.jit
+# @numba.jit
 def get_deepwindows(windows, peaks_a, peaks_b, matching_fuzz):
     """Get matching window of the matched peak versus the original peak"""
     n_windows = len(windows)

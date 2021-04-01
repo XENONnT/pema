@@ -22,7 +22,7 @@ class MatchPeaks(strax.Plugin):
         define the outcome of the matching (see pema.matching for
         possible outcomes).
     """
-    __version__ = '0.1.0'
+    __version__ = '0.1.1'
     depends_on = ('truth', 'peak_basics')
     provides = ('truth_matched', 'peaks_matched')
     data_kind = immutabledict(truth_matched='truth',
@@ -133,7 +133,7 @@ class AcceptanceComputer(strax.Plugin):
         an S2 into small S1 signals that could affect event
         reconstruction).
     """
-    __version__ = '0.0.0'
+    __version__ = '0.0.1'
     depends_on = ('truth_extended', 'peaks_extended')
     provides = 'match_acceptance'
     data_kind = 'truth'
@@ -198,6 +198,9 @@ class AcceptanceComputer(strax.Plugin):
         for ti, t in enumerate(truth):
             peak_i = t['matched_to']
             if peak_i != no_peak_found:
+                if t['n_photon'] == 0:
+                    # How do we get 0 photons in instruction?
+                    continue
                 if t['type'] == peaks[peak_i]['type']:
                     frac = peaks[peak_i]['area'] / t['n_photon']
                     buffer[ti] = frac
