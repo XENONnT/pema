@@ -146,7 +146,7 @@ def test_deepwindows(data_length,
 
 
 def get_deepwindows(windows, peaks_a, peaks_b, matching_fuzz):
-    """Do it the non-numba way, should work as well but is slower"""
+    """Do it the non-numba way, should work as well but is slower"""    
     _deep_windows = []
     for l1, r1 in windows:
         this_window = [-1, -1]
@@ -159,4 +159,5 @@ def get_deepwindows(windows, peaks_a, peaks_b, matching_fuzz):
             else:
                 pass
         _deep_windows.append(this_window)
-    return np.array(_deep_windows, dtype=(np.int64, np.int64))
+    deep_windows = np.array(_deep_windows, dtype=(np.int64, np.int64))
+    return deep_windows
