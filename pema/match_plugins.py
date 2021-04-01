@@ -15,7 +15,14 @@ log = logging.getLogger('Pema matching')
 
 @export
 class MatchPeaks(strax.Plugin):
-    __version__ = '0.0.10'
+    """
+    Match WFSim truth to the outcome peaks. To this end use the
+        matching algorithm of pema. Assign a peak-id to both the truth
+        and the reconstructed peaks to be able to match the two. Also
+        define the outcome of the matching (see pema.matching for
+        possible outcomes).
+    """
+    __version__ = '0.1.0'
     depends_on = ('truth', 'peak_basics')
     provides = ('truth_matched', 'peaks_matched')
     data_kind = immutabledict(truth_matched='truth',
@@ -84,6 +91,7 @@ class MatchPeaks(strax.Plugin):
 
 @export
 class TruthExtended(strax.MergeOnlyPlugin):
+    """Merge fields added in merging to truth"""
     __version__ = '0.0.0'
     depends_on = ('truth', 'truth_matched')
     provides = 'truth_extended'
@@ -93,6 +101,7 @@ class TruthExtended(strax.MergeOnlyPlugin):
 
 @export
 class PeaksExtended(strax.MergeOnlyPlugin):
+    """Merge fields added in merging to peaks"""
     __version__ = '0.0.0'
     depends_on = ('peak_basics', 'peaks_matched')
     provides = 'peaks_extended'
@@ -117,6 +126,13 @@ class PeaksExtended(strax.MergeOnlyPlugin):
                  help='If the '),
 )
 class AcceptanceComputer(strax.Plugin):
+    """
+    Compute the acceptance of the matched peaks. This is done on the
+        basis of arbitrary settings to allow better to disentangle
+        possible scenarios that might be undesirable (like splitting
+        an S2 into small S1 signals that could affect event
+        reconstruction).
+    """
     __version__ = '0.0.0'
     depends_on = ('truth_extended', 'peaks_extended')
     provides = 'match_acceptance'
@@ -141,26 +157,44 @@ class AcceptanceComputer(strax.Plugin):
         res['endtime'] = strax.endtime(truth)
         res['is_found'] = truth['outcome'] == 'found'
 
+        # Calculate the reconstruction bias and correct for the DPE fraction
         rec_bias = np.zeros(len(truth), dtype=np.float64)
         rec_bias = self.compute_rec_bias(truth, peaks, rec_bias)
         rec_bias /= (1 + self.config['dpe_fraction'])
         res['rec_bias'] = rec_bias
 
+        # S1 acceptane is simply is the peak found or not
         s1_mask = truth['type'] == 1
         res['acceptance_fraction'][s1_mask] = res['is_found'][s1_mask].astype(np.float)
 
+        # For the S2 acceptance we calculate an arbitrary acceptance
+        # that takes into account penalty factors and that S2s may be
+        # split (as long as their bias fraction is not too small).
         s2_mask = truth['type'] == 2
         s2_outcomes = truth['outcome'][s2_mask].copy()
         s2_acceptance = (rec_bias[s2_mask] > self.config['min_s2_bias_rec']).astype(np.float)
         for outcome, penalty in self.config['penalty_s2_by']:
             s2_out_mask = s2_outcomes == outcome
             s2_acceptance[s2_out_mask] = penalty
+
+        # now update the acceptance fraction in the results
         res['acceptance_fraction'][s2_mask] = s2_acceptance
         return res
 
     @staticmethod
     @numba.njit
     def compute_rec_bias(truth, peaks, buffer, no_peak_found=pema.matching.INT_NAN):
+        """
+        For the truth, find the corresponding (main) peak and calculate
+            how much of the area is found correctly
+        :param truth: truth array
+        :param peaks: peaks array (reconstructed)
+        :param buffer: array of the same length as the truth for filling
+            the result
+        :param no_peak_found: classifier of the truth outcomes where no
+            matching peak was found
+        :return: array of length truth results of the reconstruction bias
+        """
         for ti, t in enumerate(truth):
             peak_i = t['matched_to']
             if peak_i != no_peak_found:
@@ -173,9 +207,9 @@ class AcceptanceComputer(strax.Plugin):
 
 
 class AcceptanceExtended(strax.MergeOnlyPlugin):
+    """Merge the matched acceptance to the extended truth"""
     __version__ = '0.0.0'
     depends_on = ('match_acceptance', 'truth_extended')
     provides = 'match_acceptance_extended'
     data_kind = 'truth'
     save_when = strax.SaveWhen.TARGET
-
