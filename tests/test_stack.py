@@ -5,17 +5,11 @@ import straxen
 import wfsim
 import os
 import pema
-import logging
+
 import tempfile
 straxen.print_versions(['strax', 'straxen', 'wfsim', 'nestpy', 'pema'])
 
 run_id = '008000'
-
-logging.basicConfig(
-    level=logging.DEBUG,
-    format='%(asctime)s %(name)s %(levelname)-8s %(message)s',
-    datefmt='%m-%d %H:%M')
-log = logging.getLogger()
 
 
 class RunSim:
@@ -35,7 +29,7 @@ class RunSim:
             timing='uniform',
         )
 
-        log.info(f'Init done')
+        print(f'Init done')
 
     def run(self):
         with tempfile.TemporaryDirectory() as temp_dir:
@@ -46,8 +40,8 @@ class RunSim:
                     get_inst_from=pema.rand_instructions)
 
                 config_update = {
-                    "detector":'XENONnT',
-                    "fax_file":os.path.abspath(instructions_csv),
+                    "detector": 'XENONnT',
+                    "fax_file": os.path.abspath(instructions_csv),
                     "fax_config": 'fax_config_nt_low_field.json',
                 }
 
@@ -65,7 +59,7 @@ class RunSim:
                      'max_messages': 10,
                      }
                 )
-                log.info(f'Start script')
+                print(f'Start script')
                 script_writer = pema.ProcessRun(st, run_id,
                                                 ('raw_records', 'records',
                                                  'peaklets', 'peaks_matched',
@@ -74,11 +68,11 @@ class RunSim:
 
                 cmd, name = script_writer.make_cmd()
                 ret = script_writer.exec_local(cmd, name)
-                log.info(f'Starting\n\t{cmd}')
-                log.info(script_writer.log_file.communicate())
+                print(f'Starting\n\t{cmd}')
+                print(script_writer.log_file.communicate())
 
-                log.info(f'Done')
-                log.info(f'{script_writer.all_stored()}')
+                print(f'Done')
+                print(f'Stored: {script_writer.all_stored()}')
                 assert script_writer.all_stored(return_bool=True)
             # On windows, you cannot delete the current process'
             # working directory, so we have to chdir out first.

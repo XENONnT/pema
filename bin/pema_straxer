@@ -200,14 +200,13 @@ def main(args):
                 t = d.end / 1e9
                 dt = t - t_start
                 time_left = t_end - t
-
                 msg = (f"Got {len(d)} items. "
-                       f"Now {dt:.1f} sec / {100 * dt / run_duration:.1f}% into the run. "
+                       f"Now {dt:.1f} sec / {100 * dt / max(run_duration, 1):.1f}% into the run. "
                        f"Using {mem_mb:.1f} MB RAM. R{run_i}-T{tar_i}")
                 if clock_start is not None:
                     # Compute processing job clock time left
                     d_clock = time.time() - clock_start
-                    clock_time_left = time_left / (dt / d_clock)
+                    clock_time_left = time_left / max(dt / d_clock, 1)
                     msg += f"ETA {clock_time_left:.2f} sec."
                 else:
                     clock_start = time.time()

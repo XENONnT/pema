@@ -71,8 +71,6 @@ def test_matching(data_length,
         truth['endtime'][:-1] = np.clip(truth['endtime'][:-1], truth['time'][:-1],
                                         truth['time'][1:])
     truth['type'] = np.random.randint(0, n_truth_types + 1, truth_length)
-
-    print(len(data), len(truth))
     d_matched, t_matched = pema.match_peaks(data, truth)
     assert len(d_matched) == len(data)
     assert len(t_matched) == len(truth)
@@ -146,7 +144,7 @@ def test_deepwindows(data_length,
 
 
 def get_deepwindows(windows, peaks_a, peaks_b, matching_fuzz):
-    """Do it the non-numba way, should work as well but is slower"""    
+    """Do it the non-numba way, should work as well but is slower"""
     _deep_windows = []
     for l1, r1 in windows:
         this_window = [-1, -1]
