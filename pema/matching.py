@@ -92,7 +92,8 @@ def match_peaks(allpeaks1, allpeaks2,
     # belonging to allpeaks1. We also need to go the reverse way, which
     # I'm calling deep_windows below.
     if len(windows):
-        deep_windows = get_deepwindows(windows, allpeaks1, allpeaks2, matching_fuzz)
+        # The order matters!! We matched allpeaks1->allpeaks2 so we now should match allpeaks2->allpeaks1
+        deep_windows = get_deepwindows(windows, allpeaks2, allpeaks1, matching_fuzz)
         log.debug(f'Got {len(deep_windows)} deep windows and {len(windows)} windows')
 
     if not len(windows):
