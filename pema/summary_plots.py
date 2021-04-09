@@ -172,3 +172,41 @@ def acceptance_plot_simple(data, on_axis, bin_edges, plot_label=""):
                  label=plot_label,
                  )
     plt.xlabel(on_axis.replace('_', ' '))
+
+
+def calc_arb_acceptance(data, on_axis, bin_edges, nbins=None,)->tuple:
+    """Calculate acceptance on given axis"""
+    if nbins is None:
+        nbins = bin_edges[-1] - bin_edges[0]
+    be = np.linspace(*bin_edges, nbins + 1)
+    bin_centers = (be[1:] + be[:-1]) / 2
+    total = np.zeros(len(bin_centers))
+    found = np.zeros(len(bin_centers))
+
+    data_remaining = data[[on_axis, 'acceptance_fraction']].copy()
+    for bi in range(len(be) - 1):
+        mask = (data_remaining[on_axis] >= be[bi]) & (data_remaining[on_axis] < be[bi + 1])
+        total[bi] = len(data_remaining[mask])
+        found[bi] = np.sum(data_remaining[mask]['acceptance_fraction'])
+        data_remaining = data_remaining[~mask]
+
+    values, yerr = get_interval(bin_centers, total, found)
+    return bin_centers, values, yerr
+
+
+def acceptance_plot(data, on_axis, bin_edges, nbins=None, plot_label=""):
+    """
+    Compute acceptance from data using acceptance_fraction
+    (this is an arbitrary weighing of the acceptance based on the outcome of matching)
+    """
+    bin_centers, values, yerr = calc_arb_acceptance(data, on_axis, bin_edges, nbins)
+    plt.errorbar(x=bin_centers,
+                 y=values,
+                 yerr=yerr,
+                 linestyle='none',
+                 marker='o',
+                 markersize=4,
+                 capsize=3,
+                 label=plot_label,
+                 )
+    plt.xlabel(on_axis.replace('_', ' '))

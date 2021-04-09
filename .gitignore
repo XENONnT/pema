@@ -14,7 +14,7 @@ xenon_secrets.py
 strax_data
 resource_cache
 raw
-
+*.csv
 # cProfile output
 *.prof
 

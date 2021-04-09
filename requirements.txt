@@ -5,3 +5,4 @@ wfsim>=0.2.5
 multihist
 numba
 numpy
+nestpy

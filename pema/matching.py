@@ -12,7 +12,6 @@ import pema
 import strax
 import numba
 import logging
-from tqdm import tqdm
 
 logging.basicConfig(
     level=logging.INFO,
@@ -63,7 +62,7 @@ def match_peaks(allpeaks1, allpeaks2,
     for i, d in enumerate((allpeaks1, allpeaks2)):
         assert hasattr(d, 'dtype'), 'Cannot work with non-numpy arrays'
         m = ''
-        for k in ('area', 'type'):
+        for k in ('area', 'type', 'id'):
             if k not in d.dtype.names:
                 m += f'Argument {i} misses field {k} required for matching \n'
         if m != '':
@@ -72,39 +71,31 @@ def match_peaks(allpeaks1, allpeaks2,
     # Append id, outcome and matched_to fields
     allpeaks1 = pema.append_fields(
         allpeaks1,
-        ('id', 'outcome', 'matched_to'),
-        (np.arange(len(allpeaks1)),
-         np.array(['missed'] * len(allpeaks1), dtype=OUTCOME_DTYPE),
-         INT_NAN * np.ones(len(allpeaks1), dtype=np.int64)))
+        ('outcome', 'matched_to'),
+        (np.array(['missed'] * len(allpeaks1), dtype=OUTCOME_DTYPE),
+         INT_NAN * np.ones(len(allpeaks1), dtype=np.int64)),
+        dtypes=(OUTCOME_DTYPE, np.int64),
+    )
     allpeaks2 = pema.append_fields(
         allpeaks2,
-        ('id', 'outcome', 'matched_to'),
-        (np.arange(len(allpeaks2)),
-         np.array(['missed'] * len(allpeaks2), dtype=OUTCOME_DTYPE),
-         INT_NAN * np.ones(len(allpeaks2), dtype=np.int64)))
+        ('outcome', 'matched_to'),
+        (np.array(['missed'] * len(allpeaks2), dtype=OUTCOME_DTYPE),
+         INT_NAN * np.ones(len(allpeaks2), dtype=np.int64)),
+        dtypes=(OUTCOME_DTYPE, np.int64),
+    )
 
     log.debug('Getting windows')
     windows = strax.touching_windows(allpeaks1, allpeaks2, window=matching_fuzz)
-
+    deep_windows = np.empty((0, 2), dtype=(np.int64, np.int64))
     # Each of the windows projects to a set of peaks in allpeaks2
     # belonging to allpeaks1. We also need to go the reverse way, which
     # I'm calling deep_windows below.
-    _deep_windows = []
-    for l1, r1 in tqdm(windows, desc='Get deep windows'):
-        this_window = [-1, -1]
-        if r1 - l1:
-            match = strax.touching_windows(allpeaks2,
-                                           allpeaks1[l1:r1],
-                                           window=matching_fuzz)
-            if len(match):
-                this_window = match[0]
-            else:
-                log.debug(f'No match for {l1}-{r1}?')
-        _deep_windows.append(this_window)
-    deep_windows = np.array(_deep_windows, dtype=(np.int64, np.int64))
-    log.debug(f'Got {len(deep_windows)} deep windows and {len(windows)} windows')
+    if len(windows):
+        # The order matters!! We matched allpeaks1->allpeaks2 so we now should match allpeaks2->allpeaks1
+        deep_windows = get_deepwindows(windows, allpeaks2, allpeaks1, matching_fuzz)
+        log.debug(f'Got {len(deep_windows)} deep windows and {len(windows)} windows')
 
-    if not len(deep_windows):
+    if not len(windows):
         # patch for empty data
         deep_windows = np.array([[-1, -1]], dtype=(np.int64, np.int64))
     assert np.shape(np.shape(deep_windows))[0] == 2, (
@@ -222,10 +213,28 @@ def handle_peak_merge(parent, fragments, unknown_types):
     parent['matched_to'] = fragments[_max_idx]['id']
 
 
+# @numba.jit
+def get_deepwindows(windows, peaks_a, peaks_b, matching_fuzz):
+    """Get matching window of the matched peak versus the original peak"""
+    n_windows = len(windows)
+    _deep_windows = np.ones((n_windows, 2), dtype=np.int64) * -1
+    for window_i, w in enumerate(windows):
+        l1, r1 = w
+        if r1 - l1:
+            match = strax.processing.general._touching_windows(
+                peaks_a['time'], strax.endtime(peaks_a),
+                peaks_b[l1:r1]['time'], strax.endtime(peaks_b[l1:r1]),
+                window=matching_fuzz)
+            if len(match):
+                this_window = match[0]
+                _deep_windows[window_i] = this_window
+            else:
+                # No match
+                pass
+    return _deep_windows
+
+
 # --- Numba functions where numpy does not suffice ---
-# TODO write tests
-
-
 @numba.njit
 def _in1d(arr1, arr2):
     """

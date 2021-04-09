@@ -18,23 +18,28 @@ import json
 import pema
 import gc
 
+
 def parse_args():
     parser = argparse.ArgumentParser(
-        description='Process a single run with straxen',
+        description='Process a single run with pema',
         formatter_class=argparse.ArgumentDefaultsHelpFormatter)
     parser.add_argument(
         'run_id',
         metavar='RUN_ID',
-        type=str,
+        nargs='*',
         help="ID of the run to process; usually the run name.")
     parser.add_argument(
         '--context',
         default='xenon1t_dali',
-        help="Name of straxen context to use")
+        help="Name of pema context to use")
     parser.add_argument(
         '--target',
+        nargs='*',
         default='event_info',
         help='Target final data type to produce')
+    parser.add_argument(
+        '--init_from_json', default='',
+        help='Use a json file to use for the start of the context')
     parser.add_argument(
         '--config_from_json', default='',
         help='Use a json-file to load the config from')
@@ -96,18 +101,6 @@ def parse_args():
         '--rechunk_rr',
         action='store_true',
         help='Rechunk the raw-records (especially useful when simulating data)')
-    parser.add_argument(
-        '--only_strax_data',
-        action='store_true',
-        help='Only use ./strax_data (if not on dali).')
-    parser.add_argument(
-        '--add_folder',
-        default='',
-        help='Also add folder to st.storage')
-    parser.add_argument(
-        '--input_folder',
-        default='',
-        help='Add a readonly folder to st.storage')
     return parser.parse_args()
 
 
@@ -116,34 +109,43 @@ def main(args):
         level=logging.DEBUG if args.debug else logging.INFO,
         format='%(asctime)s - %(threadName)s - %(name)s - %(levelname)s - %(message)s')
 
-    print(f"Starting processing of run {args.run_id} until {args.target}")
-    print(f"\tpython {platform.python_version()} at {sys.executable}")
+    logging.info(f"Starting processing of run {args.run_id} until {args.target}")
+    logging.info(f"\tpython {platform.python_version()} at {sys.executable}")
 
     # These imports take a bit longer, so it's nicer
     # to do them after argparsing (so --help is fast)
     import strax
-    print(f"\tstrax {strax.__version__} at {osp.dirname(strax.__file__)}")
     import straxen
-    print(f"\tstraxen {straxen.__version__} at {osp.dirname(straxen.__file__)}")
+    straxen.print_versions(['strax', 'straxen', 'pema', 'wfsim'])
 
-    st = getattr(straxen.contexts, args.context)()
+    if args.init_from_json != '':
+        context_init = json_to_dict(args.init_from_json)
+        logging.info(f'Overwriting context with {context_init}')
+    else:
+        context_init = {}
+
+    st = getattr(pema.contexts, args.context)(**context_init)
+
     # ignore strax warnings
     st.set_context_config({'free_options': tuple(st.config.keys())})
 
-    # Add peak matching plugins
-    st.register_all(pema.match_plugins)
-
     if args.diagnose_sorting:
         st.set_config(dict(diagnose_sorting=True))
+
     if args.config_from_json != '':
         conf = json_to_dict(args.config_from_json)
+        logging.info(f'Overwriting config with {conf}')
         st.set_config(conf)
+
     st.context_config['allow_multiprocess'] = args.multiprocess
     st.context_config['allow_shm'] = args.shm
     st.context_config['allow_lazy'] = not (args.notlazy is True)
+
     if args.timeout is not None:
         st.context_config['timeout'] = args.timeout
+
     st.context_config['max_messages'] = args.max_messages
+
     if args.build_lowlevel:
         st.context_config['forbid_creation_of'] = tuple()
         if args.rechunk_rr:
@@ -153,91 +155,90 @@ def main(args):
     else:
         st.context_config['forbid_creation_of'] = straxen.DAQReader.provides
 
-    if args.from_scratch:
-        for q in st.storage:
-            q.take_only = ('raw_records',)
-        st.storage.append(
-            strax.DataDirectory('./strax_data',
-                                overwrite='always',
-                                provide_run_metadata=False))
-    if args.only_strax_data:
-        for sf in st.storage:
-            # Set all others to read only
-            sf.readonly = True
-        # TODO
-        #  should we check that it doesn't exist already?
-        st.storage += [
-            strax.DataDirectory('./strax_data')]
-    if args.add_folder != '':
-        for sf in st.storage:
-            # Set all others to read only
-            sf.readonly = True
-        if os.path.exists(args.add_folder):
-            st.storage += [strax.DataDirectory(args.add_folder)]
-    if args.input_folder != '':
-        st.storage += [strax.DataDirectory(args.input_folder, readonly=True)]
-    #if st.is_stored(args.run_id, args.target):
-    #    logging.info("This data is already available.")
-    #    return 1
-
-    try:
-        md = st.run_metadata(args.run_id)
-        t_start = md['start'].replace(tzinfo=datetime.timezone.utc).timestamp()
-        t_end = md['end'].replace(tzinfo=datetime.timezone.utc).timestamp()
-        st.config['run_start_time'] = md['start'].timestamp()
-        st.context_config['free_options'] = tuple(
-            list(st.context_config['free_options']) + ['run_start_time'])
-    except (strax.RunMetadataNotAvailable, IndexError):
-        t_start, t_end = st.estimate_run_start_and_end(args.run_id, 'raw_records')
-        t_start, t_end = t_start/1e9, t_end/1e9
-    run_duration = t_end - t_start
+    def estimate_time(run_id):
+        try:
+            md = st.run_metadata(run_id)
+            t_start = md['start'].replace(tzinfo=datetime.timezone.utc).timestamp()
+            t_end = md['end'].replace(tzinfo=datetime.timezone.utc).timestamp()
+            st.config['run_start_time'] = md['start'].timestamp()
+            st.context_config['free_options'] = tuple(
+                list(st.context_config['free_options']) + ['run_start_time'])
+        except (strax.RunMetadataNotAvailable, IndexError):
+            t_start, t_end = st.estimate_run_start_and_end(run_id, 'raw_records')
+            t_start, t_end = t_start/1e9, t_end/1e9
+        run_duration = t_end - t_start
+        return t_start, t_end, run_duration
 
     process = psutil.Process(os.getpid())
     peak_ram = 0
 
-    def get_results():
+    def get_results(run_id, target):
         kwargs = dict(
-            run_id=args.run_id,
-            targets=args.target,
+            run_id=run_id,
+            targets=target,
             max_workers=int(args.workers))
 
         if args.profile_to:
-            with strax.profile_threaded(args.profile_to):
+            with strax.profile_threaded(args.profile_to+run_id+target):
                 yield from st.get_iter(**kwargs)
         else:
             yield from st.get_iter(**kwargs)
 
     clock_start = None
-    for i, d in enumerate(get_results()):
-        mem_mb = process.memory_info().rss / 1e6
-        peak_ram = max(mem_mb, peak_ram)
+    for run_i, run_id in enumerate(strax.to_str_tuple(args.run_id)):
+        for tar_i, target in enumerate(strax.to_str_tuple(args.target)):
+            t_start, t_end, run_duration = estimate_time(run_id)
+            for i, d in enumerate(get_results(run_id, target)):
+                mem_mb = process.memory_info().rss / 1e6
+                peak_ram = max(mem_mb, peak_ram)
 
-        if not len(d):
-            logging.info(f"Got chunk {i}, but it is empty! Using {mem_mb:.1f} MB RAM.")
-            continue
+                if not len(d):
+                    logging.info(f"Got chunk {i}, but it is empty! Using {mem_mb:.1f} MB RAM.")
+                    continue
 
-        # Compute detector/data time left
-        t = d.end / 1e9
-        dt = t - t_start
-        time_left = t_end - t
-
-        msg = (f"Got {len(d)} items. "
-               f"Now {dt:.1f} sec / {100 * dt / run_duration:.1f}% into the run. "
-               f"Using {mem_mb:.1f} MB RAM. ")
-        if clock_start is not None:
-            # Compute processing job clock time left
-            d_clock = time.time() - clock_start
-            clock_time_left = time_left / (dt / d_clock)
-            msg += f"ETA {clock_time_left:.2f} sec."
-        else:
-            clock_start = time.time()
-        print('GC', gc.collect())
-        print(msg, flush=True)
+                # Compute detector/data time left
+                t = d.end / 1e9
+                dt = t - t_start
+                time_left = t_end - t
+                msg = (f"Got {len(d)} items. "
+                       f"Now {dt:.1f} sec / {100 * dt / max(run_duration, 1):.1f}% into the run. "
+                       f"Using {mem_mb:.1f} MB RAM. R{run_i}-T{tar_i}")
+                if clock_start is not None:
+                    # Compute processing job clock time left
+                    d_clock = time.time() - clock_start
+                    clock_time_left = time_left / max(dt / d_clock, 1)
+                    msg += f"ETA {clock_time_left:.2f} sec."
+                else:
+                    clock_start = time.time()
+                print('GC', gc.collect())
+                print(msg, flush=True)
 
     logging.info(f"\npema_straxer is done! "
-          f"We took {time.time() - clock_start:.1f} seconds, "
-          f"peak RAM usage was around {peak_ram:.1f} MB.")
+                 f"We took {time.time() - clock_start:.1f} seconds, "
+                 f"peak RAM usage was around {peak_ram:.1f} MB.")
 
+def list_to_tuple(items):
+    if not isinstance(items, list):
+        return items
+    res = []
+    for i in items:
+        if isinstance(i, list):
+            i = list_to_tuple(i)
+        if isinstance(i, dict):
+            i = dict_to_tuple(i)
+        res.append(i)
+    return tuple(res)
+
+def dict_to_tuple(res):
+    if not isinstance(res, dict):
+        return res
+    for k, v in res.copy().items():
+        if isinstance(v, dict):
+            v = dict_to_tuple(v)
+        elif isinstance(v, list):
+            v = list_to_tuple(v)
+        res[k] = v
+    return res
 
 def json_to_dict(path:str):
     if not os.path.exists(path):
@@ -245,9 +246,12 @@ def json_to_dict(path:str):
     with open(path, mode='r') as f:
         res = json.loads(f.read())
     for k, v in res.copy().items():
-        if type(v) == list:
-            # Remove lists to tuples
-            res[k] = tuple(_v if type(_v) != list else tuple(_v) for _v in v)
+        print(k, v)
+        if isinstance(v, dict):
+            res[k] = dict_to_tuple(v)
+        elif isinstance(v, list):
+            res[k] = list_to_tuple(v)
+
     return res
 
 
