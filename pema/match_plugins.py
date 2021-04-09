@@ -1,5 +1,4 @@
 import strax
-import straxen
 import numba
 from immutabledict import immutabledict
 import numpy as np
@@ -38,9 +37,12 @@ class MatchPeaks(strax.Plugin):
         for dtype_for in ('truth', 'peaks'):
             match_to = 'peaks' if dtype_for == 'truth' else 'truth'
             dtype = strax.dtypes.time_fields + [
-                ((f'Id of element in {dtype_for}', 'id'), np.int64),
-                ((f'Outcome of matching to {match_to}', 'outcome'), pema.matching.OUTCOME_DTYPE),
-                ((f'Id of matching element in {match_to}', 'matched_to'), np.int64)
+                ((f'Id of element in {dtype_for}', 'id'),
+                 np.int64),
+                ((f'Outcome of matching to {match_to}', 'outcome'),
+                 pema.matching.OUTCOME_DTYPE),
+                ((f'Id of matching element in {match_to}', 'matched_to'),
+                 np.int64)
             ]
             dtypes[dtype_for + '_matched'] = dtype
         return dtypes
@@ -49,6 +51,7 @@ class MatchPeaks(strax.Plugin):
         log.debug(f'Starting {self.__class__.__name__}')
 
         log.debug(f'Sort by time and add area')
+
         # Shouldn't be needed, just double checking
         truth = truth.copy()
         truth.sort(order='time')

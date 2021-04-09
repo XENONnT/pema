@@ -49,6 +49,7 @@ def write_dict_to_json(path: str,
 
 
 class ProcessRun:
+    """Class that allows for bookkeeping of runs of simulations"""
     log_file = None
     script_file = None
     base_dir_requires = ('configs', 'logs', 'scripts')

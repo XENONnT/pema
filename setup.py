@@ -15,7 +15,7 @@ with open('HISTORY.md') as file:
 setuptools.setup(name='pema',
                  version='0.0.1',
                  description='Peak matching for XENON simulations',
-                 author='The XENON collaboration',
+                 author='Joran Angevaare',
                  url='https://github.com/XENONnT/peakmatching',
                  long_description=readme + '\n\n' + history,
                  long_description_content_type="text/markdown",

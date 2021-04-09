@@ -12,7 +12,6 @@ import pema
 import strax
 import numba
 import logging
-from tqdm import tqdm
 
 logging.basicConfig(
     level=logging.INFO,
