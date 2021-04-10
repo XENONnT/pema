@@ -1,5 +1,8 @@
 # PEMA: Peak matching for clustering and classification
-![Test package](https://github.com/XENONnT/peak_matching/workflows/Test%20package/badge.svg)
+[![Build](https://github.com/XENONnT/pema/actions/workflows/test_package.yml/badge.svg)](https://github.com/XENONnT/pema/actions/workflows/test_package.yml)
+[![CodeFactor](https://www.codefactor.io/repository/github/xenonnt/pema/badge)](https://www.codefactor.io/repository/github/xenonnt/pema)
+[![Coverage Status](https://coveralls.io/repos/github/XENONnT/pema/badge.svg)](https://coveralls.io/github/XENONnT/pema)
+
 ## PeakMatching
 Peak clustering and classification validation using the WFsim
 
