@@ -93,26 +93,6 @@ class MatchPeaks(strax.Plugin):
 
 
 @export
-class TruthExtended(strax.MergeOnlyPlugin):
-    """Merge fields added in merging to truth"""
-    __version__ = '0.0.0'
-    depends_on = ('truth', 'truth_matched')
-    provides = 'truth_extended'
-    data_kind = 'truth'
-    save_when = strax.SaveWhen.TARGET
-
-
-@export
-class PeaksExtended(strax.MergeOnlyPlugin):
-    """Merge fields added in merging to peaks"""
-    __version__ = '0.0.0'
-    depends_on = ('peak_basics', 'peaks_matched')
-    provides = 'peaks_extended'
-    data_kind = 'peaks'
-    save_when = strax.SaveWhen.TARGET
-
-
-@export
 @strax.takes_config(
     strax.Option('dpe_fraction', default=0.219,
                  help='Probability of double photon emission (conversion '
@@ -136,8 +116,8 @@ class AcceptanceComputer(strax.Plugin):
         an S2 into small S1 signals that could affect event
         reconstruction).
     """
-    __version__ = '0.0.1'
-    depends_on = ('truth_extended', 'peaks_extended')
+    __version__ = '0.0.2'
+    depends_on = ('truth', 'truth_matched', 'peak_basics', 'peaks_matched')
     provides = 'match_acceptance'
     data_kind = 'truth'
 
@@ -214,8 +194,8 @@ class AcceptanceComputer(strax.Plugin):
 
 class AcceptanceExtended(strax.MergeOnlyPlugin):
     """Merge the matched acceptance to the extended truth"""
-    __version__ = '0.0.0'
-    depends_on = ('match_acceptance', 'truth_extended')
+    __version__ = '0.0.1'
+    depends_on = ('match_acceptance', 'truth', 'truth_matched')
     provides = 'match_acceptance_extended'
     data_kind = 'truth'
     save_when = strax.SaveWhen.TARGET
