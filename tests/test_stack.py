@@ -5,7 +5,7 @@ import straxen
 import wfsim
 import os
 import pema
-
+import time
 import tempfile
 straxen.print_versions(['strax', 'straxen', 'wfsim', 'nestpy', 'pema'])
 
@@ -70,7 +70,7 @@ class RunSim:
                 ret = script_writer.exec_local(cmd, name)
                 print(f'Starting\n\t{cmd}')
                 print(script_writer.log_file.communicate())
-
+                time.sleep(10)
                 print(f'Done')
                 print(f'Stored: {script_writer.all_stored()}')
                 assert script_writer.all_stored(return_bool=True)
