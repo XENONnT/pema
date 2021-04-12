@@ -2,6 +2,8 @@
 # Mostly based on https://github.com/marketplace/actions/pypi-publish
 on:
   workflow_dispatch:
+  release:
+    types: [published]
 
 jobs:
   build:
