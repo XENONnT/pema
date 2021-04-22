@@ -17,6 +17,9 @@ from tqdm.notebook import tqdm
 wfsim.core.tqdm = tqdm
 import matplotlib.pyplot as plt
 from matplotlib.colors import LogNorm
+import multihist
+from scipy.stats import norm
+from collections import defaultdict
 
 straxen.print_versions(['strax', 'straxen', 'wfsim', 'nestpy', 'ntauxfiles', 'pema'])
 
