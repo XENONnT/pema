@@ -42,7 +42,5 @@ jobs:
           NUMBA_DISABLE_JIT: 1
         run: |
           pytest --cache-clear --cov=pema > pytest-coverage.txt
-      - name: Comment coverage
-        uses: coroo/pytest-coverage-commentator@v1.0.2
       - name: goodbye
         run: echo goodbye
