@@ -1,5 +1,6 @@
 # Lets upload pema to PyPi to make it pip instalable
 # Mostly based on https://github.com/marketplace/actions/pypi-publish
+name: Pipy
 on:
   workflow_dispatch:
   release:
