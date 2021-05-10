@@ -50,3 +50,6 @@ docs/_build
 
 # coverage
 .coverage
+
+# ignore old folders
+old/
