@@ -5,7 +5,7 @@ import straxen
 base_dir = '/dali/lgrandi/angevaare/wfsims/pema'
 data_name = f'pema_test_{pema.__version__}'
 fig_dir = os.path.join(base_dir, f'figures_summary_{data_name}')
-data_dir = os.path.join(base_dir, 'processed_data')
+data_dir = os.path.join(base_dir, 'lowe', 'processed_data')
 raw_data_dir = os.path.join(base_dir, 'raw_data')
 instructions_csv = f"./inst_{data_name}.csv"
 
@@ -21,7 +21,7 @@ custom_label = 'Changed clustering'
 
 # Take a few arbitrary runs that allow to run jobs in parallel and get the 
 # gains from CMT
-run_list = list(f'{r:06}' for r in range(11665,11665+15))
+run_list = list(f'{r:06}' for r in range(19000,19000+5))
 
 # Just some id which allows CMT to load
 run_id = run_list[0]
@@ -30,7 +30,7 @@ run_id = run_list[0]
 instructions = dict(
     event_rate=20, # Don't make too large -> overlapping truth info
     chunk_size=5, # keep large -> less overhead but takes more RAM
-    nchunk=100, # set to 100
+    nchunk=4000, # set to 100
     photons_low=1, #PE
     photons_high=100, #PE
     electrons_low=1, #

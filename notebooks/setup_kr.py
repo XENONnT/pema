@@ -21,7 +21,7 @@ custom_label = 'Changed clustering'
 
 # Take a few arbitrary runs that allow to run jobs in parallel and get the 
 # gains from CMT
-run_list = list(f'{r:06}' for r in range(13000,13000+15))
+run_list = list(f'{r:06}' for r in range(18750,18750+15))
 run_list
 
 # Just some id which allows CMT to load

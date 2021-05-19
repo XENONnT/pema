@@ -188,6 +188,9 @@ def main(args):
     for run_i, run_id in enumerate(strax.to_str_tuple(args.run_id)):
         for tar_i, target in enumerate(strax.to_str_tuple(args.target)):
             t_start, t_end, run_duration = estimate_time(run_id)
+            if st.is_stored(run_id, target):
+                print(f'{run_id}-{target} is stored')
+                continue
             for i, d in enumerate(get_results(run_id, target)):
                 mem_mb = process.memory_info().rss / 1e6
                 peak_ram = max(mem_mb, peak_ram)
@@ -196,23 +199,25 @@ def main(args):
                     logging.info(f"Got chunk {i}, but it is empty! Using {mem_mb:.1f} MB RAM.")
                     continue
 
-                # Compute detector/data time left
-                t = d.end / 1e9
-                dt = t - t_start
-                time_left = t_end - t
-                msg = (f"Got {len(d)} items. "
-                       f"Now {dt:.1f} sec / {100 * dt / max(run_duration, 1):.1f}% into the run. "
-                       f"Using {mem_mb:.1f} MB RAM. R{run_i}-T{tar_i}")
-                if clock_start is not None:
-                    # Compute processing job clock time left
-                    d_clock = time.time() - clock_start
-                    clock_time_left = time_left / max(dt / d_clock, 1)
-                    msg += f"ETA {clock_time_left:.2f} sec."
-                else:
-                    clock_start = time.time()
-                print('GC', gc.collect())
-                print(msg, flush=True)
-
+#                # Compute detector/data time left
+#                t = d.end / 1e9
+#                dt = t - t_start
+#                time_left = t_end - t
+#                msg = (f"Got {len(d)} items. "
+#                       f"Now {dt:.1f} sec / {100 * dt / max(run_duration, 1):.1f}% into the run. "
+#                       f"Using {mem_mb:.1f} MB RAM. R{run_i}-T{tar_i}")
+#                if clock_start is not None:
+#                    # Compute processing job clock time left
+#                    d_clock = time.time() - clock_start
+#                    clock_time_left = time_left / max(dt / d_clock, 1)
+#                    msg += f"ETA {clock_time_left:.2f} sec."
+#                else:
+#                    clock_start = time.time()
+#                print('GC', gc.collect())
+#                print(msg, flush=True)
+            print(f'Using {mem_mb:.1f} MB RAM. R{run_i}-T{tar_i}')
+    if clock_start is None:
+        clock_start = time.time()
     logging.info(f"\npema_straxer is done! "
                  f"We took {time.time() - clock_start:.1f} seconds, "
                  f"peak RAM usage was around {peak_ram:.1f} MB.")

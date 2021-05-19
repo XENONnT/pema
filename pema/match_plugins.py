@@ -94,9 +94,6 @@ class MatchPeaks(strax.Plugin):
 
 @export
 @strax.takes_config(
-    strax.Option('dpe_fraction', default=0.219,
-                 help='Probability of double photon emission (conversion '
-                      'between n_photon in truth and area in peaks)'),
     strax.Option('penalty_s2_by',
                  default=(('misid_as_s1', -1.),
                           ('split_and_misid', -1.),
@@ -105,18 +102,19 @@ class MatchPeaks(strax.Plugin):
                       'has the outcome. Should be tuple of tuples where each '
                       'tuple should have the format of '
                       '(outcome, penalty_factor)'),
-    strax.Option('min_s2_bias_rec', default=0.65,
-                 help='If the '),
+    strax.Option('min_s2_bias_rec', default=0.85,
+                 help='If the S2 fraction is greater or equal than this, consider '
+                      'a peak succesfully found even if it is split or chopped.'),
 )
 class AcceptanceComputer(strax.Plugin):
     """
     Compute the acceptance of the matched peaks. This is done on the
-        basis of arbitrary settings to allow better to disentangle
-        possible scenarios that might be undesirable (like splitting
-        an S2 into small S1 signals that could affect event
-        reconstruction).
+    basis of arbitrary settings to allow better to disentangle
+    possible scenarios that might be undesirable (like splitting
+    an S2 into small S1 signals that could affect event
+    reconstruction).
     """
-    __version__ = '0.0.2'
+    __version__ = '0.0.3'
     depends_on = ('truth', 'truth_matched', 'peak_basics', 'peaks_matched')
     provides = 'match_acceptance'
     data_kind = 'truth'
@@ -140,10 +138,8 @@ class AcceptanceComputer(strax.Plugin):
         res['endtime'] = strax.endtime(truth)
         res['is_found'] = truth['outcome'] == 'found'
 
-        # Calculate the reconstruction bias and correct for the DPE fraction
         rec_bias = np.zeros(len(truth), dtype=np.float64)
         rec_bias = self.compute_rec_bias(truth, peaks, rec_bias)
-        rec_bias /= (1 + self.config['dpe_fraction'])
         res['rec_bias'] = rec_bias
 
         # S1 acceptane is simply is the peak found or not
@@ -170,6 +166,7 @@ class AcceptanceComputer(strax.Plugin):
         """
         For the truth, find the corresponding (main) peak and calculate
             how much of the area is found correctly
+
         :param truth: truth array
         :param peaks: peaks array (reconstructed)
         :param buffer: array of the same length as the truth for filling
