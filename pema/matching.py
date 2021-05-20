@@ -212,27 +212,38 @@ def handle_peak_merge(parent, fragments, unknown_types):
     _max_idx = _argmax(fragments['area'])
     parent['matched_to'] = fragments[_max_idx]['id']
 
-
-# @numba.jit
+@numba.jit(cache=True)
 def get_deepwindows(windows, peaks_a, peaks_b, matching_fuzz):
     """Get matching window of the matched peak versus the original peak"""
     n_windows = len(windows)
     _deep_windows = np.ones((n_windows, 2), dtype=np.int64) * -1
+    return _get_deepwindows(windows, peaks_a, peaks_b, matching_fuzz, _deep_windows)
+
+@numba.njit(nogil=True, cache=True)
+def _get_deepwindows(windows, peaks_a, peaks_b, matching_fuzz, _deep_windows):
+    # Calculate the endtimes once
+    peak_a_endtimes = strax.endtime(peaks_a)
+    peak_b_endtimes = strax.endtime(peaks_b)
+    
+    # If we previously started on an index, the next index will not be 
+    # before this, if we start here, we save time.
+    prev_start=0
     for window_i, w in enumerate(windows):
         l1, r1 = w
         if r1 - l1:
             match = strax.processing.general._touching_windows(
-                peaks_a['time'], strax.endtime(peaks_a),
-                peaks_b[l1:r1]['time'], strax.endtime(peaks_b[l1:r1]),
+                peaks_a['time'][prev_start:], peak_a_endtimes[prev_start:],
+                peaks_b[l1:r1]['time'], peak_b_endtimes[l1:r1],
                 window=matching_fuzz)
             if len(match):
-                this_window = match[0]
+                # We have skipped the first prev_start items, add here
+                this_window = match[0] + prev_start
                 _deep_windows[window_i] = this_window
+                prev_start = max(match[0][0], prev_start)
             else:
                 # No match
                 pass
     return _deep_windows
-
 
 # --- Numba functions where numpy does not suffice ---
 @numba.njit
