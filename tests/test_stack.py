@@ -43,12 +43,12 @@ class TestStack(unittest.TestCase):
 
         # setting up instructions like this may take a while. You can set e.g.
         instructions = dict(
-            event_rate=1,
+            event_rate=10,
             chunk_size=1,
             nchunk=1,
             photons_low=10,
-            photons_high=10,
-            electrons_low=10,
+            photons_high=20,
+            electrons_low=20,
             electrons_high=10,
             tpc_radius=straxen.tpc_r,
             tpc_length=148.1,
@@ -57,6 +57,7 @@ class TestStack(unittest.TestCase):
         )
         temp_dir = cls.tempdir
         instructions_csv = os.path.join(temp_dir, 'inst.csv')
+
         pema.inst_to_csv(
             instructions,
             instructions_csv,
@@ -96,6 +97,7 @@ class TestStack(unittest.TestCase):
         print(f'Start script')
         cmd, name = self.script.make_cmd()
         self.script.exec_local(cmd, name)
+
         print(f'Starting\n\t{cmd}')
         t0 = time.time()
         print(self.script.process.communicate())
@@ -140,23 +142,37 @@ class TestStack(unittest.TestCase):
                               st2, peaks_2,
                               max_peaks=11,
                               show=False,
+                              different_by=None,
                               fig_dir=self.tempdir,
                               )
+        plt.clf()
+        pema.summary_plots.acceptance_plot(peaks_1, 'n_photon', bin_edges=[0, peaks_1['n_photon'].max()])
         plt.clf()
 
     def test_later_rec_bas(self):
         if not straxen.utilix_is_configured():
             return
-
-        peaks = self.script.st.get_array(run_id, 'match_acceptance_extended')
-        if len(peaks):
+        st = self.script.st
+        st2 = st.new_context()
+        peaks_1 = st.get_array(run_id, 'match_acceptance_extended')
+        peaks_2 = st2.get_array(run_id, 'match_acceptance_extended')
+        peaks_1_kwargs = dict(bins=50,
+                range=[[0, peaks_1['n_photon'].max() + 1],
+                       [0, peaks_1['rec_bias'].max() + 1]])
+        if len(peaks_1):
             pema.summary_plots.rec_plot(
-                peaks,
-                bins=50,
-                range=[[0, peaks['n_photon'].max() + 1],
-                       [0, peaks['rec_bias'].max() + 1]]
+                peaks_1,
+                **peaks_1_kwargs
             )
             plt.clf()
+        if len(peaks_1) and len(peaks_2):
+           pema.summary_plots.rec_diff(
+               peaks_1,
+               peaks_2,
+               s1_kwargs=peaks_1_kwargs,
+               s2_kwargs=peaks_1_kwargs,
+            )
+           plt.clf()
 
     @classmethod
     def tearDownClass(cls):
