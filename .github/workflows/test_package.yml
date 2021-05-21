@@ -21,7 +21,7 @@ jobs:
       matrix:
         # NB: For python3.6 we are going to explicitly test without a database
         python-version: [3.6, 3.7, 3.8]
-      steps:
+    steps:
       - name: Setup python
         uses: actions/setup-python@v2
         with:
