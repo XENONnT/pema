@@ -13,7 +13,7 @@ from strax.testutils import Records, Peaks, run_id
 import tempfile
 import numpy as np
 from hypothesis import given, settings
-import hypothesis.strategies as st
+# import hypothesis.strategies as st
 import typing as ty
 import os
 import unittest
@@ -137,9 +137,10 @@ class TestStack(unittest.TestCase):
         plt.clf()
 
     def test_later_rec_bas(self):
-        peaks = st.get_array(run_id, )
-        pema.rec_plot(peaks, 'match_acceptance_extended',
-                      **dict(bins=50, range=[[0, 1e6], [0, 10]]))
+        peaks = self.script.st.get_array(run_id, 'match_acceptance_extended')
+        pema.rec_plot(peaks,
+                      bins=50,
+                      range=[[0, 1e6], [0, 10]])
 
     @classmethod
     def tearDownClass(cls):
