@@ -41,6 +41,9 @@ class TestStack(unittest.TestCase):
 
     @classmethod
     def set_script(cls):
+        if not straxen.utilix_is_configured():
+            return
+
         # setting up instructions like this may take a while. You can set e.g.
         instructions = dict(
             event_rate=1,
@@ -90,8 +93,10 @@ class TestStack(unittest.TestCase):
         cls.script = script_writer
 
     def test_first_run_execute(self):
-        print(f'Start script')
+        if not straxen.utilix_is_configured():
+            return
 
+        print(f'Start script')
         cmd, name = self.script.make_cmd()
         self.script.exec_local(cmd, name)
         print(f'Starting\n\t{cmd}')
@@ -109,6 +114,9 @@ class TestStack(unittest.TestCase):
             raise ValueError(f'Job did not finish')
 
     def test_first_run_plugins(self):
+        if not straxen.utilix_is_configured():
+            return
+
         self.script.purge_below('match_acceptance_extended')
         for t in strax.to_str_tuple(self.script.target):
             for r in strax.to_str_tuple(self.script.run_id):
@@ -118,6 +126,9 @@ class TestStack(unittest.TestCase):
                     assert self.script.st.is_stored(r, t)
 
     def test_later_compare(self):
+        if not straxen.utilix_is_configured():
+            return
+
         st = self.script.st
         st2 = st.new_context()
         for t in strax.to_str_tuple(self.script.target):
@@ -137,13 +148,16 @@ class TestStack(unittest.TestCase):
         plt.clf()
 
     def test_later_rec_bas(self):
+        if not straxen.utilix_is_configured():
+            return
+
         peaks = self.script.st.get_array(run_id, 'match_acceptance_extended')
         if len(peaks):
             pema.summary_plots.rec_plot(
                 peaks,
                 bins=50,
-                range=[[0, peaks['n_photon'].max()+1],
-                       [0, peaks['rec_bias'].max()+1]]
+                range=[[0, peaks['n_photon'].max() + 1],
+                       [0, peaks['rec_bias'].max() + 1]]
             )
             plt.clf()
 

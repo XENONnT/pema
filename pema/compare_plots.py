@@ -5,6 +5,7 @@ import matplotlib.pyplot as plt
 from straxen.analyses.waveform_plot import time_and_samples, seconds_range_xaxis
 import pema
 import sys
+
 if any('jupyter' in arg for arg in sys.argv):
     # In some cases we are not using any notebooks,
     # Taken from 44952863 on stack overflow thanks!

@@ -72,7 +72,7 @@ class MatchPeaks(strax.Plugin):
 
         # hack endtime
         log.warning(f'Patching endtime in the truth')
-        truth['endtime'] = truth['t_last_photon'].copy()
+        assert np.all(truth['endtime'] == truth['t_last_photon'])
 
         log.info('Starting matching')
         truth_vs_peak, peak_vs_truth = pema.match_peaks(truth, peaks)

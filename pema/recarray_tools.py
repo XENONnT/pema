@@ -3,6 +3,7 @@ from numpy.lib import recfunctions
 from collections import OrderedDict
 import strax
 from warnings import warn
+
 export, __all__ = strax.exporter()
 
 rename_fields = recfunctions.rename_fields
@@ -149,4 +150,3 @@ def fields_data(arr, ignore_fields=None):
     """Returns list of arrays of data for each single field in arr"""
     warn('fields_data will be removed in the next release', DeprecationWarning)
     return [arr[fn] for fn in arr.dtype.names if fn not in ignore_fields]
-
