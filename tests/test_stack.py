@@ -145,6 +145,7 @@ class TestStack(unittest.TestCase):
                 range=[[0, peaks['n_photon'].max()+1],
                        [0, peaks['rec_bias'].max()+1]]
             )
+            plt.clf()
 
     @classmethod
     def tearDownClass(cls):
