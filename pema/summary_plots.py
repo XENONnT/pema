@@ -199,6 +199,8 @@ def calc_arb_acceptance(data, on_axis, bin_edges, nbins=None, ) -> tuple:
     return bin_centers, values, yerr
 
 
+# TODO
+#  bin_edges does not work well
 def acceptance_plot(data, on_axis, bin_edges, nbins=None, plot_label=""):
     """
     Compute acceptance from data using acceptance_fraction

@@ -8,8 +8,11 @@ import os
 import unittest
 import shutil
 import uuid
+import numpy as np
+
 
 straxen.print_versions(['strax', 'straxen', 'wfsim', 'nestpy', 'pema'])
+
 
 run_id = '008000'
 
@@ -46,8 +49,8 @@ class TestStack(unittest.TestCase):
             event_rate=10,
             chunk_size=1,
             nchunk=1,
-            photons_low=10,
-            photons_high=20,
+            photons_low=30,
+            photons_high=50,
             electrons_low=10,
             electrons_high=20,
             tpc_radius=straxen.tpc_r,
@@ -146,8 +149,9 @@ class TestStack(unittest.TestCase):
                               fig_dir=self.tempdir,
                               )
         plt.clf()
-        pema.summary_plots.acceptance_plot(peaks_1, 'n_photon', bin_edges=[0, peaks_1['n_photon'].max()])
-        plt.clf()
+        if len(peaks_1):
+            pema.summary_plots.acceptance_plot(peaks_1, 'n_photon', int(peaks_1['n_photon'].max()))
+            plt.clf()
 
     def test_later_rec_bas(self):
         if not straxen.utilix_is_configured():
@@ -166,13 +170,15 @@ class TestStack(unittest.TestCase):
             )
             plt.clf()
         if len(peaks_1) and len(peaks_2):
-           pema.summary_plots.rec_diff(
-               peaks_1,
-               peaks_2,
-               s1_kwargs=peaks_1_kwargs,
-               s2_kwargs=peaks_1_kwargs,
+            if not np.sum(peaks_1['type'] == 1):
+                return
+            pema.summary_plots.rec_diff(
+                peaks_1,
+                peaks_2,
+                s1_kwargs=peaks_1_kwargs,
+                s2_kwargs=peaks_1_kwargs,
             )
-           plt.clf()
+            plt.clf()
 
     @classmethod
     def tearDownClass(cls):
