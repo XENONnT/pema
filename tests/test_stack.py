@@ -77,6 +77,13 @@ class RunSim:
                 print(f'Done')
                 print(f'Stored: {script_writer.all_stored()}')
                 assert script_writer.all_stored(return_bool=True)
+
+                print(script_writer.read_logs())
+                script_writer.purge_below()
+                for t in script_writer.targets:
+                    script_writer.st.make(t)
+                    assert script_writer.st.is_stored(t)
+
             # On windows, you cannot delete the current process'
             # working directory, so we have to chdir out first.
             finally:
