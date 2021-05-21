@@ -1,20 +1,9 @@
-import pema
-import os
-import strax
 import straxen
-import wfsim
-import os
 import pema
 import time
-import tempfile
 import matplotlib.pyplot as plt
 import strax
-from strax.testutils import Records, Peaks, run_id
 import tempfile
-import numpy as np
-from hypothesis import given, settings
-# import hypothesis.strategies as st
-import typing as ty
 import os
 import unittest
 import shutil
@@ -26,15 +15,23 @@ run_id = '008000'
 
 
 class TestStack(unittest.TestCase):
-    """Test the per-run defaults options of a context"""
+    """
+    Test the entire chain, from simulation to plotting the results
+
+    Note:
+        Important to notice is that despite this being slightly bad practice,
+        the tests are ordered. This allows for speadier testing since we need
+        to have some data to work with. Since that takes a while, we have
+        decided to re-use the data.
+    """
 
     @classmethod
     def setUpClass(cls):
-        cls.set_temp()
+        cls.set_temporary_test_folder()
         cls.set_script()
 
     @classmethod
-    def set_temp(cls):
+    def set_temporary_test_folder(cls):
         temp_folder = uuid.uuid4().hex
         cls.tempdir = os.path.join(tempfile.gettempdir(), temp_folder)
         os.mkdir(cls.tempdir)
