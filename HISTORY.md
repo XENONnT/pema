@@ -1,3 +1,10 @@
+0.2.0 / 2021-05-21
+------------------
+- Increased testing, faster matching (#17)
+- Update notebooks to be more plug and play (#13)
+- Use actions for testing (#15)
+
+
 0.1.0 / 2021-04-10
 --------------------
 - Restructured code into plugins
