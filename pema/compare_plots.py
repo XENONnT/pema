@@ -13,7 +13,6 @@ else:
     from tqdm import tqdm
 
 
-
 @straxen.mini_analysis(
     requires=('truth'),
     default_time_selection='touching',

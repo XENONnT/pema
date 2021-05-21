@@ -138,9 +138,13 @@ class TestStack(unittest.TestCase):
 
     def test_later_rec_bas(self):
         peaks = self.script.st.get_array(run_id, 'match_acceptance_extended')
-        pema.summary_plots.rec_plot(peaks,
-                                    bins=50,
-                                    range=[[0, 1e6], [0, 10]])
+        if len(peaks):
+            pema.summary_plots.rec_plot(
+                peaks,
+                bins=50,
+                range=[[0, peaks['n_photon'].max()+1],
+                       [0, peaks['rec_bias'].max()+1]]
+            )
 
     @classmethod
     def tearDownClass(cls):
