@@ -173,7 +173,7 @@ def main(args):
     clock_start = time.time()
     run_ids = strax.to_str_tuple(args.run_id)
     targets = strax.to_str_tuple(args.target)
-    tot_i = len(run_ids) * len(targets)
+    tot_i = max(len(run_ids), 1) * max(len(targets), 1)
     mem_mb = None
     for run_i, run_id in enumerate(run_ids):
         for tar_i, target in enumerate(targets):
@@ -187,8 +187,9 @@ def main(args):
                 if not len(d):
                     logging.info(f"Got chunk {i}, but it is empty! Using {mem_mb:.1f} MB RAM.")
                     continue
-            # eta = (time.time() - clock_start) / max((1-(run_i * tar_i + (tar_i + 1)) / tot_i), 1)
-            # print(f'Using {mem_mb:.1f} MB RAM. R{run_i}-T{tar_i}\nETA {int(eta)}s ({eta/3600:.1f} h)')
+            n_done = run_i * tar_i + (tar_i + 1)
+            eta = (time.time() - clock_start) / max((n_done / tot_i), 1)
+            print(f'Using {mem_mb:.1f} MB RAM. R{run_i}-T{tar_i}\nETA {int(eta)}s ({eta/3600:.1f} h)')
 
     logging.info(f"\npema_straxer is done! "
                  f"We took {time.time() - clock_start:.1f} seconds, "

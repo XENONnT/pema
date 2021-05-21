@@ -120,10 +120,10 @@ def compare_outcomes(st_default, truth_vs_default,
                      fig_dir=None,
                      show=True,
                      randomize=True,
-                     differeny_by='acceptance_fraction',
+                     different_by='acceptance_fraction',
                      ):
-    if differeny_by:
-        peaks_idx = np.where(truth_vs_default[differeny_by] != truth_vs_custom[differeny_by])[0]
+    if different_by:
+        peaks_idx = np.where(truth_vs_default[different_by] != truth_vs_custom[different_by])[0]
     else:
         peaks_idx = np.arange(len(truth_vs_default))
     if randomize:
