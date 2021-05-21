@@ -152,7 +152,7 @@ def get_deepwindows(windows, peaks_a, peaks_b, matching_fuzz):
             match = strax.touching_windows(peaks_a,
                                            peaks_b[l1:r1],
                                            window=matching_fuzz)
-            if len(match):
+            if len(match) >= 1:
                 this_window = match[0]
             else:
                 pass
