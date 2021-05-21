@@ -14,25 +14,13 @@ jobs:
       - name: Setup python
         uses: actions/setup-python@v2
         with:
-          python-version: [3.6, 3.7, 3.8, 3.9]
+          python-version: '3.6'
       - name: Checkout repo
         uses: actions/checkout@v2
       - name: Install dependencies
         run: pip install wheel
       - name: Build package
         run: python setup.py sdist bdist_wheel
-      - name: patch utilix file
-        # Since we skip this step for python 3.7, we are testing without the database
-        if: matrix.python-version == 3.7 ||  matrix.python-version == 3.8
-        run: bash .github/scripts/create_readonly_utilix_config.sh
-        env:
-          RUNDB_API_URL: ${{ secrets.RUNDB_API_URL }}
-          RUNDB_API_USER_READONLY: ${{ secrets.RUNDB_API_USER_READONLY }}
-          RUNDB_API_PASSWORD_READONLY: ${{ secrets.RUNDB_API_PASSWORD_READONLY}}
-          PYMONGO_URL: ${{ secrets.PYMONGO_URL }}
-          PYMONGO_USER: ${{ secrets.PYMONGO_USER }}
-          PYMONGO_PASSWORD: ${{ secrets.PYMONGO_PASSWORD }}
-          PYMONGO_DATABASE: ${{ secrets.PYMONGO_DATABASE }}
       # Do the publish
       - name: Publish a Python distribution to PyPI
         # Might want to add but does not work on workflow_dispatch :
