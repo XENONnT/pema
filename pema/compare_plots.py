@@ -4,7 +4,14 @@ import numpy as np
 import matplotlib.pyplot as plt
 from straxen.analyses.waveform_plot import time_and_samples, seconds_range_xaxis
 import pema
-from tqdm.notebook import tqdm
+import sys
+
+if any('jupyter' in arg for arg in sys.argv):
+    # In some cases we are not using any notebooks,
+    # Taken from 44952863 on stack overflow thanks!
+    from tqdm.notebook import tqdm
+else:
+    from tqdm import tqdm
 
 
 @straxen.mini_analysis(
@@ -120,10 +127,10 @@ def compare_outcomes(st_default, truth_vs_default,
                      fig_dir=None,
                      show=True,
                      randomize=True,
-                     differeny_by='acceptance_fraction',
+                     different_by='acceptance_fraction',
                      ):
-    if differeny_by:
-        peaks_idx = np.where(truth_vs_default[differeny_by] != truth_vs_custom[differeny_by])[0]
+    if different_by:
+        peaks_idx = np.where(truth_vs_default[different_by] != truth_vs_custom[different_by])[0]
     else:
         peaks_idx = np.arange(len(truth_vs_default))
     if randomize:

@@ -1,10 +1,5 @@
 """
 Utility to match peaks from results of different processor versions / processor and simulator
-Joran Angevaare, october, november 2020
-Joey Howlett, February 2020
-Joran Angevaare, September 2019
-Mike Clark, September 2019
-Jelle Aalbers, Nikhef, September 2015
 """
 
 import numpy as np

@@ -217,38 +217,6 @@ def acceptance_plot(data, on_axis, bin_edges, nbins=None, plot_label=""):
     plt.xlabel(on_axis.replace('_', ' '))
 
 
-# def acceptance_plot(data, on_axis, bin_edges, nbins=None, plot_label="", **kwargs):
-#     """
-#     Compute acceptance from data using acceptance_fraction
-#     (this is an arbitrary weighing of the acceptance based on the outcome of matching)
-#     """
-#     bin_centers, values, yerr = calc_arb_acceptance(data, on_axis, bin_edges, nbins)
-#     plt.errorbar(x=bin_centers,
-#                  y=values,
-#                  yerr=yerr,
-#                  linestyle='none',
-#                  marker='o',
-#                  markersize=4,
-#                  capsize=3,
-#                  label=plot_label,
-#                  )
-#     plt.xlabel(on_axis.replace('_', ' '))
-
-#     m2 = multihist.Histdd(axis_names=['n photon', 'Reconstruction bias'], **kwargs)
-#     m2.add(dat['n_photon'], dat['rec_bias'])
-
-#     median = m2.percentile(50,  m2.axis_names[1])
-#     plt.plot(median.bin_centers, median, color='white', drawstyle='steps-mid')
-
-#     sigma_high = m2.percentile(100 * norm.cdf(1), m2.axis_names[1])
-#     plt.plot(sigma_high.bin_centers, sigma_high, color='cyan', drawstyle='steps-mid')
-
-#     sigma_low = m2.percentile(100 * norm.cdf(-1), m2.axis_names[1])
-#     plt.plot(sigma_low.bin_centers, sigma_low, color='green', drawstyle='steps-mid')
-#     if show_hist:
-#         m2.plot(log_scale=True)
-#     plt.grid()
-
 def rec_plot(dat, show_hist=True, **kwargs):
     m2 = multihist.Histdd(axis_names=['n photon', 'Reconstruction bias'], **kwargs)
     m2.add(dat['n_photon'], dat['rec_bias'])
