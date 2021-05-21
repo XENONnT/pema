@@ -34,9 +34,10 @@ class RunSim:
     def run(self):
         with tempfile.TemporaryDirectory() as temp_dir:
             try:
+                instructions_csv = os.path.join(temp_dir, 'inst.csv')
                 pema.inst_to_csv(
                     self.instructions,
-                    instructions_csv := os.path.join(temp_dir, 'inst.csv'),
+                    instructions_csv,
                     get_inst_from=pema.rand_instructions)
 
                 config_update = {
