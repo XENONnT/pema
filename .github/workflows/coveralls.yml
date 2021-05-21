@@ -45,7 +45,8 @@ jobs:
       env:
         NUMBA_DISABLE_JIT: 1
       run: |
-        coverage run --source=pema pytest
+        pip install -e ../pema
+        coverage run --source=pema setup.py test
     - name: Upload results
       env:
         COVERALLS_REPO_TOKEN: ${{ secrets.COVERALLS_TOKEN }}
