@@ -53,6 +53,7 @@ class ProcessRun:
     log_file = None
     script_file = None
     base_dir_requires = ('configs', 'logs', 'scripts')
+    process = None
 
     def __init__(self,
                  st: strax.context,
@@ -191,16 +192,18 @@ class ProcessRun:
 
     def exec_local(self, cmd, job_name):
         self.log_file = self._fmt('logs', f'{job_name}.log')
-        self.script_file = f'{cmd} &>{self.log_file}'
+        self.script_file = f'{cmd} > {self.log_file}'
         # subprocess.Popen(self.script_file.split(' '), shell=True)
         # cp = subprocess.run(self.script_file, shell=True, capture_output=True)
         # return cp
-        cmd = self.script_file.replace('  ', ' ')
+        cmd = cmd.replace('  ', ' ')
+        log = open(self.log_file, 'a')
         p = subprocess.Popen(cmd.split(' '),
-                             stdout=subprocess.PIPE,
-                             stderr=subprocess.PIPE,
+                             stdout=log,
+                             stderr=log,
                              universal_newlines=True)
-        # self.log_file = p
+        log.close()
+        self.process = p
 
     def read_log(self):
         if self.log_file is None:

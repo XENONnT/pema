@@ -71,7 +71,7 @@ class RunSim:
                 script_writer.exec_local(cmd, name)
                 print(f'Starting\n\t{cmd}')
                 t0 = time.time()
-                print(script_writer.log_file.communicate())
+                print(script_writer.process.communicate())
                 print(f'took {time.time()-t0:.2f}s')
                 time.sleep(10)
                 assert script_writer.job_finished()
