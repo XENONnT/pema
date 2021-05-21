@@ -14,7 +14,7 @@ def pema_context(
         raw_dir=None,
         data_dir=None,
         raw_types=None,
-        ) -> strax.Context:
+) -> strax.Context:
     """
     Central context for pema, allows to init from a config.
     :param base_dir: Where store instructions,

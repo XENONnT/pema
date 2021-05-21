@@ -9,7 +9,6 @@ import numba
 import time
 import numpy as np
 import pema
-import ntauxfiles
 import json
 import nestpy
 from tqdm.notebook import tqdm

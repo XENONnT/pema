@@ -155,20 +155,6 @@ def main(args):
     else:
         st.context_config['forbid_creation_of'] = straxen.DAQReader.provides
 
-    def estimate_time(run_id):
-        try:
-            md = st.run_metadata(run_id)
-            t_start = md['start'].replace(tzinfo=datetime.timezone.utc).timestamp()
-            t_end = md['end'].replace(tzinfo=datetime.timezone.utc).timestamp()
-            st.config['run_start_time'] = md['start'].timestamp()
-            st.context_config['free_options'] = tuple(
-                list(st.context_config['free_options']) + ['run_start_time'])
-        except (strax.RunMetadataNotAvailable, IndexError):
-            t_start, t_end = st.estimate_run_start_and_end(run_id, 'raw_records')
-            t_start, t_end = t_start/1e9, t_end/1e9
-        run_duration = t_end - t_start
-        return t_start, t_end, run_duration
-
     process = psutil.Process(os.getpid())
     peak_ram = 0
 
@@ -184,10 +170,16 @@ def main(args):
         else:
             yield from st.get_iter(**kwargs)
 
-    clock_start = None
-    for run_i, run_id in enumerate(strax.to_str_tuple(args.run_id)):
-        for tar_i, target in enumerate(strax.to_str_tuple(args.target)):
-            t_start, t_end, run_duration = estimate_time(run_id)
+    clock_start = time.time()
+    run_ids = strax.to_str_tuple(args.run_id)
+    targets = strax.to_str_tuple(args.target)
+    tot_i = max(len(run_ids), 1) * max(len(targets), 1)
+    mem_mb = None
+    for run_i, run_id in enumerate(run_ids):
+        for tar_i, target in enumerate(targets):
+            if st.is_stored(run_id, target):
+                print(f'{run_id}-{target} is stored')
+                continue
             for i, d in enumerate(get_results(run_id, target)):
                 mem_mb = process.memory_info().rss / 1e6
                 peak_ram = max(mem_mb, peak_ram)
@@ -195,27 +187,16 @@ def main(args):
                 if not len(d):
                     logging.info(f"Got chunk {i}, but it is empty! Using {mem_mb:.1f} MB RAM.")
                     continue
-
-                # Compute detector/data time left
-                t = d.end / 1e9
-                dt = t - t_start
-                time_left = t_end - t
-                msg = (f"Got {len(d)} items. "
-                       f"Now {dt:.1f} sec / {100 * dt / max(run_duration, 1):.1f}% into the run. "
-                       f"Using {mem_mb:.1f} MB RAM. R{run_i}-T{tar_i}")
-                if clock_start is not None:
-                    # Compute processing job clock time left
-                    d_clock = time.time() - clock_start
-                    clock_time_left = time_left / max(dt / d_clock, 1)
-                    msg += f"ETA {clock_time_left:.2f} sec."
-                else:
-                    clock_start = time.time()
-                print('GC', gc.collect())
-                print(msg, flush=True)
+            n_done = run_i * tar_i + (tar_i + 1)
+            eta = (time.time() - clock_start) / max((n_done / tot_i), 1)
+            print(f'Using {mem_mb:.1f} MB RAM. R{run_i}-T{tar_i}\nETA {int(eta)}s ({eta/3600:.1f} h)')
 
     logging.info(f"\npema_straxer is done! "
                  f"We took {time.time() - clock_start:.1f} seconds, "
                  f"peak RAM usage was around {peak_ram:.1f} MB.")
+    logging.warning('processing ended')
+    print('Processing ended, bye bye')
+
 
 def list_to_tuple(items):
     if not isinstance(items, list):
@@ -229,6 +210,7 @@ def list_to_tuple(items):
         res.append(i)
     return tuple(res)
 
+
 def dict_to_tuple(res):
     if not isinstance(res, dict):
         return res
@@ -239,6 +221,7 @@ def dict_to_tuple(res):
             v = list_to_tuple(v)
         res[k] = v
     return res
+
 
 def json_to_dict(path:str):
     if not os.path.exists(path):

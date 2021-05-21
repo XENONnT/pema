@@ -139,8 +139,9 @@ def test_deepwindows(data_length,
     windows = strax.touching_windows(allpeaks1, allpeaks2, window=matching_fuzz)
     deepwindows_simple = get_deepwindows(windows, allpeaks1, allpeaks2, matching_fuzz)
     deepwindows_numba = pema.matching.get_deepwindows(windows, allpeaks1, allpeaks2, matching_fuzz)
-    if len(deepwindows_simple) and not len(deepwindows_numba):
+    if len(deepwindows_simple) > 0 and len(deepwindows_numba) > 0:
         assert np.all(deepwindows_simple == deepwindows_numba)
+    assert len(deepwindows_simple) == len(deepwindows_numba)
 
 
 def get_deepwindows(windows, peaks_a, peaks_b, matching_fuzz):
@@ -152,7 +153,7 @@ def get_deepwindows(windows, peaks_a, peaks_b, matching_fuzz):
             match = strax.touching_windows(peaks_a,
                                            peaks_b[l1:r1],
                                            window=matching_fuzz)
-            if len(match):
+            if len(match) > 0:
                 this_window = match[0]
             else:
                 pass

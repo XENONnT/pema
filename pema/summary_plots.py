@@ -10,7 +10,6 @@ from scipy.stats import norm
 import matplotlib.pyplot as plt
 from matplotlib.colors import LogNorm
 
-
 export, __all__ = strax.exporter()
 
 outcome_colors = {
@@ -180,7 +179,7 @@ def acceptance_plot_simple(data, on_axis, bin_edges, plot_label=""):
     plt.xlabel(on_axis.replace('_', ' '))
 
 
-def calc_arb_acceptance(data, on_axis, bin_edges, nbins=None,)->tuple:
+def calc_arb_acceptance(data, on_axis, bin_edges, nbins=None, ) -> tuple:
     """Calculate acceptance on given axis"""
     if nbins is None:
         nbins = bin_edges[-1] - bin_edges[0]
@@ -216,46 +215,14 @@ def acceptance_plot(data, on_axis, bin_edges, nbins=None, plot_label=""):
                  label=plot_label,
                  )
     plt.xlabel(on_axis.replace('_', ' '))
-    
 
-# def acceptance_plot(data, on_axis, bin_edges, nbins=None, plot_label="", **kwargs):
-#     """
-#     Compute acceptance from data using acceptance_fraction
-#     (this is an arbitrary weighing of the acceptance based on the outcome of matching)
-#     """
-#     bin_centers, values, yerr = calc_arb_acceptance(data, on_axis, bin_edges, nbins)
-#     plt.errorbar(x=bin_centers,
-#                  y=values,
-#                  yerr=yerr,
-#                  linestyle='none',
-#                  marker='o',
-#                  markersize=4,
-#                  capsize=3,
-#                  label=plot_label,
-#                  )
-#     plt.xlabel(on_axis.replace('_', ' '))
-
-#     m2 = multihist.Histdd(axis_names=['n photon', 'Reconstruction bias'], **kwargs)
-#     m2.add(dat['n_photon'], dat['rec_bias'])
-
-#     median = m2.percentile(50,  m2.axis_names[1])
-#     plt.plot(median.bin_centers, median, color='white', drawstyle='steps-mid')
-
-#     sigma_high = m2.percentile(100 * norm.cdf(1), m2.axis_names[1])
-#     plt.plot(sigma_high.bin_centers, sigma_high, color='cyan', drawstyle='steps-mid')
-
-#     sigma_low = m2.percentile(100 * norm.cdf(-1), m2.axis_names[1])
-#     plt.plot(sigma_low.bin_centers, sigma_low, color='green', drawstyle='steps-mid')
-#     if show_hist:
-#         m2.plot(log_scale=True)
-#     plt.grid()
 
 def rec_plot(dat, show_hist=True, **kwargs):
     m2 = multihist.Histdd(axis_names=['n photon', 'Reconstruction bias'], **kwargs)
     m2.add(dat['n_photon'], dat['rec_bias'])
 
-    median = m2.percentile(50,  m2.axis_names[1])
-    plt.plot(median.bin_centers, median, color='white', drawstyle='steps-mid', label = 'median')
+    median = m2.percentile(50, m2.axis_names[1])
+    plt.plot(median.bin_centers, median, color='white', drawstyle='steps-mid', label='median')
 
     sigma_high = m2.percentile(100 * norm.cdf(1), m2.axis_names[1])
     plt.plot(sigma_high.bin_centers, sigma_high, color='cyan', drawstyle='steps-mid', label='90% quantile')
@@ -266,30 +233,31 @@ def rec_plot(dat, show_hist=True, **kwargs):
         m2.plot(log_scale=True)
     plt.grid()
 
-def rec_diff(def_data, 
+
+def rec_diff(def_data,
              cust_data,
              s1_kwargs=None,
              s2_kwargs=None):
-    f, axes = plt.subplots(2, 2, figsize=(18,13))
+    f, axes = plt.subplots(2, 2, figsize=(18, 13))
     if s1_kwargs is None:
-        s1_kwargs=dict(bins=50, range=[[0,50], [0,1.5]])
+        s1_kwargs = dict(bins=50, range=[[0, 50], [0, 1.5]])
     if s2_kwargs is None:
-        s2_kwargs=dict(bins=50, range=[[0,200],[0,1.5]])
-    
+        s2_kwargs = dict(bins=50, range=[[0, 200], [0, 1.5]])
+
     for axi, dat in enumerate([def_data, cust_data]):
         plt.sca(axes[0][axi])
-        mask = (dat['type'] == 1) & (dat['rec_bias']>0)
+        mask = (dat['type'] == 1) & (dat['rec_bias'] > 0)
         rec_plot(dat[mask], **s1_kwargs)
-        plt.axhline(1, linestyle='--', c ='k')
+        plt.axhline(1, linestyle='--', c='k')
         plt.title(f'{["default", "custom"][axi]} S1 rec. bias')
         plt.xlabel('N photons detected')
-        if axi ==0:
+        if axi == 0:
             plt.legend()
     for axi, dat in enumerate([def_data, cust_data]):
         plt.sca(axes[1][axi])
-        mask = (dat['type'] == 2) & (dat['rec_bias']>0)
+        mask = (dat['type'] == 2) & (dat['rec_bias'] > 0)
         rec_plot(dat[mask], **s2_kwargs)
-        plt.axhline(1, linestyle='--', c ='k')
+        plt.axhline(1, linestyle='--', c='k')
         plt.title(f'{["default", "custom"][axi]} S2 rec. bias')
         plt.xlabel('N photons detected')
     return axes

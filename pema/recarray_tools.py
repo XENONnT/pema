@@ -2,6 +2,7 @@ import numpy as np
 from numpy.lib import recfunctions
 from collections import OrderedDict
 import strax
+from warnings import warn
 
 export, __all__ = strax.exporter()
 
@@ -41,15 +42,18 @@ def drop_fields(arr, *args, **kwargs):
     """Drop fields from numpy structured array
     Gives error if fields don't exist
     """
+    warn('drop_fields will be removed in the next release', DeprecationWarning)
     return recfunctions.drop_fields(arr, usemask=False, *args, **kwargs)
 
 
 def drop_fields_if_exist(arr, fields):
+    warn('drop_fields_if_exist will be removed in the next release', DeprecationWarning)
     return drop_fields(arr, [f for f in fields if f in arr.dtype.names])
 
 
 def fields_view(arr, fields):
     """View one or several columns from a numpy record array"""
+    warn('fields_view will be removed in the next release', DeprecationWarning)
     # Single field is easy:
     if isinstance(fields, str):
         return arr[fields]
@@ -72,6 +76,7 @@ def filter_on_fields(to_filter, for_filter, filter_fields, filter_fields_2=None,
     for_filter (if different than in to_filter)
     If return_selection, will instead
     """
+    warn('filter_on_fields will be removed in the next release', DeprecationWarning)
     a = np.array(fields_view(to_filter, filter_fields))
     if filter_fields_2 is None:
         filter_fields_2 = filter_fields
@@ -100,7 +105,7 @@ def group_by(x, group_by_fields='Event', return_group_indices=False):
     If return_indices=True, returns list of arrays with indices of group
     elements in x instead
     """
-
+    warn('group_by will be removed in the next release', DeprecationWarning)
     # Support single index and list of indices
     try:
         group_by_fields[0]
@@ -133,6 +138,7 @@ def dict_group_by(x, group_by_fields='Event', return_group_indices=False):
     value is the value (or tuple of values) of group_by_fields in each
     subgroup
     """
+    warn('dict_group_by will be removed in the next release', DeprecationWarning)
     groups = group_by(x, group_by_fields, return_group_indices)
     return OrderedDict(
         [(fields_view(gr[0:1], group_by_fields)[0], gr) for gr in groups])
@@ -142,4 +148,5 @@ def fields_data(arr, ignore_fields=None):
     if ignore_fields is None:
         ignore_fields = []
     """Returns list of arrays of data for each single field in arr"""
+    warn('fields_data will be removed in the next release', DeprecationWarning)
     return [arr[fn] for fn in arr.dtype.names if fn not in ignore_fields]

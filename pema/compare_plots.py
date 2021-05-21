@@ -4,7 +4,14 @@ import numpy as np
 import matplotlib.pyplot as plt
 from straxen.analyses.waveform_plot import time_and_samples, seconds_range_xaxis
 import pema
-from tqdm.notebook import tqdm
+import sys
+
+if any('jupyter' in arg for arg in sys.argv):
+    # In some cases we are not using any notebooks,
+    # Taken from 44952863 on stack overflow thanks!
+    from tqdm.notebook import tqdm
+else:
+    from tqdm import tqdm
 
 
 @straxen.mini_analysis(
@@ -120,10 +127,10 @@ def compare_outcomes(st_default, truth_vs_default,
                      fig_dir=None,
                      show=True,
                      randomize=True,
-                     only_different=True
+                     different_by='acceptance_fraction',
                      ):
-    if only_different:
-        peaks_idx = np.where(truth_vs_default['outcome'] != truth_vs_custom['outcome'])[0]
+    if different_by:
+        peaks_idx = np.where(truth_vs_default[different_by] != truth_vs_custom[different_by])[0]
     else:
         peaks_idx = np.arange(len(truth_vs_default))
     if randomize:
@@ -194,7 +201,8 @@ def compare_outcomes(st_default, truth_vs_default,
                      )
 
             plt.text(0.05, 0.1,
-                     '\n'.join(f'{prop[:10]}: {truth_vs_default[peak_i][prop]:.1f}' for prop in ['rec_bias', 'acceptance_fraction']),
+                     '\n'.join(f'{prop[:10]}: {truth_vs_default[peak_i][prop]:.1f}' for prop in
+                               ['rec_bias', 'acceptance_fraction']),
                      transform=plt.gca().transAxes,
                      fontsize='small',
                      ha='left',
@@ -217,7 +225,8 @@ def compare_outcomes(st_default, truth_vs_default,
                      bbox=dict(boxstyle="round", fc="w")
                      )
             plt.text(0.05, 0.1,
-                     '\n'.join(f'{prop[:10]}: {truth_vs_custom[peak_i][prop]:.1f}' for prop in ['rec_bias', 'acceptance_fraction']),
+                     '\n'.join(f'{prop[:10]}: {truth_vs_custom[peak_i][prop]:.1f}' for prop in
+                               ['rec_bias', 'acceptance_fraction']),
                      transform=plt.gca().transAxes,
                      fontsize='small',
                      ha='left',
