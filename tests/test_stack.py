@@ -138,9 +138,9 @@ class TestStack(unittest.TestCase):
 
     def test_later_rec_bas(self):
         peaks = self.script.st.get_array(run_id, 'match_acceptance_extended')
-        pema.rec_plot(peaks,
-                      bins=50,
-                      range=[[0, 1e6], [0, 10]])
+        pema.summary_plots.rec_plot(peaks,
+                                    bins=50,
+                                    range=[[0, 1e6], [0, 10]])
 
     @classmethod
     def tearDownClass(cls):

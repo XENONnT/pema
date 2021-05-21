@@ -4,7 +4,7 @@ import numpy as np
 import matplotlib.pyplot as plt
 from straxen.analyses.waveform_plot import time_and_samples, seconds_range_xaxis
 import pema
-from tqdm.notebook import tqdm
+from strax.context import tqdm
 
 
 @straxen.mini_analysis(

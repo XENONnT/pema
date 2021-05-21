@@ -216,6 +216,7 @@ def acceptance_plot(data, on_axis, bin_edges, nbins=None, plot_label=""):
                  )
     plt.xlabel(on_axis.replace('_', ' '))
 
+
 def rec_plot(dat, show_hist=True, **kwargs):
     m2 = multihist.Histdd(axis_names=['n photon', 'Reconstruction bias'], **kwargs)
     m2.add(dat['n_photon'], dat['rec_bias'])
