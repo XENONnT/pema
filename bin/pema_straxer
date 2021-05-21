@@ -155,20 +155,6 @@ def main(args):
     else:
         st.context_config['forbid_creation_of'] = straxen.DAQReader.provides
 
-    def estimate_time(run_id):
-        try:
-            md = st.run_metadata(run_id)
-            t_start = md['start'].replace(tzinfo=datetime.timezone.utc).timestamp()
-            t_end = md['end'].replace(tzinfo=datetime.timezone.utc).timestamp()
-            st.config['run_start_time'] = md['start'].timestamp()
-            st.context_config['free_options'] = tuple(
-                list(st.context_config['free_options']) + ['run_start_time'])
-        except (strax.RunMetadataNotAvailable, IndexError):
-            t_start, t_end = st.estimate_run_start_and_end(run_id, 'raw_records')
-            t_start, t_end = t_start/1e9, t_end/1e9
-        run_duration = t_end - t_start
-        return t_start, t_end, run_duration
-
     process = psutil.Process(os.getpid())
     peak_ram = 0
 
@@ -201,8 +187,8 @@ def main(args):
                 if not len(d):
                     logging.info(f"Got chunk {i}, but it is empty! Using {mem_mb:.1f} MB RAM.")
                     continue
-            eta = (time.time() - clock_start) / (1-(run_i * tar_i + (tar_i + 1)) / tot_i)
-            print(f'Using {mem_mb:.1f} MB RAM. R{run_i}-T{tar_i}\nETA {int(eta)}s ({eta/3600:.1f} h)')
+            # eta = (time.time() - clock_start) / max((1-(run_i * tar_i + (tar_i + 1)) / tot_i), 1)
+            # print(f'Using {mem_mb:.1f} MB RAM. R{run_i}-T{tar_i}\nETA {int(eta)}s ({eta/3600:.1f} h)')
 
     logging.info(f"\npema_straxer is done! "
                  f"We took {time.time() - clock_start:.1f} seconds, "

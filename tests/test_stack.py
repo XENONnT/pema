@@ -84,9 +84,12 @@ class RunSim:
                     raise ValueError()
 
                 script_writer.purge_below()
-                for t in script_writer.targets:
-                    script_writer.st.make(t)
-                    assert script_writer.st.is_stored(t)
+                for t in strax.to_str_tuple(script_writer.target):
+                    for r in strax.to_str_tuple(script_writer.run_id):
+                        if (script_writer.st._plugin_class_registry[t].save_when
+                                > strax.SaveWhen.NEVER):
+                            script_writer.st.make(r, t)
+                            assert script_writer.st.is_stored(r, t)
 
             # On windows, you cannot delete the current process'
             # working directory, so we have to chdir out first.
