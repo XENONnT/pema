@@ -74,10 +74,14 @@ class RunSim:
                 print(script_writer.process.communicate())
                 print(f'took {time.time()-t0:.2f}s')
                 time.sleep(10)
-                assert script_writer.job_finished()
+
                 print(f'Done')
                 print(f'Stored: {script_writer.all_stored()}')
                 assert script_writer.all_stored(return_bool=True)
+                assert os.path.exists(script_writer.log_file)
+                if not script_writer.job_finished():
+                    print(script_writer.read_log())
+                    raise ValueError()
 
                 script_writer.purge_below()
                 for t in script_writer.targets:
