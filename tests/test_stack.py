@@ -150,7 +150,17 @@ class TestStack(unittest.TestCase):
                               )
         plt.clf()
         if len(peaks_1):
-            pema.summary_plots.acceptance_plot(peaks_1, 'n_photon', int(peaks_1['n_photon'].max()))
+            pema.summary_plots.plot_peak_matching_histogram(
+                peaks_1,
+                'n_photon',
+                bin_edges=[0, int(peaks_1['n_photon'].max())]
+            )
+            plt.clf()
+            pema.summary_plots.acceptance_plot(
+                peaks_1,
+                'n_photon',
+                bin_edges=[0, int(peaks_1['n_photon'].max())]
+            )
             plt.clf()
 
     def test_later_rec_bas(self):
