@@ -68,9 +68,11 @@ class RunSim:
                                                  ))
 
                 cmd, name = script_writer.make_cmd()
-                ret = script_writer.exec_local(cmd, name)
+                script_writer.exec_local(cmd, name)
                 print(f'Starting\n\t{cmd}')
+                t0 = time.time()
                 print(script_writer.log_file.communicate())
+                print(f'took {time.time()-t0:.2f}s')
                 time.sleep(10)
                 print(f'Done')
                 print(f'Stored: {script_writer.all_stored()}')
