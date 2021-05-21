@@ -195,12 +195,12 @@ class ProcessRun:
         # subprocess.Popen(self.script_file.split(' '), shell=True)
         # cp = subprocess.run(self.script_file, shell=True, capture_output=True)
         # return cp
-        cmd = cmd.replace('  ', ' ')
+        cmd = self.script_file.replace('  ', ' ')
         p = subprocess.Popen(cmd.split(' '),
                              stdout=subprocess.PIPE,
                              stderr=subprocess.PIPE,
                              universal_newlines=True)
-        self.log_file = p
+        # self.log_file = p
 
     def read_log(self):
         if self.log_file is None:
