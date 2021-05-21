@@ -172,9 +172,9 @@ class ProcessRun:
                   job_name,
                   bash_activate,
                   mem=2000,
-                   partition='xenon1t',
-                   max_hours="04:00:00"
-                   ):
+                  partition='xenon1t',
+                  max_hours="04:00:00"
+                  ):
         self.log_file = self._fmt('logs', f'{job_name}.log')
         self.script_file = self._fmt('scripts', f'{job_name}.sh')
         script = job_script.format(

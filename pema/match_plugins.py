@@ -4,6 +4,7 @@ from immutabledict import immutabledict
 import numpy as np
 import pema
 import logging
+
 export, __all__ = strax.exporter()
 
 logging.basicConfig(
@@ -61,12 +62,12 @@ class MatchPeaks(strax.Plugin):
         truth = pema.append_fields(
             truth,
             'id',
-            np.arange(len(truth))+self.truth_seen,
+            np.arange(len(truth)) + self.truth_seen,
             dtypes=np.int64)
         peaks = pema.append_fields(
             peaks,
             'id',
-            np.arange(len(peaks))+self.peaks_seen,
+            np.arange(len(peaks)) + self.peaks_seen,
             dtypes=np.int64)
 
         # hack endtime

@@ -194,7 +194,8 @@ def compare_outcomes(st_default, truth_vs_default,
                      )
 
             plt.text(0.05, 0.1,
-                     '\n'.join(f'{prop[:10]}: {truth_vs_default[peak_i][prop]:.1f}' for prop in ['rec_bias', 'acceptance_fraction']),
+                     '\n'.join(f'{prop[:10]}: {truth_vs_default[peak_i][prop]:.1f}' for prop in
+                               ['rec_bias', 'acceptance_fraction']),
                      transform=plt.gca().transAxes,
                      fontsize='small',
                      ha='left',
@@ -217,7 +218,8 @@ def compare_outcomes(st_default, truth_vs_default,
                      bbox=dict(boxstyle="round", fc="w")
                      )
             plt.text(0.05, 0.1,
-                     '\n'.join(f'{prop[:10]}: {truth_vs_custom[peak_i][prop]:.1f}' for prop in ['rec_bias', 'acceptance_fraction']),
+                     '\n'.join(f'{prop[:10]}: {truth_vs_custom[peak_i][prop]:.1f}' for prop in
+                               ['rec_bias', 'acceptance_fraction']),
                      transform=plt.gca().transAxes,
                      fontsize='small',
                      ha='left',
