@@ -33,7 +33,7 @@ jobs:
       - name: Install peak_matching
         run: bash .github/scripts/install_pema.sh
       - name: Install pytest and hypothesis
-        run: pip install pytest hypothesis flake8 pytest-cov
+        run: pip install pytest hypothesis flake8 pytest-cov boltons
       - name: patch utilix file
         # Since we skip this step for python 3.7, we are testing without the database
         if: matrix.python-version == 3.7 ||  matrix.python-version == 3.8
@@ -48,6 +48,6 @@ jobs:
           PYMONGO_DATABASE: ${{ secrets.PYMONGO_DATABASE }}
       - name: Test package
         run: |
-          python setup.py test -v --durations 0
+          pytest -v --durations 0
       - name: goodbye
         run: echo goodbye
