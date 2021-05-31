@@ -188,7 +188,9 @@ def main(args):
                     logging.info(f"Got chunk {i}, but it is empty! Using {mem_mb:.1f} MB RAM.")
                     continue
             n_done = run_i * tar_i + (tar_i + 1)
-            eta = (time.time() - clock_start) / max((n_done / tot_i), 1)
+            eta = (time.time() - clock_start) / max(1 - (n_done / tot_i), 1e-9)
+            if n_done == tot_i - 1:
+                eta = 0
             print(f'Using {mem_mb:.1f} MB RAM. R{run_i}-T{tar_i}\nETA {int(eta)}s ({eta/3600:.1f} h)')
 
     logging.info(f"\npema_straxer is done! "

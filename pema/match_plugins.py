@@ -22,7 +22,7 @@ class MatchPeaks(strax.Plugin):
         define the outcome of the matching (see pema.matching for
         possible outcomes).
     """
-    __version__ = '0.1.2'
+    __version__ = '0.1.3'
     depends_on = ('truth', 'peak_basics')
     provides = ('truth_matched', 'peaks_matched')
     data_kind = immutabledict(truth_matched='truth',

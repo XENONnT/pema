@@ -1,11 +1,15 @@
 import pema
 import os
 import straxen
+import wfsim
 
+name = 'mide'
 base_dir = '/dali/lgrandi/angevaare/wfsims/pema'
-data_name = f'pema_mide_{pema.__version__}'
+
+# Fixed
+data_name = f'pema_w{wfsim.__version__}_p{pema.__version__}'
 fig_dir = os.path.join(base_dir, f'figures_summary_{data_name}')
-data_dir = os.path.join(base_dir, 'mide', 'processed_data')
+data_dir = os.path.join(base_dir, name, 'processed_data')
 raw_data_dir = os.path.join(base_dir, 'raw_data')
 instructions_csv = f"./inst_{data_name}.csv"
 
