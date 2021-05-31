@@ -17,7 +17,7 @@ def save_canvas(name,
         plt.tight_layout()
     if os.path.exists(save_dir) and os.path.exists(save_dir + '/pdf'):
         plt.savefig(f"{save_dir}/{name}.png", dpi=200, bbox_inches="tight")
-        for extension in 'pdf svg'.split()
+        for extension in 'pdf svg'.split():
             plt.savefig(os.path.join(save_dir, extension, f'{name}.pdf'), dpi=100, bbox_inches="tight")
         if pickle_dump:
             pickle_dump_figure(os.path.join(save_dir, 'pkl', f'{name}.pkl'))
