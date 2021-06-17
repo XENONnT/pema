@@ -9,12 +9,14 @@ Built on top of:
  * `straxen <https://github.com/XENONnT/straxen>`_
  * `WFSim  <https://github.com/XENONnT/wfsim>`_
 
+Content
+==========
 
 .. toctree::
     :maxdepth: 1
     :caption: Setup and basics
 
-    setupb
+    setup
 
 
 .. toctree::
@@ -22,6 +24,12 @@ Built on top of:
     :caption: Reference
 
     reference/datastructure
+
+.. toctree::
+    :maxdepth: 1
+    :caption: Reference
+
+    reference/pema
 
 
 Indices and tables

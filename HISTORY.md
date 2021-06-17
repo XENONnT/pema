@@ -1,3 +1,8 @@
+0.2.1 / 2021-060-17
+------------------
+- Allow plot dump to pickle (#20)
+- minor commits
+
 0.2.0 / 2021-05-21
 ------------------
 - Increased testing, faster matching (#17)
