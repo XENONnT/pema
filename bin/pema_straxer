@@ -191,7 +191,7 @@ def main(args):
             eta = (time.time() - clock_start) / max(1 - (n_done / tot_i), 1e-9)
             if n_done == tot_i - 1:
                 eta = 0
-            print(f'Using {mem_mb:.1f} MB RAM. R{run_i}-T{tar_i}\nETA {int(eta)}s ({eta/3600:.1f} h)')
+            print(f'Using {mem_mb:.1f} MB RAM. R{run_i}-T{tar_i}')
 
     logging.info(f"\npema_straxer is done! "
                  f"We took {time.time() - clock_start:.1f} seconds, "
