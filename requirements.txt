@@ -3,6 +3,6 @@ utilix>=0.4.1
 straxen>=0.19.3
 wfsim>=0.5.6
 multihist
-numba
+numba~=0.53.1
 numpy~=1.19.5
 nestpy
