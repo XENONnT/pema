@@ -1,5 +1,4 @@
 #!/usr/bin/env python
-
 """
 Process a single run with straxen using pema
 Copy of straxen/bin/straxer with some nice new features
@@ -17,6 +16,9 @@ import sys
 import json
 import pema
 import gc
+import importlib
+import sys
+from pprint import pprint
 
 
 def parse_args():
@@ -101,6 +103,11 @@ def parse_args():
         '--rechunk_rr',
         action='store_true',
         help='Rechunk the raw-records (especially useful when simulating data)')
+    parser.add_argument(
+        '--register_from_file',
+        type=str,
+        help='do st.register_all from a specified file'
+    )
     return parser.parse_args()
 
 
@@ -125,6 +132,9 @@ def main(args):
         context_init = {}
 
     st = getattr(pema.contexts, args.context)(**context_init)
+
+    if args.register_from_file:
+        register_to_context(st, args.register_from_file)
 
     # ignore strax warnings
     st.set_context_config({'free_options': tuple(st.config.keys())})
@@ -238,6 +248,18 @@ def json_to_dict(path:str):
             res[k] = list_to_tuple(v)
 
     return res
+
+
+def register_to_context(st, module: str):
+    if not os.path.exists(module):
+        raise FileNotFoundError(f'No such file {module}')
+    assert module.endswith('.py'), "only py files please!"
+    folder, file = os.path.split(module)
+    sys.path.append(folder)
+    to_register = importlib.import_module(os.path.splitext(file)[0])
+    st.register_all(to_register)
+    logging.info(f'Successfully registered {file}. Printing plugins')
+    pprint(st._plugin_class_registry)
 
 
 if __name__ == '__main__':
