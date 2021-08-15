@@ -40,9 +40,7 @@ def pema_context(
             raise ValueError(f'Invalid config update {config_update}')
         config = strax.combine_configs(config, config_update)
 
-    st = strax.Context(
-        config=config,
-        **straxen.contexts.common_opts)
+    st = straxen.contexts.xenonnt_simulation()
     st.set_config(config)
 
     # Disable warning for these options
@@ -53,7 +51,7 @@ def pema_context(
                                             'gain_model_mv')})
 
     # Setup the plugins for nT
-    st.register(wfsim.RawRecordsFromFaxNT)
+    # st.register(wfsim.RawRecordsFromFaxNT)
     st.register_all(pema.match_plugins)
     st.register_all(straxen.plugins.position_reconstruction)
     del st._plugin_class_registry['peak_positions_base_nt']
