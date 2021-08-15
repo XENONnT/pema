@@ -1,16 +1,23 @@
 import setuptools
 
-# Get requirements from requirements.txt, stripping the version tags
-with open('requirements.txt') as f:
-    requires = [
-        r.split('/')[-1] if r.startswith('git+') else r
-        for r in f.read().splitlines()]
+
+def open_requirements(path):
+    with open(path) as f:
+        requires = [
+            r.split('/')[-1] if r.startswith('git+') else r
+            for r in f.read().splitlines()]
+    return requires
+
 
 with open('README.md') as file:
     readme = file.read()
 
+
 with open('HISTORY.md') as file:
     history = file.read()
+
+requires = open_requirements('requirements.txt')
+tests_requires = open_requirements('extra_requirements/requirements-tests.txt')
 
 setuptools.setup(name='pema',
                  version='0.2.1',
@@ -26,7 +33,10 @@ setuptools.setup(name='pema',
                      'hypothesis',
                      'boltons'],
                  python_requires=">=3.6",
-                 packages=setuptools.find_packages(),
+                 packages=setuptools.find_packages() + ['extra_requirements'],
+                 package_dir={'extra_requirements': 'extra_requirements'},
+                 package_data={'extra_requirements': ['requirements-docs.txt',
+                                                      'requirements-tests.txt']},
                  scripts=['bin/pema_straxer',
                           'bin/pema_init.py',
                           ],
@@ -35,6 +45,9 @@ setuptools.setup(name='pema',
                      'License :: OSI Approved :: BSD License',
                      'Natural Language :: English',
                      'Programming Language :: Python :: 3.6',
+                     'Programming Language :: Python :: 3.7',
+                     'Programming Language :: Python :: 3.8',
+                     'Programming Language :: Python :: 3.9',
                      'Intended Audience :: Science/Research',
                      'Programming Language :: Python :: Implementation :: CPython',
                      'Topic :: Scientific/Engineering :: Physics',
