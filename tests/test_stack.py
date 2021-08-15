@@ -46,7 +46,7 @@ class TestStack(unittest.TestCase):
 
         # setting up instructions like this may take a while. You can set e.g.
         instructions = dict(
-            event_rate=10,
+            event_rate=100,
             chunk_size=1,
             nchunk=1,
             photons_low=30,
