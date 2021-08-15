@@ -256,4 +256,3 @@ class ProcessRun:
 
 class JobFailedError(ValueError):
     """If a script job failes, raise this error"""
-    pass
