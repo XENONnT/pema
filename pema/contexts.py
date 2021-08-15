@@ -39,7 +39,7 @@ def pema_context(
             raise ValueError(f'Invalid config update {config_update}')
         config = strax.combine_configs(config, config_update)
 
-    st = straxen.contexts.xenonnt_simulation(**config)
+    st = straxen.contexts.xenonnt_simulation(fax_config = config['fax_config'])
     st.set_config(config)
 
     # Disable warning for these options
