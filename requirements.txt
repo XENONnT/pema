@@ -4,5 +4,5 @@ straxen>=0.19.3
 wfsim>=0.5.6
 multihist
 numba
-numpy~=1.19
+numpy~=1.19.5
 nestpy

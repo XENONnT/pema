@@ -1,4 +1,13 @@
-0.2.1 / 2021-060-17
+0.2.2 / 2021-08-10
+------------------
+ - Fix master for strax, straxen, wfsim == 0.16.1, 0.19.3, 0.5.6 (#23)
+ - Fix docs requirements (#34, #32)
+ - Create codeql-analysis.yml (#35)
+ - Fix saving as SVG (#21)
+ - Register from module (#22)
+ - Less pinned requirements (#32)
+
+0.2.1 / 2021-60-17
 ------------------
 - Allow plot dump to pickle (#20)
 - minor commits
