@@ -217,7 +217,7 @@ class ProcessRun:
         finished = False
         for line in self.read_log()[-10:]:
             if 'Error' in line:
-                raise ValueError(line)
+                raise JobFailedError(line)
             if 'ended' in line:
                 finished = True
         return finished
@@ -252,3 +252,8 @@ class ProcessRun:
                             continue
                         print(_path)
                         shutil.rmtree(_path)
+
+
+class JobFailedError(ValueError):
+    """If a script job failes, raise this error"""
+    pass

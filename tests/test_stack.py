@@ -113,7 +113,10 @@ class TestStack(unittest.TestCase):
         print(f'Stored: {self.script.all_stored()}')
         check_all_stored = self.script.all_stored(return_bool=True)
         check_log_file = os.path.exists(self.script.log_file)
-        check_did_finish = self.script.job_finished()
+        try:
+            check_did_finish = self.script.job_finished()
+        except pema.scripts.JobFailedError:
+            check_did_finish = False
         if not (check_all_stored and check_log_file and check_did_finish):
             print(f'Failed: '
                   f'check_all_stored {check_all_stored}, '
@@ -122,7 +125,7 @@ class TestStack(unittest.TestCase):
                   )
             if check_log_file:
                 print(self.script.read_log())
-            raise ValueError(f'Job did not finish')
+            raise pema.scripts.JobFailedError(f'Job did not finish')
 
     def test_first_run_plugins(self):
         if not straxen.utilix_is_configured():
