@@ -102,7 +102,7 @@ jobs:
           HAVE_ACCESS_TO_SECTETS: ${{ secrets.RUNDB_API_URL }}
         if: matrix.test == 'coveralls' && env.HAVE_ACCESS_TO_SECTETS != null
         run: |
-          coverage run --source=pema setup.py test -v
+          coverage run --source=pema pytest -v
           coveralls --service=github
 
       # Done
