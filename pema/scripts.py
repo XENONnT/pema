@@ -74,9 +74,9 @@ class ProcessRun:
             os.makedirs(os.path.join(self.base_dir, subdir), exist_ok=True)
 
     def __repr__(self):
-        repr = f'ProcessRun {self.run_id} - {self.target}:\n{self.config}'
-        repr += f'\nwrite to {self.log_file} from {self.script_file}'
-        return repr
+        rep = f'ProcessRun {self.run_id} - {self.target}:\n{self.config}'
+        rep += f'\nwrite to {self.log_file} from {self.script_file}'
+        return rep
 
     def all_stored(self, show_key=False, return_bool=False):
         bool_stored = True
@@ -217,8 +217,8 @@ class ProcessRun:
         finished = False
         for line in self.read_log()[-10:]:
             if 'Error' in line:
-                raise ValueError(line)
-            elif 'ended' in line:
+                raise JobFailedError(line)
+            if 'ended' in line:
                 finished = True
         return finished
 
@@ -252,3 +252,7 @@ class ProcessRun:
                             continue
                         print(_path)
                         shutil.rmtree(_path)
+
+
+class JobFailedError(ValueError):
+    """If a script job failes, raise this error"""

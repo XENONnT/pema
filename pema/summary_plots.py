@@ -5,9 +5,7 @@ import numpy as np
 from multihist import Hist1d
 import strax
 import multihist
-import multihist
 from scipy.stats import norm
-import matplotlib.pyplot as plt
 from matplotlib.colors import LogNorm
 
 export, __all__ = strax.exporter()

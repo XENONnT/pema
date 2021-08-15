@@ -70,6 +70,7 @@ class TestStack(unittest.TestCase):
             "detector": 'XENONnT',
             "fax_file": os.path.abspath(instructions_csv),
             "fax_config": 'fax_config_nt_low_field.json',
+            "cmt_run_id_sim": run_id,
         }
 
         print("Temporary directory is ", temp_dir)
@@ -97,7 +98,7 @@ class TestStack(unittest.TestCase):
         if not straxen.utilix_is_configured():
             return
 
-        print(f'Start script')
+        print(f'Start script - context hash {self.script.st._context_hash()}')
         cmd, name = self.script.make_cmd()
         self.script.exec_local(cmd, name)
 
@@ -105,15 +106,26 @@ class TestStack(unittest.TestCase):
         t0 = time.time()
         print(self.script.process.communicate())
         print(f'took {time.time() - t0:.2f}s')
+        print(f'Script done- context hash {self.script.st._context_hash()}')
         time.sleep(10)
 
         print(f'Done')
         print(f'Stored: {self.script.all_stored()}')
-        assert self.script.all_stored(return_bool=True)
-        assert os.path.exists(self.script.log_file)
-        if not self.script.job_finished():
-            print(self.script.read_log())
-            raise ValueError(f'Job did not finish')
+        check_all_stored = self.script.all_stored(return_bool=True)
+        check_log_file = os.path.exists(self.script.log_file)
+        try:
+            check_did_finish = self.script.job_finished()
+        except pema.scripts.JobFailedError:
+            check_did_finish = False
+        if not (check_all_stored and check_log_file and check_did_finish):
+            print(f'Failed: '
+                  f'check_all_stored {check_all_stored}, '
+                  f'check_log_file: {check_log_file}, '
+                  f'check_did_finish: {check_did_finish}, '
+                  )
+            if check_log_file:
+                print(self.script.read_log())
+            raise pema.scripts.JobFailedError(f'Job did not finish')
 
     def test_first_run_plugins(self):
         if not straxen.utilix_is_configured():

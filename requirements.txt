@@ -1,7 +1,7 @@
 strax
 utilix>=0.4.1
-straxen>=0.15.7
-wfsim>=0.2.5
+straxen>=0.19.3
+wfsim>=0.5.6
 multihist
 numba
 numpy
