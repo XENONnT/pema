@@ -30,7 +30,7 @@ jobs:
     name: "${{ matrix.test }}_py${{ matrix.python-version }}"
     runs-on: ubuntu-latest
     strategy:
-      fail-fast: False
+      fail-fast: True
       matrix:
         python-version: [3.7, 3.8, 3.9]
         test: ['coveralls', 'pytest', 'pytest_no_database']
@@ -55,7 +55,7 @@ jobs:
       - name: Install requirements for tests and latest strax
         run: |
             pip install -r extra_requirements/requirements-tests.txt
-            python setup.py install
+            python setup.py develop
       # Secrets and required files
       - name: patch utilix file
         # Patch this file if we want to have access to the database
@@ -102,9 +102,8 @@ jobs:
           HAVE_ACCESS_TO_SECTETS: ${{ secrets.RUNDB_API_URL }}
         if: matrix.test == 'coveralls' && env.HAVE_ACCESS_TO_SECTETS != null
         run: |
-          coverage run --source=pema pytest -v
+          coverage run --source=pema setup.py test -v
           coveralls --service=github
-
       # Done
       - name: goodbye
         run: echo "tests done, bye bye"
