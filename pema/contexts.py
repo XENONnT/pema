@@ -32,7 +32,6 @@ def pema_context(
     config = dict(detector='XENONnT',
                   check_raw_record_overlaps=False,
                   fax_config='fax_config_nt_low_field.json',
-                  **straxen.contexts.xnt_common_config
                   )
 
     if config_update is not None:
@@ -40,7 +39,7 @@ def pema_context(
             raise ValueError(f'Invalid config update {config_update}')
         config = strax.combine_configs(config, config_update)
 
-    st = straxen.contexts.xenonnt_simulation()
+    st = straxen.contexts.xenonnt_simulation(**config)
     st.set_config(config)
 
     # Disable warning for these options
@@ -60,7 +59,7 @@ def pema_context(
         raw_types = (wfsim.RawRecordsFromFaxNT.provides +
                      straxen.plugins.pulse_processing.PulseProcessing.provides)
 
-    # Setup the storage
+    # Setup the storage, don't trust any of the stuff we get from xenonnt_simulation
     st.storage = []
 
     if raw_dir is not None:

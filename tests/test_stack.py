@@ -70,6 +70,7 @@ class TestStack(unittest.TestCase):
             "detector": 'XENONnT',
             "fax_file": os.path.abspath(instructions_csv),
             "fax_config": 'fax_config_nt_low_field.json',
+            "cmt_run_id_sim": run_id,
         }
 
         print("Temporary directory is ", temp_dir)
