@@ -18,6 +18,7 @@ with open('HISTORY.md') as file:
 
 requires = open_requirements('requirements.txt')
 tests_requires = open_requirements('extra_requirements/requirements-tests.txt')
+doc_requires = open_requirements('extra_requirements/requirements-docs.txt')
 
 setuptools.setup(name='pema',
                  version='0.2.1',
@@ -28,10 +29,10 @@ setuptools.setup(name='pema',
                  long_description_content_type="text/markdown",
                  setup_requires=['pytest-runner'],
                  install_requires=requires,
-                 tests_require=requires + [
-                     'pytest',
-                     'hypothesis',
-                     'boltons'],
+                 tests_require=requires+tests_requires,
+                 extras_require={
+                     'docs': doc_requires,
+                 },
                  python_requires=">=3.6",
                  packages=setuptools.find_packages() + ['extra_requirements'],
                  package_dir={'extra_requirements': 'extra_requirements'},
