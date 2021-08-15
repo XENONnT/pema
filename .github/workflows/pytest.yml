@@ -30,7 +30,7 @@ jobs:
     name: "${{ matrix.test }}_py${{ matrix.python-version }}"
     runs-on: ubuntu-latest
     strategy:
-      fail-fast: True
+      fail-fast: False
       matrix:
         python-version: [3.7, 3.8, 3.9]
         test: ['coveralls', 'pytest', 'pytest_no_database']
