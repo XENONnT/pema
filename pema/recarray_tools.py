@@ -145,8 +145,8 @@ def dict_group_by(x, group_by_fields='Event', return_group_indices=False):
 
 
 def fields_data(arr, ignore_fields=None):
+    """Returns list of arrays of data for each single field in arr"""
     if ignore_fields is None:
         ignore_fields = []
-    """Returns list of arrays of data for each single field in arr"""
     warn('fields_data will be removed in the next release', DeprecationWarning)
     return [arr[fn] for fn in arr.dtype.names if fn not in ignore_fields]
