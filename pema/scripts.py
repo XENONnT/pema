@@ -218,8 +218,7 @@ class ProcessRun:
         for line in self.read_log()[-10:]:
             if 'Error' in line:
                 raise ValueError(line)
-            # pylint: disable=no-else-raise
-            elif 'ended' in line:
+            if 'ended' in line:
                 finished = True
         return finished
 
