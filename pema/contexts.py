@@ -71,6 +71,6 @@ def pema_context(
             data_dir,
             exclude=raw_types
         )]
-    if no st.storage or not len(st.storage):
+    if not st.storage or not len(st.storage):
         raise RuntimeError('No storage, provide raw_dir and/or data_dir')
     return st
