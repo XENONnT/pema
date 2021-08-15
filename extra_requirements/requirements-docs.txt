@@ -4,5 +4,5 @@ sphinx_rtd_theme
 nbsphinx
 recommonmark
 graphviz
-numpy==1.19.1
+numpy==1.19.5
 ipython
