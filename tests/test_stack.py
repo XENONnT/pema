@@ -76,7 +76,8 @@ class TestStack(unittest.TestCase):
         print("Temporary directory is ", temp_dir)
         os.chdir(temp_dir)
 
-        st = pema.pema_context(base_dir=temp_dir,
+        st = pema.pema_context(cmt_run_id_sim=run_id,
+                               base_dir=temp_dir,
                                raw_dir=temp_dir,
                                data_dir=temp_dir,
                                config_update=config_update, )
