@@ -10,6 +10,7 @@ export, __all__ = strax.exporter()
 @export
 def pema_context(
         base_dir: str,
+        cmt_run_id_sim: str,
         config_update: dict = None,
         raw_dir=None,
         data_dir=None,
@@ -39,7 +40,10 @@ def pema_context(
             raise ValueError(f'Invalid config update {config_update}')
         config = strax.combine_configs(config, config_update)
 
-    st = straxen.contexts.xenonnt_simulation(fax_config = config['fax_config'])
+    st = straxen.contexts.xenonnt_simulation(
+            fax_config = config['fax_config'],
+            cmt_run_id_sim = cmt_run_id_sim,
+    )
     st.set_config(config)
 
     # Disable warning for these options
