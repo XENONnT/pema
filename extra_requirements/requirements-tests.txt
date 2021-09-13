@@ -1,7 +1,7 @@
 # Test compatibility with these most often:
 strax==0.16.1
 straxen==0.19.3
-wfsim==0.5.6
+wfsim==0.5.7
 
 # File for the requirements of pema with the automated tests
 blosc==1.10.4                                   # Strax dependency
