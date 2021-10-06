@@ -1,6 +1,6 @@
 # Test compatibility with these most often:
-strax==0.16.1
-straxen==0.19.3
+strax==1.0.0
+straxen==1.0.0
 wfsim==0.5.7
 
 # File for the requirements of pema with the automated tests

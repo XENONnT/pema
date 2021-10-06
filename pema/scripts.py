@@ -153,7 +153,9 @@ class ProcessRun:
             data_dir = st.storage[1].path
         else:
             raise ValueError
-        context_init = dict(base_dir=self.base_dir,
+        context_init = dict(fax_config=self.st.config.get('fax_config', 'NO_FAX_CONFIG!'),
+                            cmt_run_id_sim=self.st.config.get('cmt_run_id_sim', '026000'),
+                            base_dir=self.base_dir,
                             config_update=tot_config,
                             raw_dir=raw_dir,
                             data_dir=data_dir,
