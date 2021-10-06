@@ -76,10 +76,12 @@ class TestStack(unittest.TestCase):
         print("Temporary directory is ", temp_dir)
         os.chdir(temp_dir)
 
-        st = pema.pema_context(cmt_run_id_sim=run_id,
+        st = pema.pema_context(fax_config='fax_config_nt_design.json',
+                               cmt_run_id_sim=run_id,
                                base_dir=temp_dir,
                                raw_dir=temp_dir,
                                data_dir=temp_dir,
+
                                config_update=config_update, )
         st.set_context_config(
             {'allow_shm': True,
