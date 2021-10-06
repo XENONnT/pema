@@ -10,6 +10,7 @@ export, __all__ = strax.exporter()
 @export
 def pema_context(
         base_dir: str,
+        fax_config: str,
         cmt_run_id_sim: str,
         config_update: dict = None,
         raw_dir=None,
@@ -19,10 +20,12 @@ def pema_context(
     """
     Central context for pema, allows to init from a config.
     :param base_dir: Where store instructions,
+    :param fax_config: fax configuration file
+    :param cmt_run_id_sim: run_id for CMT (see straxen.contexts.xenonnt_simulation)
     :param config_update: Setup the config of the context
     :param raw_dir: Where to store the low level datatypes
     :param data_dir: Where to store the high level datatypes
-    :param raw_types: Low level datatypes, stored seperately from
+    :param raw_types: Low level datatypes, stored separately from
         high level datatypes
     :return: context
     """
@@ -32,7 +35,8 @@ def pema_context(
 
     config = dict(detector='XENONnT',
                   check_raw_record_overlaps=False,
-                  fax_config='fax_config_nt_low_field.json',
+                  fax_config=fax_config,
+                  cmt_run_id_sim=cmt_run_id_sim,
                   )
 
     if config_update is not None:
@@ -41,8 +45,8 @@ def pema_context(
         config = strax.combine_configs(config, config_update)
 
     st = straxen.contexts.xenonnt_simulation(
-            fax_config = config['fax_config'],
-            cmt_run_id_sim = cmt_run_id_sim,
+        fax_config=config['fax_config'],
+        cmt_run_id_sim=cmt_run_id_sim,
     )
     st.set_config(config)
 
@@ -51,7 +55,9 @@ def pema_context(
                                             'channel_map',
                                             'n_mveto_pmts',
                                             'gain_model_nv',
-                                            'gain_model_mv')})
+                                            'gain_model_mv',
+                                            'cmt_run_id_sim'
+                                            )})
 
     # Setup the plugins for nT
     # st.register(wfsim.RawRecordsFromFaxNT)
