@@ -89,10 +89,10 @@ kind_colors = dict(
     raw_records_coin='#ff4500')
 
 suffices = ['_he', '_nv', "_mv"]
-for suffix in suffices:
+for _suffix in suffices:
     to_copy = list(kind_colors.keys())
     for c in to_copy:
-        kind_colors[c + suffix] = kind_colors[c]
+        kind_colors[c + _suffix] = kind_colors[c]
 
 
 def add_spaces(x):
@@ -160,7 +160,7 @@ def get_context():
         appropriate passwords.
     :return: straxen context that mimics the xenonnt_online context without the rundb init
     """
-    st = pema.pema_context('.', raw_dir='.', cmt_run_id_sim='0')
+    st = pema.pema_context('.', raw_dir='.', cmt_run_id_sim='0', fax_config='fax_config_nt_design.json')
     pema_plugins = st._get_plugins(('match_acceptance_extended',), '0').keys()
     for p in list(st._plugin_class_registry.keys()):
         if p not in pema_plugins:
@@ -168,7 +168,7 @@ def get_context():
     return st
 
 
-def build_datastructure_doc():
+def build_data_structure_doc():
     pd.set_option('display.max_colwidth', int(1e9))
 
     st = get_context()
@@ -238,7 +238,7 @@ def build_datastructure_doc():
 
 try:
     if __name__ == '__main__':
-        build_datastructure_doc()
+        build_data_structure_doc()
 except KeyError:
     # Whatever
     pass
