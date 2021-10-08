@@ -30,4 +30,3 @@ def save_canvas(name,
                 bbox_inches="tight")
     else:
         raise FileExistsError(f'{save_dir} does not exist or does not have /pdf')
-
