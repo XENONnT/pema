@@ -25,7 +25,6 @@ custom_label = 'Changed clustering'
 # Take a few arbitrary runs that allow to run jobs in parallel and get the 
 # gains from CMT
 run_list = list(f'{r:06}' for r in range(18750, 18750 + 15))
-run_list
 
 # Just some id which allows CMT to load
 run_id = run_list[0]
@@ -50,7 +49,6 @@ pema.inst_to_csv(
     instructions_csv,
     get_inst_from=pema.kr83_instructions)
 
-# TODO can we add noise?
 config_update = dict(
     detector='XENONnT',
     fax_file=os.path.abspath(instructions_csv),
