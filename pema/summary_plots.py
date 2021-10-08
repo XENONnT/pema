@@ -223,10 +223,12 @@ def rec_plot(dat, show_hist=True, **kwargs):
     plt.plot(median.bin_centers, median, color='white', drawstyle='steps-mid', label='median')
 
     sigma_high = m2.percentile(100 * norm.cdf(1), m2.axis_names[1])
-    plt.plot(sigma_high.bin_centers, sigma_high, color='cyan', drawstyle='steps-mid', label='90% quantile')
+    plt.plot(sigma_high.bin_centers, sigma_high, color='cyan', drawstyle='steps-mid',
+             label='90% quantile')
 
     sigma_low = m2.percentile(100 * norm.cdf(-1), m2.axis_names[1])
-    plt.plot(sigma_low.bin_centers, sigma_low, color='green', drawstyle='steps-mid', label='10% quantile')
+    plt.plot(sigma_low.bin_centers, sigma_low, color='green', drawstyle='steps-mid',
+             label='10% quantile')
     if show_hist:
         m2.plot(log_scale=True)
     plt.grid()
