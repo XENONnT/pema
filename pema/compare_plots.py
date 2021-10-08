@@ -5,6 +5,7 @@ import matplotlib.pyplot as plt
 from straxen.analyses.waveform_plot import time_and_samples, seconds_range_xaxis
 import pema
 import sys
+import typing as ty
 
 if any('jupyter' in arg for arg in sys.argv):
     # In some cases we are not using any notebooks,
@@ -117,130 +118,190 @@ def plot_peak(p, t0=None, center_time=True, include_info=None, **kwargs):
                  )
 
 
-def compare_outcomes(st_default, truth_vs_default,
-                     st_custom, truth_vs_custom,
-                     fuzz=500,
-                     plot_fuzz=1000,
-                     max_peaks=10,
-                     default_label='default',
-                     custom_label='custom',
-                     fig_dir=None,
-                     show=True,
-                     randomize=True,
-                     different_by='acceptance_fraction',
-                     ):
-    if different_by:
-        peaks_idx = np.where(truth_vs_default[different_by] != truth_vs_custom[different_by])[0]
-    else:
-        peaks_idx = np.arange(len(truth_vs_default))
-    if randomize:
-        np.random.shuffle(peaks_idx)
+def _plot_truth(data, start_end, t_range, xlim):
+    plt.title('Instructions')
+    for pk, pi in enumerate(
+            range(*strax.touching_windows(data, start_end)[0])):
+        tpeak = data[pi]
+        hatch_cycle = ['/', '*', '+', '|']
+        _t_range = tpeak[['time', 'endtime']]
+        x = np.array(list(_t_range))
+        y = tpeak['n_photon'] / np.diff(x)
+        ct = tpeak['t_mean_photon']
+        stype = tpeak['type']
+        plt.gca()
+        plt.fill_between([x[0] / 1e9, ct / 1e9, x[-1] / 1e9, ],
+                         [0, 0, 0], [0, 2 * y[0], 0],
+                         color={1: 'blue',
+                                2: 'green',
+                                0: 'gray',
+                                6: 'orange',
+                                4: 'purple',
+                                }[stype],
+                         label=f'Peak S{stype}. {tpeak["n_photon"]} PE',
+                         alpha=0.4,
+                         hatch=hatch_cycle[pk]
+                         )
+        plt.ylabel('Intensity [PE/ns]')
+    for t in t_range:
+        axvline(t / 1e9, label=f't = {t}')
+
+    plt.legend(loc='lower left', fontsize='x-small')
+
+    plt.xlim(*xlim)
+
+
+def _plot_peak(st_default, truth_vs_default, default_label, peak_i, t_range, xlim, run_id):
+    plt.title(default_label)
+
+    if run_id is None:
+        run_id = truth_vs_default[peak_i]['run_id']
+
+    st_default.plot_peaks(run_id,
+                          single_figure=False,
+                          include_info=['area', 'rise_time', 'tight_coincidence'],
+                          time_range=t_range)
+    for t in t_range:
+        axvline(t / 1e9, label=t)
+    plt.xlim(*xlim)
+    plt.gca().set_xticklabels([])
+    plt.xlabel('')
+    plt.text(0.05, 0.95,
+             truth_vs_default[peak_i]['outcome'],
+             transform=plt.gca().transAxes,
+             ha='left',
+             va='top',
+             bbox=dict(boxstyle="round", fc="w")
+             )
+
+    plt.text(0.05, 0.1,
+             '\n'.join(f'{prop[:10]}: {truth_vs_default[peak_i][prop]:.1f}' for prop in
+                       ['rec_bias', 'acceptance_fraction']),
+             transform=plt.gca().transAxes,
+             fontsize='small',
+             ha='left',
+             va='bottom',
+             bbox=dict(boxstyle="round", fc="w"),
+             alpha=0.8,
+             )
+
+
+def compare_truth_and_outcome(
+        st: strax.Context,
+        data: np.ndarray,
+        match_fuzz: int = 500,
+        plot_fuzz: int = 500,
+        max_peaks: int = 10,
+        label: str = 'reconstructed',
+        fig_dir: ty.Union[None, str] = None,
+        show: bool = True,
+        randomize: bool = True,
+        run_id: ty.Union[None, str] = None,
+) -> None:
+    """
+    Compare the outcomes of two contexts with one another. In order to allow for selections, we
+    need to pass the data as second and third argument respectively.
+
+    :param st: the context of the current master, to compare with
+    :param data: the  data consistent with the default
+        context, can be cut to select certain data
+    :param match_fuzz: Extend loading peaks this many ns to allow for small shifts in reconstruction. Will extend the time range left and right
+    :param plot_fuzz: Make the plot slightly larger with this many ns for readability
+    :param max_peaks: max number of peaks to be shown. Set to  1 for plotting a singe peak.
+    :param label: How to label the default reconstruction
+    :param fig_dir: Where to save figures (if None, don't save)
+    :param show: show the figures or not.
+    :param randomize: randomly order peaks to get a random sample of <max_peaks> every time
+    :param run_id: Optional argument in case run_id is not a field in the data.
+    :return: None
+    """
+    _check_args(data, None, run_id)
+    peaks_idx = _get_peak_idxs_from_args(data, randomize)
+
     for peak_i in tqdm(peaks_idx[:max_peaks]):
         try:
-            t_range = (truth_vs_custom[peak_i]['time'] - fuzz,
-                       truth_vs_custom[peak_i]['endtime'] + fuzz)
+            if 'run_id' in data:
+                run_mask = data['run_id'] == data[peak_i]['run_id']
+            else:
+                run_mask = np.ones(len(data), dtype=np.bool_)
+            t_range, start_end, xlim = _get_time_ranges(data, peak_i, match_fuzz,
+                                                        plot_fuzz)
 
-            f, axes = plt.subplots(3, 1,
-                                   figsize=(10, 10),
-                                   gridspec_kw={'height_ratios': [0.5, 1, 1]})
-            xlim = (t_range[0] - plot_fuzz) / 1e9, (t_range[1] + plot_fuzz) / 1e9
+            axes = _get_axes_for_compare_plot(2)
 
             plt.sca(axes[0])
-            plt.title('Instructions')
-            start_end = np.zeros(1, dtype=strax.time_fields)
-            start_end['time'] = t_range[0]
-            start_end['endtime'] = t_range[1]
-            run_mask = truth_vs_custom['run_id'] == truth_vs_custom[peak_i]['run_id']
-            for pk, pi in enumerate(
-                    range(*strax.touching_windows(truth_vs_custom[run_mask], start_end)[0])):
-                tpeak = truth_vs_custom[run_mask][pi]
-                hatch_cycle = ['/', '*', '+', '|']
-                _t_range = tpeak[['time', 'endtime']]
-                x = np.array(list(_t_range))
-                y = tpeak['n_photon'] / np.diff(x)
-                ct = tpeak['t_mean_photon']
-                stype = tpeak['type']
-                plt.gca()
-                plt.fill_between([x[0] / 1e9, ct / 1e9, x[-1] / 1e9, ],
-                                 [0, 0, 0], [0, 2 * y[0], 0],
-                                 color={1: 'blue',
-                                        2: 'green',
-                                        0: 'gray',
-                                        6: 'orange',
-                                        4: 'purple',
-                                        }[stype],
-                                 label=f'Peak S{stype}. {tpeak["n_photon"]} PE',
-                                 alpha=0.4,
-                                 hatch=hatch_cycle[pk]
-                                 )
-                plt.ylabel('Intensity [PE/ns]')
-            for t in t_range:
-                axvline(t / 1e9, label=f't = {t}')
-
-            plt.legend(loc='lower left', fontsize='x-small')
-
-            plt.xlim(*xlim)
+            _plot_truth(data[run_mask], start_end, t_range, xlim)
 
             plt.sca(axes[1])
-            plt.title(default_label)
-            st_default.plot_peaks(truth_vs_custom[peak_i]['run_id'],
-                                  single_figure=False,
-                                  include_info=['area', 'rise_time', 'tight_coincidence'],
-                                  time_range=t_range)
-            for t in t_range:
-                axvline(t / 1e9, label=t)
-            plt.xlim(*xlim)
-            plt.gca().set_xticklabels([])
-            plt.xlabel('')
-            plt.text(0.05, 0.95,
-                     truth_vs_default[peak_i]['outcome'],
-                     transform=plt.gca().transAxes,
-                     ha='left',
-                     va='top',
-                     bbox=dict(boxstyle="round", fc="w")
-                     )
+            _plot_peak(st, data, label, peak_i, t_range, xlim, run_id)
 
-            plt.text(0.05, 0.1,
-                     '\n'.join(f'{prop[:10]}: {truth_vs_default[peak_i][prop]:.1f}' for prop in
-                               ['rec_bias', 'acceptance_fraction']),
-                     transform=plt.gca().transAxes,
-                     fontsize='small',
-                     ha='left',
-                     va='bottom',
-                     bbox=dict(boxstyle="round", fc="w"),
-                     alpha=0.8,
-                     )
+            _save_and_show('example_wf', fig_dir, show, peak_i)
+        except (ValueError, RuntimeError) as e:
+            print(f'Error making {peak_i}: {type(e)}, {e}')
+            plt.show()
+
+
+def compare_outcomes(st_default: strax.Context,
+                     truth_vs_default: np.ndarray,
+                     st_custom: strax.Context,
+                     truth_vs_custom: np.ndarray,
+                     match_fuzz: int = 500,
+                     plot_fuzz: int = 500,
+                     max_peaks: int = 10,
+                     default_label: str = 'default',
+                     custom_label: str = 'custom',
+                     fig_dir: ty.Union[None, str] = None,
+                     show: bool = True,
+                     randomize: bool = True,
+                     different_by: ty.Union[bool, str] = 'acceptance_fraction',
+                     run_id: ty.Union[None, str] = None,
+                     ) -> None:
+    """
+    Compare the outcomes of two contexts with one another. In order to allow for selections, we
+    need to pass the data as second and third argument respectively.
+
+    :param st_default: the context of the current master, to compare with
+    :param truth_vs_default: the  data consistent with the default
+        context, can be cut to select certain data
+    :param st_custom: context wherewith to compare st_default
+    :param truth_vs_custom: the data with the custom context, should be
+        same length as truth_vs_default
+    :param match_fuzz: Extend loading peaks this many ns to allow for small shifts in reconstruction. Will extend the time range left and right
+    :param plot_fuzz: Make the plot slightly larger with this many ns for readability
+    :param max_peaks: max number of peaks to be shown. Set to  1 for plotting a singe peak.
+    :param default_label: How to label the default reconstruction
+    :param custom_label:How to label the custom reconstruction
+    :param fig_dir: Where to save figures (if None, don't save)
+    :param show: show the figures or not.
+    :param randomize: randomly order peaks to get a random sample of <max_peaks> every time
+    :param different_by: Field to filter waveforms by. Only show  waveforms where this field is different in data. If False, plot any waveforms from the two datasets.
+    :param run_id: Optional argument in case run_id is not a field in the data.
+    :return: None
+    """
+    _check_args(truth_vs_default, truth_vs_custom, run_id)
+    peaks_idx = _get_peak_idxs_from_args(truth_vs_default, randomize, truth_vs_custom, different_by)
+
+    for peak_i in tqdm(peaks_idx[:max_peaks]):
+        try:
+            if 'run_id' in truth_vs_custom:
+                run_mask = truth_vs_custom['run_id'] == truth_vs_custom[peak_i]['run_id']
+            else:
+                run_mask = np.ones(len(truth_vs_custom), dtype=np.bool_)
+            t_range, start_end, xlim = _get_time_ranges(truth_vs_custom, peak_i, match_fuzz,
+                                                        plot_fuzz)
+
+            axes = _get_axes_for_compare_plot(3)
+
+            plt.sca(axes[0])
+            _plot_truth(truth_vs_custom[run_mask], start_end, t_range, xlim)
+
+            plt.sca(axes[1])
+            _plot_peak(st_default, truth_vs_default, default_label, peak_i, t_range, xlim, run_id)
 
             plt.sca(axes[2])
-            plt.title(custom_label)
-            st_custom.plot_peaks(truth_vs_custom[peak_i]['run_id'],
-                                 single_figure=False,
-                                 include_info=['area', 'rise_time', 'tight_coincidence'],
-                                 time_range=t_range)
-            plt.text(0.05, 0.95,
-                     truth_vs_custom[peak_i]['outcome'],
-                     transform=plt.gca().transAxes,
-                     ha='left',
-                     va='top',
-                     bbox=dict(boxstyle="round", fc="w")
-                     )
-            plt.text(0.05, 0.1,
-                     '\n'.join(f'{prop[:10]}: {truth_vs_custom[peak_i][prop]:.1f}' for prop in
-                               ['rec_bias', 'acceptance_fraction']),
-                     transform=plt.gca().transAxes,
-                     fontsize='small',
-                     ha='left',
-                     va='bottom',
-                     bbox=dict(boxstyle="round", fc="w"),
-                     alpha=0.8,
-                     )
-            for t in t_range:
-                axvline(t / 1e9, label=t)
-            plt.xlim(*xlim)
-            if fig_dir:
-                pema.save_canvas(f'example_wf_{peak_i}', save_dir=fig_dir)
-            if show:
-                plt.show()
+            _plot_peak(st_custom, truth_vs_custom, custom_label, peak_i, t_range, xlim, run_id)
+
+            _save_and_show('example_wf_diff', fig_dir, show, peak_i)
         except (ValueError, RuntimeError) as e:
             print(f'Error making {peak_i}: {type(e)}, {e}')
             plt.show()
@@ -249,3 +310,47 @@ def compare_outcomes(st_default, truth_vs_default,
 def axvline(v, **kwargs):
     vline_color = next(plt.gca()._get_lines.prop_cycler)['color']
     plt.axvline(v, color=vline_color, **kwargs)
+
+
+def _get_peak_idxs_from_args(data_1, randomize, data_2=None, different_by=None):
+    if different_by is not None and different_by:
+        assert data_2 is not None
+        peaks_idx = np.where(data_1[different_by] != data_2[different_by])[0]
+    else:
+        peaks_idx = np.arange(len(data_1))
+    if randomize:
+        np.random.shuffle(peaks_idx)
+    return peaks_idx
+
+
+def _check_args(truth_vs_default, truth_vs_custom=None, run_id=None):
+    if 'run_id' not in truth_vs_default.dtype.names and run_id is None:
+        raise ValueError('Either need a run_id or data with a run_id field!')
+    if truth_vs_custom is not None and len(truth_vs_custom) != len(truth_vs_default):
+        raise ValueError('Got different lengths for truth_vs_custom and truth_vs_default')
+
+
+def _get_axes_for_compare_plot(n_axis):
+    assert n_axis in [2, 3]
+    _, axes = plt.subplots(n_axis, 1,
+                           figsize=(10 * (n_axis / 3), 10),
+                           gridspec_kw={'height_ratios': [0.5, 1, 1][:n_axis]})
+    return axes
+
+
+def _save_and_show(name, fig_dir, show, peak_i):
+    if fig_dir:
+        pema.save_canvas(f'{name}_{peak_i}', save_dir=fig_dir)
+    if show:
+        plt.show()
+
+
+def _get_time_ranges(truth_vs_custom, peak_i, matching_fuzz, plot_fuzz):
+    t_range = (truth_vs_custom[peak_i]['time'] - matching_fuzz,
+               truth_vs_custom[peak_i]['endtime'] + matching_fuzz)
+    start_end = np.zeros(1, dtype=strax.time_fields)
+    start_end['time'] = t_range[0]
+    start_end['endtime'] = t_range[1]
+
+    xlim = (t_range[0] - plot_fuzz) / 1e9, (t_range[1] + plot_fuzz) / 1e9
+    return t_range, start_end, xlim

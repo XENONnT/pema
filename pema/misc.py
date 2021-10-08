@@ -2,6 +2,7 @@ import matplotlib.pyplot as plt
 import os
 import pickle
 
+
 def save_canvas(name,
                 save_dir='./figures',
                 dpi=200,
@@ -31,9 +32,11 @@ def save_canvas(name,
     else:
         raise FileExistsError(f'{save_dir} does not exist or does not have /pdf')
 
+
 def pickle_dump_figure(name):
     fig = plt.gcf()
     pickle.dump(fig, open(name, 'wb'))
+
 
 def open_pickle(name):
     figx = pickle.load(open(name, 'rb'))

@@ -10,9 +10,7 @@ import shutil
 import uuid
 import numpy as np
 
-
 straxen.print_versions(['strax', 'straxen', 'wfsim', 'nestpy', 'pema'])
-
 
 run_id = '008000'
 
@@ -48,7 +46,7 @@ class TestStack(unittest.TestCase):
         instructions = dict(
             event_rate=100,
             chunk_size=1,
-            nchunk=1,
+            nchunk=2,
             photons_low=30,
             photons_high=50,
             electrons_low=10,
@@ -153,12 +151,18 @@ class TestStack(unittest.TestCase):
             st2.make(run_id, t)
         peaks_1 = st.get_array(run_id, 'match_acceptance_extended')
         peaks_2 = st2.get_array(run_id, 'match_acceptance_extended')
-        if not 'run_id' in peaks_1.dtype.names:
+        if 'run_id' not in peaks_1.dtype.names:
             peaks_1 = pema.append_fields(peaks_1, 'run_id', [run_id] * len(peaks_1))
             peaks_2 = pema.append_fields(peaks_2, 'run_id', [run_id] * len(peaks_2))
+        pema.compare_truth_and_outcome(
+            st, peaks_1,
+            max_peaks=2,
+            show=False,
+            fig_dir=self.tempdir,
+        )
         pema.compare_outcomes(st, peaks_1,
                               st2, peaks_2,
-                              max_peaks=11,
+                              max_peaks=2,
                               show=False,
                               different_by=None,
                               fig_dir=self.tempdir,
@@ -186,8 +190,8 @@ class TestStack(unittest.TestCase):
         peaks_1 = st.get_array(run_id, 'match_acceptance_extended')
         peaks_2 = st2.get_array(run_id, 'match_acceptance_extended')
         peaks_1_kwargs = dict(bins=50,
-                range=[[0, peaks_1['n_photon'].max() + 1],
-                       [0, peaks_1['rec_bias'].max() + 1]])
+                              range=[[0, peaks_1['n_photon'].max() + 1],
+                                     [0, peaks_1['rec_bias'].max() + 1]])
         if len(peaks_1):
             pema.summary_plots.rec_plot(
                 peaks_1,
