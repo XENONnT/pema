@@ -7,7 +7,7 @@ import pema
 import strax
 import numba
 import logging
-
+from numpy.lib import recfunctions
 logging.basicConfig(
     level=logging.INFO,
     format='%(asctime)s - %(threadName)s - %(name)s - %(levelname)s - %(message)s')
@@ -241,6 +241,34 @@ def _get_deepwindows(windows, peaks_a, peaks_b, matching_fuzz, _deep_windows):
                 # No match
                 pass
     return _deep_windows
+
+
+def append_fields(base, names, data, dtypes=None, fill_value=-1,
+                  usemask=False,  # Different from recfunctions default
+                  asrecarray=False):
+    """Append fields to numpy structured array
+    Does nothing if array already has fields with the same name.
+    """
+    if isinstance(names, (tuple, list)):
+        not_yet_in_data = True ^ np.in1d(names, base.dtype.names)
+        if dtypes is None:
+            dtypes = [d.dtype for d in data]
+        # Add multiple fields at once
+        return recfunctions.append_fields(
+            base,
+            np.array(names)[not_yet_in_data].tolist(),
+            np.array(data)[not_yet_in_data].tolist(),
+            np.array(dtypes)[not_yet_in_data].tolist(),
+            fill_value,
+            usemask,
+            asrecarray)
+    else:
+        # Add single field
+        if names in base.dtype.names:
+            return base
+        else:
+            return recfunctions.append_fields(
+                base, names, data, dtypes, fill_value, usemask, asrecarray)
 
 
 # --- Numba functions where numpy does not suffice ---
