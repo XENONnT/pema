@@ -64,14 +64,14 @@ def match_peaks(allpeaks1, allpeaks2,
             raise ValueError(m)
     log.debug('Appending fields')
     # Append id, outcome and matched_to fields
-    allpeaks1 = pema.append_fields(
+    allpeaks1 = append_fields(
         allpeaks1,
         ('outcome', 'matched_to'),
         (np.array(['missed'] * len(allpeaks1), dtype=OUTCOME_DTYPE),
          INT_NAN * np.ones(len(allpeaks1), dtype=np.int64)),
         dtypes=(OUTCOME_DTYPE, np.int64),
     )
-    allpeaks2 = pema.append_fields(
+    allpeaks2 = append_fields(
         allpeaks2,
         ('outcome', 'matched_to'),
         (np.array(['missed'] * len(allpeaks2), dtype=OUTCOME_DTYPE),
@@ -243,6 +243,7 @@ def _get_deepwindows(windows, peaks_a, peaks_b, matching_fuzz, _deep_windows):
     return _deep_windows
 
 
+@export
 def append_fields(base, names, data, dtypes=None, fill_value=-1,
                   usemask=False,  # Different from recfunctions default
                   asrecarray=False):
