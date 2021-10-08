@@ -4,6 +4,13 @@ from hypothesis import given, strategies, example, settings
 import strax
 
 
+_DTYPE = [(('Start time since unix epoch [ns]', 'time'), np.int64),
+          (('Exclusive end time since unix epoch [ns]', 'endtime'), np.int64),
+          (('Number', 'id'), np.int64),
+          (('type of p', 'type'), np.int16),
+          (('area of p', 'area'), np.float64)]
+
+
 @settings(max_examples=100, deadline=None)
 @given(strategies.integers(min_value=0, max_value=100),
        strategies.integers(min_value=0, max_value=2), )
@@ -42,13 +49,7 @@ def test_matching(data_length,
                   max_duration,
                   n_data_types,
                   n_truth_types):
-    dtype = [(('Start time since unix epoch [ns]', 'time'), np.int64),
-             (('Exclusive end time since unix epoch [ns]', 'endtime'), np.int64),
-             (('Number', 'id'), np.int64),
-             (('type of p', 'type'), np.int16),
-             (('area of p', 'area'), np.float64)]
-
-    data = np.zeros(data_length, dtype=dtype)
+    data = np.zeros(data_length, dtype=_DTYPE)
     data['id'] = np.arange(data_length)
     data['time'] = np.random.randint(0, 1e9, data_length)
     data.sort(order='time')
@@ -60,7 +61,7 @@ def test_matching(data_length,
         data['endtime'][:-1] = np.clip(data['endtime'][:-1], data['time'][:-1], data['time'][1:], )
     data['type'] = np.random.randint(0, n_data_types + 1, data_length)
 
-    truth = np.zeros(truth_length, dtype=dtype)
+    truth = np.zeros(truth_length, dtype=_DTYPE)
     truth['time'] = np.random.randint(0, 1e9, truth_length)
     truth.sort(order='time')
 
@@ -103,13 +104,7 @@ def test_deepwindows(data_length,
                      n_data_types,
                      n_truth_types,
                      matching_fuzz):
-    dtype = [(('Start time since unix epoch [ns]', 'time'), np.int64),
-             (('Exclusive end time since unix epoch [ns]', 'endtime'), np.int64),
-             (('Number', 'id'), np.int64),
-             (('type of p', 'type'), np.int16),
-             (('area of p', 'area'), np.float64)]
-
-    data = np.zeros(data_length, dtype=dtype)
+    data = np.zeros(data_length, dtype=_DTYPE)
     data['id'] = np.arange(data_length)
     data['time'] = np.random.randint(0, 1e9, data_length)
     data.sort(order='time')
@@ -121,7 +116,7 @@ def test_deepwindows(data_length,
         data['endtime'][:-1] = np.clip(data['endtime'][:-1], data['time'][:-1], data['time'][1:], )
     data['type'] = np.random.randint(0, n_data_types + 1, data_length)
 
-    truth = np.zeros(truth_length, dtype=dtype)
+    truth = np.zeros(truth_length, dtype=_DTYPE)
     truth['time'] = np.random.randint(0, 1e9, truth_length)
     truth.sort(order='time')
 

@@ -164,16 +164,7 @@ def acceptance_plot_simple(data, on_axis, bin_edges, plot_label=""):
     hists = peak_matching_histogram(data, on_axis, bin_edges)
     bin_centers, total, found = get_efficiency(hists)
     values, yerr = get_interval(bin_centers, total, found)
-
-    plt.errorbar(x=bin_centers,
-                 y=values,
-                 yerr=yerr,
-                 linestyle='none',
-                 marker='o',
-                 markersize=4,
-                 capsize=3,
-                 label=plot_label,
-                 )
+    _plot_acc(bin_centers, values, yerr, plot_label)
     plt.xlabel(on_axis.replace('_', ' '))
 
 
@@ -203,6 +194,11 @@ def acceptance_plot(data, on_axis, bin_edges, nbins=None, plot_label=""):
     (this is an arbitrary weighing of the acceptance based on the outcome of matching)
     """
     bin_centers, values, yerr = calc_arb_acceptance(data, on_axis, bin_edges, nbins)
+    _plot_acc(bin_centers, values, yerr, plot_label)
+    plt.xlabel(on_axis.replace('_', ' '))
+
+
+def _plot_acc(bin_centers, values, yerr, plot_label):
     plt.errorbar(x=bin_centers,
                  y=values,
                  yerr=yerr,
@@ -212,7 +208,6 @@ def acceptance_plot(data, on_axis, bin_edges, nbins=None, plot_label=""):
                  capsize=3,
                  label=plot_label,
                  )
-    plt.xlabel(on_axis.replace('_', ' '))
 
 
 def rec_plot(dat, show_hist=True, **kwargs):
