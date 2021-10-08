@@ -7,7 +7,7 @@ import pema
 import strax
 import numba
 import logging
-
+from numpy.lib import recfunctions
 logging.basicConfig(
     level=logging.INFO,
     format='%(asctime)s - %(threadName)s - %(name)s - %(levelname)s - %(message)s')
@@ -64,14 +64,14 @@ def match_peaks(allpeaks1, allpeaks2,
             raise ValueError(m)
     log.debug('Appending fields')
     # Append id, outcome and matched_to fields
-    allpeaks1 = pema.append_fields(
+    allpeaks1 = append_fields(
         allpeaks1,
         ('outcome', 'matched_to'),
         (np.array(['missed'] * len(allpeaks1), dtype=OUTCOME_DTYPE),
          INT_NAN * np.ones(len(allpeaks1), dtype=np.int64)),
         dtypes=(OUTCOME_DTYPE, np.int64),
     )
-    allpeaks2 = pema.append_fields(
+    allpeaks2 = append_fields(
         allpeaks2,
         ('outcome', 'matched_to'),
         (np.array(['missed'] * len(allpeaks2), dtype=OUTCOME_DTYPE),
@@ -241,6 +241,35 @@ def _get_deepwindows(windows, peaks_a, peaks_b, matching_fuzz, _deep_windows):
                 # No match
                 pass
     return _deep_windows
+
+
+@export
+def append_fields(base, names, data, dtypes=None, fill_value=-1,
+                  usemask=False,  # Different from recfunctions default
+                  asrecarray=False):
+    """Append fields to numpy structured array
+    Does nothing if array already has fields with the same name.
+    """
+    if isinstance(names, (tuple, list)):
+        not_yet_in_data = True ^ np.in1d(names, base.dtype.names)
+        if dtypes is None:
+            dtypes = [d.dtype for d in data]
+        # Add multiple fields at once
+        return recfunctions.append_fields(
+            base,
+            np.array(names)[not_yet_in_data].tolist(),
+            np.array(data)[not_yet_in_data].tolist(),
+            np.array(dtypes)[not_yet_in_data].tolist(),
+            fill_value,
+            usemask,
+            asrecarray)
+    else:
+        # Add single field
+        if names in base.dtype.names:
+            return base
+        else:
+            return recfunctions.append_fields(
+                base, names, data, dtypes, fill_value, usemask, asrecarray)
 
 
 # --- Numba functions where numpy does not suffice ---
