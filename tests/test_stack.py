@@ -46,7 +46,7 @@ class TestStack(unittest.TestCase):
         instructions = dict(
             event_rate=100,
             chunk_size=1,
-            nchunk=1,
+            nchunk=2,
             photons_low=30,
             photons_high=50,
             electrons_low=10,
