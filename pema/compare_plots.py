@@ -9,35 +9,6 @@ from strax.utils import tqdm  # For widget pbar in notebooks
 
 
 @straxen.mini_analysis(
-    requires=('truth',),
-    default_time_selection='touching',
-    warn_beyond_sec=60)
-def plot_instructions(
-        truth,
-        seconds_range,
-):
-    for pi, peak in enumerate(truth):
-        hatch_cycle = ['/', '*', '+', '|'] * 20
-        print(peak, peak.dtype)
-        _t_range = peak[['time', 'endtime']]
-        x = np.array(list(_t_range))
-        y = peak['amp'] / np.diff(x)
-
-        stype = peak['type']
-        plt.gca()
-        plt.fill_between(x / 1e9, 0, y,
-                         color={1: 'blue',
-                                2: 'green',
-                                0: 'gray',
-                                6: 'orange',
-                                }[stype],
-                         label=f'Peak S{stype}',
-                         alpha=0.4,
-                         hatch=hatch_cycle[pi]
-                         )
-
-
-@straxen.mini_analysis(
     requires=('peaks', 'peak_basics'),
     default_time_selection='touching',
     warn_beyond_sec=60)
