@@ -192,20 +192,25 @@ def compare_truth_and_outcome(
         run_id: ty.Union[None, str] = None,
 ) -> None:
     """
-    Compare the outcomes of two contexts with one another. In order to allow for selections, we
-    need to pass the data as second and third argument respectively.
+    Compare the outcomes of the truth and the reconstructed peaks
 
     :param st: the context of the current master, to compare with
     :param data: the  data consistent with the default
         context, can be cut to select certain data
-    :param match_fuzz: Extend loading peaks this many ns to allow for small shifts in reconstruction. Will extend the time range left and right
-    :param plot_fuzz: Make the plot slightly larger with this many ns for readability
-    :param max_peaks: max number of peaks to be shown. Set to  1 for plotting a singe peak.
+    :param match_fuzz: Extend loading peaks this many ns to allow for
+        small shifts in reconstruction. Will extend the time range left
+        and right
+    :param plot_fuzz: Make the plot slightly larger with this many ns
+        for readability
+    :param max_peaks: max number of peaks to be shown. Set to  1 for
+        plotting a singe peak.
     :param label: How to label the default reconstruction
     :param fig_dir: Where to save figures (if None, don't save)
     :param show: show the figures or not.
-    :param randomize: randomly order peaks to get a random sample of <max_peaks> every time
-    :param run_id: Optional argument in case run_id is not a field in the data.
+    :param randomize: randomly order peaks to get a random sample of
+        <max_peaks> every time
+    :param run_id: Optional argument in case run_id is not a field in
+        the data.
     :return: None
     """
     _check_args(data, None, run_id)
@@ -250,24 +255,33 @@ def compare_outcomes(st_default: strax.Context,
                      run_id: ty.Union[None, str] = None,
                      ) -> None:
     """
-    Compare the outcomes of two contexts with one another. In order to allow for selections, we
-    need to pass the data as second and third argument respectively.
+    Compare the outcomes of two contexts with one another. In order to
+    allow for selections, we need to pass the data as second and third
+    argument respectively.
 
-    :param st_default: the context of the current master, to compare with
+    :param st_default: the context of the current master, to compare
+        with st_custom
     :param truth_vs_default: the  data consistent with the default
         context, can be cut to select certain data
     :param st_custom: context wherewith to compare st_default
     :param truth_vs_custom: the data with the custom context, should be
         same length as truth_vs_default
-    :param match_fuzz: Extend loading peaks this many ns to allow for small shifts in reconstruction. Will extend the time range left and right
-    :param plot_fuzz: Make the plot slightly larger with this many ns for readability
-    :param max_peaks: max number of peaks to be shown. Set to  1 for plotting a singe peak.
+    :param match_fuzz: Extend loading peaks this many ns to allow for
+        small shifts in reconstruction. Will extend the time range left
+        and right
+    :param plot_fuzz: Make the plot slightly larger with this many ns
+        for readability
+    :param max_peaks: max number of peaks to be shown. Set to  1 for
+        plotting a singe peak.
     :param default_label: How to label the default reconstruction
     :param custom_label:How to label the custom reconstruction
     :param fig_dir: Where to save figures (if None, don't save)
     :param show: show the figures or not.
-    :param randomize: randomly order peaks to get a random sample of <max_peaks> every time
-    :param different_by: Field to filter waveforms by. Only show  waveforms where this field is different in data. If False, plot any waveforms from the two datasets.
+    :param randomize: randomly order peaks to get a random sample of
+        <max_peaks> every time
+    :param different_by: Field to filter waveforms by. Only show
+        waveforms where this field is different in data. If False, plot
+        any waveforms from the two data sets.
     :param run_id: Optional argument in case run_id is not a field in the data.
     :return: None
     """

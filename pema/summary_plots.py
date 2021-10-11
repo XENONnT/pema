@@ -215,10 +215,15 @@ def rec_diff(def_data,
              s1_kwargs=None,
              s2_kwargs=None):
     f, axes = plt.subplots(2, 2, figsize=(18, 13))
+
     if s1_kwargs is None:
-        s1_kwargs = dict(bins=50, range=[[0, 50], [0, 1.5]])
+        s1_kwargs = {}
     if s2_kwargs is None:
-        s2_kwargs = dict(bins=50, range=[[0, 200], [0, 1.5]])
+        s2_kwargs = {}
+    for d in (s1_kwargs, s2_kwargs):
+        d.setdefault('bins', 50)
+        d.setdefault('range', [[0, 50], [0, 1.5]])
+    assert 'bins' in s1_kwargs and 'range' in s1_kwargs
 
     for axi, dat in enumerate([def_data, cust_data]):
         plt.sca(axes[0][axi])

@@ -29,7 +29,7 @@ def save_canvas(name: str,
     """
     assert not pickle_dump, "Allowing pickle dumps is deprecated"
     if other_formats is None:
-        'pdf svg'.split()
+        other_formats = 'pdf svg'.split()
     if not os.path.exists(save_dir):
         os.makedirs(save_dir + '/.')
     for sub_folder in other_formats:
