@@ -225,11 +225,11 @@ class TestStack(unittest.TestCase):
         # truth = st.get_array(run_id, 'truth')
         # st.plot_instructions(run_id, time_within=truth[:2])
         peaks = st.get_array(run_id, 'peaks')
-        st.plot_peaks(run_id, time_within=peaks[:2])
+        st.plot_peaks(run_id, time_within=peaks[0])
         plt.clf()
-        st.plot_peaks(run_id, time_within=peaks[:2], xaxis='since_start')
+        st.plot_peaks(run_id, time_within=peaks[0], xaxis='since_start')
         plt.clf()
-        st.plot_peaks(run_id, time_within=peaks[:2], xaxis=False)
+        st.plot_peaks(run_id, time_within=peaks[0], xaxis=False)
         pema.save_canvas(os.path.join(self.tempdir, 'figs'))
 
     @classmethod
