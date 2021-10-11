@@ -4,19 +4,12 @@ import numpy as np
 import matplotlib.pyplot as plt
 from straxen.analyses.waveform_plot import time_and_samples, seconds_range_xaxis
 import pema
-import sys
 import typing as ty
-
-if any('jupyter' in arg for arg in sys.argv):
-    # In some cases we are not using any notebooks,
-    # Taken from 44952863 on stack overflow thanks!
-    from tqdm.notebook import tqdm
-else:
-    from tqdm import tqdm
+from strax.utils import tqdm  # For widget pbar in notebooks
 
 
 @straxen.mini_analysis(
-    requires=('truth'),
+    requires=('truth',),
     default_time_selection='touching',
     warn_beyond_sec=60)
 def plot_instructions(
@@ -220,7 +213,7 @@ def compare_truth_and_outcome(
 
     for peak_i in tqdm(peaks_idx[:max_peaks]):
         try:
-            if 'run_id' in data:
+            if 'run_id' in data.dtype.names:
                 run_mask = data['run_id'] == data[peak_i]['run_id']
             else:
                 run_mask = np.ones(len(data), dtype=np.bool_)
@@ -283,7 +276,7 @@ def compare_outcomes(st_default: strax.Context,
 
     for peak_i in tqdm(peaks_idx[:max_peaks]):
         try:
-            if 'run_id' in truth_vs_custom:
+            if 'run_id' in truth_vs_custom.dtype.names:
                 run_mask = truth_vs_custom['run_id'] == truth_vs_custom[peak_i]['run_id']
             else:
                 run_mask = np.ones(len(truth_vs_custom), dtype=np.bool_)
