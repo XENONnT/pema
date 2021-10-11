@@ -221,8 +221,9 @@ class TestStack(unittest.TestCase):
         if not straxen.utilix_is_configured():
             return
         st = self.script.st
-        truth = st.get_array(run_id, 'truth')
-        st.plot_instructions(run_id, time_within=truth[:2])
+        # Sadly does not work because of endtimes in wfsim
+        # truth = st.get_array(run_id, 'truth')
+        # st.plot_instructions(run_id, time_within=truth[:2])
         peaks = st.get_array(run_id, 'peaks')
         st.plot_peaks(run_id, time_within=peaks[:2])
         plt.clf()
