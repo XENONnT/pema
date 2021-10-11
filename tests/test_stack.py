@@ -111,7 +111,7 @@ class TestStack(unittest.TestCase):
         time.sleep(10)
 
         print(f'Done')
-        print(f'Stored: {self.script.all_stored()}')
+        print(f'Stored: {self.script.all_stored(show_key=True)}')
         check_all_stored = self.script.all_stored(return_bool=True)
         check_log_file = os.path.exists(self.script.log_file)
         try:
@@ -139,6 +139,19 @@ class TestStack(unittest.TestCase):
                         > strax.SaveWhen.NEVER):
                     self.script.st.make(r, t)
                     assert self.script.st.is_stored(r, t)
+
+    def test_next_print(self):
+        if not straxen.utilix_is_configured():
+            return
+        print(self.script)
+
+    def test_next_make_dali_script(self):
+        if not straxen.utilix_is_configured():
+            return
+        # Just make sure we write some file, we are not actually going
+        # to run it
+        self.script.exec_dali('ls', 'test_job', 'dummy_activate')
+        assert os.path.exists(self.script.script_file)
 
     def test_later_compare(self):
         if not straxen.utilix_is_configured():
@@ -189,14 +202,9 @@ class TestStack(unittest.TestCase):
         st2 = st.new_context()
         peaks_1 = st.get_array(run_id, 'match_acceptance_extended')
         peaks_2 = st2.get_array(run_id, 'match_acceptance_extended')
-        peaks_1_kwargs = dict(bins=50,
-                              range=[[0, peaks_1['n_photon'].max() + 1],
-                                     [0, peaks_1['rec_bias'].max() + 1]])
+        peaks_1_kwargs = dict(bins=10)
         if len(peaks_1):
-            pema.summary_plots.rec_plot(
-                peaks_1,
-                **peaks_1_kwargs
-            )
+            pema.summary_plots.rec_plot(peaks_1, **peaks_1_kwargs)
             plt.clf()
         if len(peaks_1) and len(peaks_2):
             if not np.sum(peaks_1['type'] == 1):
@@ -208,6 +216,21 @@ class TestStack(unittest.TestCase):
                 s2_kwargs=peaks_1_kwargs,
             )
             plt.clf()
+
+    def test_later_inst_plot(self):
+        if not straxen.utilix_is_configured():
+            return
+        st = self.script.st
+        # Sadly does not work because of endtimes in wfsim
+        # truth = st.get_array(run_id, 'truth')
+        # st.plot_instructions(run_id, time_within=truth[:2])
+        peaks = st.get_array(run_id, 'peaks')
+        st.plot_peaks(run_id, time_within=peaks[0])
+        plt.clf()
+        st.plot_peaks(run_id, time_within=peaks[0], xaxis='since_start')
+        plt.clf()
+        st.plot_peaks(run_id, time_within=peaks[0], xaxis=False)
+        pema.save_canvas('test_fig', os.path.join(self.tempdir, 'figs'))
 
     @classmethod
     def tearDownClass(cls):

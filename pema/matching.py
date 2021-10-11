@@ -8,6 +8,7 @@ import strax
 import numba
 import logging
 from numpy.lib import recfunctions
+
 logging.basicConfig(
     level=logging.INFO,
     format='%(asctime)s - %(threadName)s - %(name)s - %(levelname)s - %(message)s')

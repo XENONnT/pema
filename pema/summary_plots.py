@@ -126,7 +126,7 @@ def binom_interval(success, total, conf_level=0.95):
     Code stolen from https://gist.github.com/paulgb/6627336
     Agrees with http://statpages.info/confint.html for binom_interval(1, 10)
     """
-    # TODO: special case for success = 0 or = total? see wikipedia
+    # Sould we add a special case for success = 0 or = total? see wikipedia
     quantile = (1 - conf_level) / 2.
     lower = beta.ppf(quantile, success, total - success + 1)
     upper = beta.ppf(1 - quantile, success + 1, total - success)
@@ -138,16 +138,6 @@ def binom_interval(success, total, conf_level=0.95):
     return lower, upper
 
 
-def get_efficiency(bla):
-    x = bla['_total'].bin_centers
-    n = bla['_total'].histogram
-    if 'chopped' in bla.keys():
-        found = bla['found'].histogram + bla['chopped'].histogram
-    else:
-        found = bla['found'].histogram
-    return x, n, found
-
-
 def get_interval(x, n, found):
     one_sigma = stats.norm.cdf(1) - stats.norm.cdf(-1)
     eff = found / n
@@ -157,15 +147,6 @@ def get_interval(x, n, found):
         limits[i, :] = binom_interval(found[i], total=n[i], conf_level=one_sigma)
     yerr = np.abs(limits.T - eff)
     return eff, yerr
-
-
-@export
-def acceptance_plot_simple(data, on_axis, bin_edges, plot_label=""):
-    hists = peak_matching_histogram(data, on_axis, bin_edges)
-    bin_centers, total, found = get_efficiency(hists)
-    values, yerr = get_interval(bin_centers, total, found)
-    _plot_acc(bin_centers, values, yerr, plot_label)
-    plt.xlabel(on_axis.replace('_', ' '))
 
 
 def calc_arb_acceptance(data, on_axis, bin_edges, nbins=None, ) -> tuple:
@@ -211,6 +192,8 @@ def _plot_acc(bin_centers, values, yerr, plot_label):
 
 
 def rec_plot(dat, show_hist=True, **kwargs):
+    kwargs.setdefault('bins', 50)
+    kwargs.setdefault('range', [[0, 50], [0, 1.5]])
     m2 = multihist.Histdd(axis_names=['n photon', 'Reconstruction bias'], **kwargs)
     m2.add(dat['n_photon'], dat['rec_bias'])
 
@@ -229,15 +212,21 @@ def rec_plot(dat, show_hist=True, **kwargs):
     plt.grid()
 
 
+def _rec_kwargs(s1_kwargs=None,
+                s2_kwargs=None):
+    if s1_kwargs is None:
+        s1_kwargs = {}
+    if s2_kwargs is None:
+        s2_kwargs = {}
+    return s1_kwargs, s2_kwargs
+
+
 def rec_diff(def_data,
              cust_data,
              s1_kwargs=None,
              s2_kwargs=None):
     f, axes = plt.subplots(2, 2, figsize=(18, 13))
-    if s1_kwargs is None:
-        s1_kwargs = dict(bins=50, range=[[0, 50], [0, 1.5]])
-    if s2_kwargs is None:
-        s2_kwargs = dict(bins=50, range=[[0, 200], [0, 1.5]])
+    s1_kwargs, s2_kwargs = _rec_kwargs(s1_kwargs, s2_kwargs)
 
     for axi, dat in enumerate([def_data, cust_data]):
         plt.sca(axes[0][axi])

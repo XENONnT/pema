@@ -4,19 +4,12 @@ import numpy as np
 import matplotlib.pyplot as plt
 from straxen.analyses.waveform_plot import time_and_samples, seconds_range_xaxis
 import pema
-import sys
 import typing as ty
-
-if any('jupyter' in arg for arg in sys.argv):
-    # In some cases we are not using any notebooks,
-    # Taken from 44952863 on stack overflow thanks!
-    from tqdm.notebook import tqdm
-else:
-    from tqdm import tqdm
+from strax.utils import tqdm  # For widget pbar in notebooks
 
 
 @straxen.mini_analysis(
-    requires=('truth'),
+    requires=('truth',),
     default_time_selection='touching',
     warn_beyond_sec=60)
 def plot_instructions(
@@ -175,7 +168,8 @@ def _plot_peak(st_default, truth_vs_default, default_label, peak_i, t_range, xli
              )
 
     plt.text(0.05, 0.1,
-             '\n'.join(f'{prop[:10]}: {truth_vs_default[peak_i][prop]:.1f}' for prop in
+             '\n'.join(f'{prop[:10]}: {truth_vs_default[peak_i][prop]:.1f}'
+                       for prop in
                        ['rec_bias', 'acceptance_fraction']),
              transform=plt.gca().transAxes,
              fontsize='small',
@@ -199,20 +193,25 @@ def compare_truth_and_outcome(
         run_id: ty.Union[None, str] = None,
 ) -> None:
     """
-    Compare the outcomes of two contexts with one another. In order to allow for selections, we
-    need to pass the data as second and third argument respectively.
+    Compare the outcomes of the truth and the reconstructed peaks
 
     :param st: the context of the current master, to compare with
     :param data: the  data consistent with the default
         context, can be cut to select certain data
-    :param match_fuzz: Extend loading peaks this many ns to allow for small shifts in reconstruction. Will extend the time range left and right
-    :param plot_fuzz: Make the plot slightly larger with this many ns for readability
-    :param max_peaks: max number of peaks to be shown. Set to  1 for plotting a singe peak.
+    :param match_fuzz: Extend loading peaks this many ns to allow for
+        small shifts in reconstruction. Will extend the time range left
+        and right
+    :param plot_fuzz: Make the plot slightly larger with this many ns
+        for readability
+    :param max_peaks: max number of peaks to be shown. Set to  1 for
+        plotting a singe peak.
     :param label: How to label the default reconstruction
     :param fig_dir: Where to save figures (if None, don't save)
     :param show: show the figures or not.
-    :param randomize: randomly order peaks to get a random sample of <max_peaks> every time
-    :param run_id: Optional argument in case run_id is not a field in the data.
+    :param randomize: randomly order peaks to get a random sample of
+        <max_peaks> every time
+    :param run_id: Optional argument in case run_id is not a field in
+        the data.
     :return: None
     """
     _check_args(data, None, run_id)
@@ -220,11 +219,13 @@ def compare_truth_and_outcome(
 
     for peak_i in tqdm(peaks_idx[:max_peaks]):
         try:
-            if 'run_id' in data:
+            if 'run_id' in data.dtype.names:
                 run_mask = data['run_id'] == data[peak_i]['run_id']
             else:
                 run_mask = np.ones(len(data), dtype=np.bool_)
-            t_range, start_end, xlim = _get_time_ranges(data, peak_i, match_fuzz,
+            t_range, start_end, xlim = _get_time_ranges(data,
+                                                        peak_i,
+                                                        match_fuzz,
                                                         plot_fuzz)
 
             axes = _get_axes_for_compare_plot(2)
@@ -257,37 +258,52 @@ def compare_outcomes(st_default: strax.Context,
                      run_id: ty.Union[None, str] = None,
                      ) -> None:
     """
-    Compare the outcomes of two contexts with one another. In order to allow for selections, we
-    need to pass the data as second and third argument respectively.
+    Compare the outcomes of two contexts with one another. In order to
+    allow for selections, we need to pass the data as second and third
+    argument respectively.
 
-    :param st_default: the context of the current master, to compare with
+    :param st_default: the context of the current master, to compare
+        with st_custom
     :param truth_vs_default: the  data consistent with the default
         context, can be cut to select certain data
     :param st_custom: context wherewith to compare st_default
     :param truth_vs_custom: the data with the custom context, should be
         same length as truth_vs_default
-    :param match_fuzz: Extend loading peaks this many ns to allow for small shifts in reconstruction. Will extend the time range left and right
-    :param plot_fuzz: Make the plot slightly larger with this many ns for readability
-    :param max_peaks: max number of peaks to be shown. Set to  1 for plotting a singe peak.
+    :param match_fuzz: Extend loading peaks this many ns to allow for
+        small shifts in reconstruction. Will extend the time range left
+        and right
+    :param plot_fuzz: Make the plot slightly larger with this many ns
+        for readability
+    :param max_peaks: max number of peaks to be shown. Set to  1 for
+        plotting a singe peak.
     :param default_label: How to label the default reconstruction
     :param custom_label:How to label the custom reconstruction
     :param fig_dir: Where to save figures (if None, don't save)
     :param show: show the figures or not.
-    :param randomize: randomly order peaks to get a random sample of <max_peaks> every time
-    :param different_by: Field to filter waveforms by. Only show  waveforms where this field is different in data. If False, plot any waveforms from the two datasets.
-    :param run_id: Optional argument in case run_id is not a field in the data.
+    :param randomize: randomly order peaks to get a random sample of
+        <max_peaks> every time
+    :param different_by: Field to filter waveforms by. Only show
+        waveforms where this field is different in data. If False, plot
+        any waveforms from the two data sets.
+    :param run_id: Optional argument in case run_id is not a field in
+        the data.
     :return: None
     """
     _check_args(truth_vs_default, truth_vs_custom, run_id)
-    peaks_idx = _get_peak_idxs_from_args(truth_vs_default, randomize, truth_vs_custom, different_by)
+    peaks_idx = _get_peak_idxs_from_args(truth_vs_default,
+                                         randomize,
+                                         truth_vs_custom,
+                                         different_by)
 
     for peak_i in tqdm(peaks_idx[:max_peaks]):
         try:
-            if 'run_id' in truth_vs_custom:
+            if 'run_id' in truth_vs_custom.dtype.names:
                 run_mask = truth_vs_custom['run_id'] == truth_vs_custom[peak_i]['run_id']
             else:
                 run_mask = np.ones(len(truth_vs_custom), dtype=np.bool_)
-            t_range, start_end, xlim = _get_time_ranges(truth_vs_custom, peak_i, match_fuzz,
+            t_range, start_end, xlim = _get_time_ranges(truth_vs_custom,
+                                                        peak_i,
+                                                        match_fuzz,
                                                         plot_fuzz)
 
             axes = _get_axes_for_compare_plot(3)
@@ -296,10 +312,12 @@ def compare_outcomes(st_default: strax.Context,
             _plot_truth(truth_vs_custom[run_mask], start_end, t_range, xlim)
 
             plt.sca(axes[1])
-            _plot_peak(st_default, truth_vs_default, default_label, peak_i, t_range, xlim, run_id)
+            _plot_peak(st_default, truth_vs_default, default_label, peak_i,
+                       t_range, xlim, run_id)
 
             plt.sca(axes[2])
-            _plot_peak(st_custom, truth_vs_custom, custom_label, peak_i, t_range, xlim, run_id)
+            _plot_peak(st_custom, truth_vs_custom, custom_label, peak_i,
+                       t_range, xlim, run_id)
 
             _save_and_show('example_wf_diff', fig_dir, show, peak_i)
         except (ValueError, RuntimeError) as e:
