@@ -218,6 +218,8 @@ class TestStack(unittest.TestCase):
             plt.clf()
 
     def test_later_inst_plot(self):
+        if not straxen.utilix_is_configured():
+            return
         st = self.script.st
         truth = st.get_array(run_id, 'truth')
         st.plot_instructions(run_id, time_within=truth[:2])
@@ -228,7 +230,6 @@ class TestStack(unittest.TestCase):
         plt.clf()
         st.plot_peaks(run_id, time_within=peaks[:2], xaxis=False)
         pema.save_canvas(os.path.join(self.tempdir, 'figs'))
-
 
     @classmethod
     def tearDownClass(cls):

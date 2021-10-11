@@ -4,7 +4,7 @@ from hypothesis import given, strategies, example, settings
 import strax
 
 
-def _create_dummy_records(data_length, n_data_types, truth_length, n_truth_types, max_duration,):
+def _create_dummy_records(data_length, n_data_types, truth_length, n_truth_types, max_duration, ):
     _DTYPE = [(('Start time since unix epoch [ns]', 'time'), np.int64),
               (('Exclusive end time since unix epoch [ns]', 'endtime'), np.int64),
               (('Number', 'id'), np.int64),
