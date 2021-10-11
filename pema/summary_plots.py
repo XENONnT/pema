@@ -192,6 +192,8 @@ def _plot_acc(bin_centers, values, yerr, plot_label):
 
 
 def rec_plot(dat, show_hist=True, **kwargs):
+    kwargs.setdefault('bins', 50)
+    kwargs.setdefault('range', [[0, 50], [0, 1.5]])
     m2 = multihist.Histdd(axis_names=['n photon', 'Reconstruction bias'], **kwargs)
     m2.add(dat['n_photon'], dat['rec_bias'])
 
@@ -210,19 +212,21 @@ def rec_plot(dat, show_hist=True, **kwargs):
     plt.grid()
 
 
+def _rec_kwargs(s1_kwargs=None,
+                s2_kwargs=None):
+    if s1_kwargs is None:
+        s1_kwargs = {}
+    if s2_kwargs is None:
+        s2_kwargs = {}
+    return s1_kwargs, s2_kwargs
+
+
 def rec_diff(def_data,
              cust_data,
              s1_kwargs=None,
              s2_kwargs=None):
     f, axes = plt.subplots(2, 2, figsize=(18, 13))
-
-    if s1_kwargs is None:
-        s1_kwargs = {}
-    if s2_kwargs is None:
-        s2_kwargs = {}
-    for d in (s1_kwargs, s2_kwargs):
-        d.setdefault('bins', 50)
-        d.setdefault('range', [[0, 50], [0, 1.5]])
+    s1_kwargs, s2_kwargs = _rec_kwargs(s1_kwargs, s2_kwargs)
 
     for axi, dat in enumerate([def_data, cust_data]):
         plt.sca(axes[0][axi])
