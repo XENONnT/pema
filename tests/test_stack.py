@@ -128,13 +128,7 @@ class TestStack(unittest.TestCase):
                 print(self.script.read_log())
             raise pema.scripts.JobFailedError(f'Job did not finish')
 
-    def test_next_make_dali_script(self):
-        # Just make sure we write some file, we are not actually going
-        # to run it
-        self.script.exec_dali('ls', 'test_job', 'dummy_activate')
-        assert os.path.exists(self.script.script_file)
-
-    def test_next_run_plugins(self):
+    def test_first_run_plugins(self):
         if not straxen.utilix_is_configured():
             return
 
@@ -146,8 +140,18 @@ class TestStack(unittest.TestCase):
                     self.script.st.make(r, t)
                     assert self.script.st.is_stored(r, t)
 
-    def test_first_print(self):
+    def test_next_print(self):
+        if not straxen.utilix_is_configured():
+            return
         print(self.script)
+
+    def test_next_make_dali_script(self):
+        if not straxen.utilix_is_configured():
+            return
+        # Just make sure we write some file, we are not actually going
+        # to run it
+        self.script.exec_dali('ls', 'test_job', 'dummy_activate')
+        assert os.path.exists(self.script.script_file)
 
     def test_later_compare(self):
         if not straxen.utilix_is_configured():
