@@ -20,8 +20,8 @@
 # -- Project information -----------------------------------------------------
 import pema
 project = 'pema'
-copyright = '2018, straxen contributors and the XENON collaboration'
-author = 'straxen contributors and the XENON collaboration'
+copyright = '2020, pema contributors and the XENON collaboration'  # noqa
+author = 'pema contributors and the XENON collaboration'
 
 # The short X.Y version
 version = pema.__version__

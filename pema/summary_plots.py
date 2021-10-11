@@ -126,7 +126,7 @@ def binom_interval(success, total, conf_level=0.95):
     Code stolen from https://gist.github.com/paulgb/6627336
     Agrees with http://statpages.info/confint.html for binom_interval(1, 10)
     """
-    # TODO: special case for success = 0 or = total? see wikipedia
+    # Sould we add a special case for success = 0 or = total? see wikipedia
     quantile = (1 - conf_level) / 2.
     lower = beta.ppf(quantile, success, total - success + 1)
     upper = beta.ppf(1 - quantile, success + 1, total - success)
