@@ -223,7 +223,6 @@ def rec_diff(def_data,
     for d in (s1_kwargs, s2_kwargs):
         d.setdefault('bins', 50)
         d.setdefault('range', [[0, 50], [0, 1.5]])
-    assert 'bins' in s1_kwargs and 'range' in s1_kwargs
 
     for axi, dat in enumerate([def_data, cust_data]):
         plt.sca(axes[0][axi])

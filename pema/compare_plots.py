@@ -168,7 +168,8 @@ def _plot_peak(st_default, truth_vs_default, default_label, peak_i, t_range, xli
              )
 
     plt.text(0.05, 0.1,
-             '\n'.join(f'{prop[:10]}: {truth_vs_default[peak_i][prop]:.1f}' for prop in
+             '\n'.join(f'{prop[:10]}: {truth_vs_default[peak_i][prop]:.1f}'
+                       for prop in
                        ['rec_bias', 'acceptance_fraction']),
              transform=plt.gca().transAxes,
              fontsize='small',
@@ -222,7 +223,9 @@ def compare_truth_and_outcome(
                 run_mask = data['run_id'] == data[peak_i]['run_id']
             else:
                 run_mask = np.ones(len(data), dtype=np.bool_)
-            t_range, start_end, xlim = _get_time_ranges(data, peak_i, match_fuzz,
+            t_range, start_end, xlim = _get_time_ranges(data,
+                                                        peak_i,
+                                                        match_fuzz,
                                                         plot_fuzz)
 
             axes = _get_axes_for_compare_plot(2)
@@ -282,11 +285,15 @@ def compare_outcomes(st_default: strax.Context,
     :param different_by: Field to filter waveforms by. Only show
         waveforms where this field is different in data. If False, plot
         any waveforms from the two data sets.
-    :param run_id: Optional argument in case run_id is not a field in the data.
+    :param run_id: Optional argument in case run_id is not a field in
+        the data.
     :return: None
     """
     _check_args(truth_vs_default, truth_vs_custom, run_id)
-    peaks_idx = _get_peak_idxs_from_args(truth_vs_default, randomize, truth_vs_custom, different_by)
+    peaks_idx = _get_peak_idxs_from_args(truth_vs_default,
+                                         randomize,
+                                         truth_vs_custom,
+                                         different_by)
 
     for peak_i in tqdm(peaks_idx[:max_peaks]):
         try:
@@ -294,7 +301,9 @@ def compare_outcomes(st_default: strax.Context,
                 run_mask = truth_vs_custom['run_id'] == truth_vs_custom[peak_i]['run_id']
             else:
                 run_mask = np.ones(len(truth_vs_custom), dtype=np.bool_)
-            t_range, start_end, xlim = _get_time_ranges(truth_vs_custom, peak_i, match_fuzz,
+            t_range, start_end, xlim = _get_time_ranges(truth_vs_custom,
+                                                        peak_i,
+                                                        match_fuzz,
                                                         plot_fuzz)
 
             axes = _get_axes_for_compare_plot(3)
@@ -303,10 +312,12 @@ def compare_outcomes(st_default: strax.Context,
             _plot_truth(truth_vs_custom[run_mask], start_end, t_range, xlim)
 
             plt.sca(axes[1])
-            _plot_peak(st_default, truth_vs_default, default_label, peak_i, t_range, xlim, run_id)
+            _plot_peak(st_default, truth_vs_default, default_label, peak_i,
+                       t_range, xlim, run_id)
 
             plt.sca(axes[2])
-            _plot_peak(st_custom, truth_vs_custom, custom_label, peak_i, t_range, xlim, run_id)
+            _plot_peak(st_custom, truth_vs_custom, custom_label, peak_i,
+                       t_range, xlim, run_id)
 
             _save_and_show('example_wf_diff', fig_dir, show, peak_i)
         except (ValueError, RuntimeError) as e:
