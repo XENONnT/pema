@@ -128,13 +128,13 @@ class TestStack(unittest.TestCase):
                 print(self.script.read_log())
             raise pema.scripts.JobFailedError(f'Job did not finish')
 
-    def test_first_make_dali_script(self):
+    def test_next_make_dali_script(self):
         # Just make sure we write some file, we are not actually going
         # to run it
         self.script.exec_dali('ls', 'test_job', 'dummy_activate')
         assert os.path.exists(self.script.script_file)
 
-    def test_first_run_plugins(self):
+    def test_next_run_plugins(self):
         if not straxen.utilix_is_configured():
             return
 
@@ -214,7 +214,7 @@ class TestStack(unittest.TestCase):
             plt.clf()
 
     def test_later_inst_plot(self):
-        st = self.script
+        st = self.script.st
         truth = st.get_array(run_id, 'truth')
         st.plot_instructions(run_id, time_within=truth[:2])
         peaks = st.get_array(run_id, 'peaks')
