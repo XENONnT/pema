@@ -230,7 +230,7 @@ class TestStack(unittest.TestCase):
         st.plot_peaks(run_id, time_within=peaks[0], xaxis='since_start')
         plt.clf()
         st.plot_peaks(run_id, time_within=peaks[0], xaxis=False)
-        pema.save_canvas(os.path.join(self.tempdir, 'figs'))
+        pema.save_canvas('test_fig', os.path.join(self.tempdir, 'figs'))
 
     @classmethod
     def tearDownClass(cls):
