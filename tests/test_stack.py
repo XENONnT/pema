@@ -198,14 +198,9 @@ class TestStack(unittest.TestCase):
         st2 = st.new_context()
         peaks_1 = st.get_array(run_id, 'match_acceptance_extended')
         peaks_2 = st2.get_array(run_id, 'match_acceptance_extended')
-        peaks_1_kwargs = dict(bins=50,
-                              range=[[0, peaks_1['n_photon'].max() + 1],
-                                     [0, peaks_1['rec_bias'].max() + 1]])
+        peaks_1_kwargs = dict(bins=10)
         if len(peaks_1):
-            pema.summary_plots.rec_plot(
-                peaks_1,
-                **peaks_1_kwargs
-            )
+            pema.summary_plots.rec_plot(peaks_1, **peaks_1_kwargs)
             plt.clf()
         if len(peaks_1) and len(peaks_2):
             if not np.sum(peaks_1['type'] == 1):

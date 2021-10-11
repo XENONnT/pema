@@ -1,7 +1,9 @@
 import matplotlib.pyplot as plt
 import os
 import typing as ty
-from strax import export
+
+from strax import exporter as strax_exporter
+export, __all__ = strax_exporter()
 
 
 @export
@@ -24,7 +26,7 @@ def save_canvas(name: str,
     :param other_formats: other formats to save in (by default svg and pdf)
     :return: None
     """
-    assert not pickle_dump, "Allowing picke dumps is deprated"
+    assert not pickle_dump, "Allowing pickle dumps is deprecated"
     if other_formats is None:
         'pdf svg'.split()
     if not os.path.exists(save_dir):

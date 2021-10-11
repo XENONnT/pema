@@ -138,16 +138,6 @@ def binom_interval(success, total, conf_level=0.95):
     return lower, upper
 
 
-def get_efficiency(bla):
-    x = bla['_total'].bin_centers
-    n = bla['_total'].histogram
-    if 'chopped' in bla.keys():
-        found = bla['found'].histogram + bla['chopped'].histogram
-    else:
-        found = bla['found'].histogram
-    return x, n, found
-
-
 def get_interval(x, n, found):
     one_sigma = stats.norm.cdf(1) - stats.norm.cdf(-1)
     eff = found / n
@@ -157,15 +147,6 @@ def get_interval(x, n, found):
         limits[i, :] = binom_interval(found[i], total=n[i], conf_level=one_sigma)
     yerr = np.abs(limits.T - eff)
     return eff, yerr
-
-
-@export
-def acceptance_plot_simple(data, on_axis, bin_edges, plot_label=""):
-    hists = peak_matching_histogram(data, on_axis, bin_edges)
-    bin_centers, total, found = get_efficiency(hists)
-    values, yerr = get_interval(bin_centers, total, found)
-    _plot_acc(bin_centers, values, yerr, plot_label)
-    plt.xlabel(on_axis.replace('_', ' '))
 
 
 def calc_arb_acceptance(data, on_axis, bin_edges, nbins=None, ) -> tuple:
