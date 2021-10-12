@@ -1,5 +1,6 @@
 import straxen
 import pema
+import wfsim
 import time
 import matplotlib.pyplot as plt
 import strax
@@ -44,30 +45,27 @@ class TestStack(unittest.TestCase):
 
         # setting up instructions like this may take a while. You can set e.g.
         instructions = dict(
-            event_rate=100,
-            chunk_size=1,
-            nchunk=2,
-            photons_low=30,
-            photons_high=50,
-            electrons_low=10,
-            electrons_high=20,
+            event_rate=20,  # Don't make too large -> overlapping truth info
+            chunk_size=5,  # keep large -> less overhead but takes more RAM
+            n_chunk=10,
             tpc_radius=straxen.tpc_r,
-            tpc_length=148.1,
-            drift_field=18.5,
-            timing='uniform',
+            tpc_length=straxen.tpc_z,
+            drift_field=10,  # kV/cm
+            energy_range=[0, 10],  # keV
+            nest_inst_types=wfsim.NestId.ER,
         )
         temp_dir = cls.tempdir
         instructions_csv = os.path.join(temp_dir, 'inst.csv')
 
         pema.inst_to_csv(
-            instructions,
             instructions_csv,
-            get_inst_from=pema.rand_instructions)
+            get_inst_from=pema.rand_instructions,
+            **instructions)
 
         config_update = {
             "detector": 'XENONnT',
             "fax_file": os.path.abspath(instructions_csv),
-            "fax_config": 'fax_config_nt_low_field.json',
+            "fax_config": 'fax_config_nt_design.json',
             "cmt_run_id_sim": run_id,
         }
 

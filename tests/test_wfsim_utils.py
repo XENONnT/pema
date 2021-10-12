@@ -1,16 +1,18 @@
 import pema
+import straxen
+import wfsim
 
 _input_dict = dict(
-    nevents=1,
-    event_rate=1,
-    chunk_size=1,
-    nchunk=1,
+    event_rate=20,  # Don't make too large -> overlapping truth info
+    chunk_size=5,  # keep large -> less overhead but takes more RAM
+    n_chunk=10,
+    tpc_radius=straxen.tpc_r,
+    tpc_length=straxen.tpc_z,
+    drift_field=10,  # kV/cm
+    energy_range=[0, 10],  # keV
+    nest_inst_types=wfsim.NestId.ER,
 )
 
 
-def test_make_kr_isnt():
-    pema.kr83_instructions(_input_dict)
-
-
 def test_rand_instructions():
-    pema.rand_instructions(_input_dict)
+    pema.rand_instructions(**_input_dict)
