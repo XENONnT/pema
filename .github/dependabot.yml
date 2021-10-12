@@ -15,7 +15,7 @@ updates:
   - package-ecosystem: "pip"
     directory: "/extra_requirements"
     schedule:
-      interval: "monthly"
+      interval: "weekly"
     open-pull-requests-limit: 15
     assignees:
       - jorana
