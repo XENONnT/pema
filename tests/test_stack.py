@@ -45,9 +45,9 @@ class TestStack(unittest.TestCase):
 
         # setting up instructions like this may take a while. You can set e.g.
         instructions = dict(
-            event_rate=20,  # Don't make too large -> overlapping truth info
-            chunk_size=5,  # keep large -> less overhead but takes more RAM
-            n_chunk=10,
+            event_rate=50,  # Don't make too large -> overlapping truth info
+            chunk_size=1,  # keep large -> less overhead but takes more RAM
+            n_chunk=2,
             tpc_radius=straxen.tpc_r,
             tpc_length=straxen.tpc_z,
             drift_field=10,  # kV/cm
