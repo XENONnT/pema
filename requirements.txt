@@ -1,8 +1,8 @@
 strax
 utilix>=0.4.1
-straxen>=1.0.0rc
+straxen>=1.0.0
 wfsim>=0.5.6
 multihist
-numba~=0.53.1
-numpy~=1.19.5
+numba
+numpy
 nestpy
