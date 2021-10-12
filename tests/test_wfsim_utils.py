@@ -9,7 +9,7 @@ _input_dict = dict(
     tpc_radius=straxen.tpc_r,
     tpc_length=straxen.tpc_z,
     drift_field=10,  # kV/cm
-    energy_range=[0, 10],  # keV
+    energy_range=[1, 10],  # keV
     nest_inst_types=wfsim.NestId.ER,
 )
 

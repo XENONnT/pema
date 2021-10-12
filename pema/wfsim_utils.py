@@ -58,37 +58,40 @@ def rand_instructions(
     inst['z'] = np.repeat(np.random.uniform(-tpc_length, 0, n_events), 2)
 
     # Here we'll define our XENON-like detector
-    nc = nestpy.NESTcalc(nestpy.VDetector())
-    A = 131.293
-    Z = 54.
-    density = 2.862  # g/cm^3   #SR1 Value
+    nest_calc = nestpy.NESTcalc(nestpy.VDetector())
+    nucleus_A = 131.293
+    nucleus_Z = 54.
+    lxe_density = 2.862  # g/cm^3   #SR1 Value
 
     energy = np.random.uniform(*energy_range, n_events)
     quanta = []
     exciton = []
     recoil = []
-    for en in tqdm(energy, desc='generating from nest'):
+    e_dep = []
+    for energy_deposit in tqdm(energy, desc='generating instructions from nest'):
         interaction_type = np.random.choice(nest_inst_types)
         interaction = nestpy.INTERACTION_TYPE(interaction_type)
-        y = nc.GetYields(interaction,
-                         en,
-                         density,
-                         drift_field,
-                         A,
-                         Z,
-                         )
-        q = nc.GetQuanta(y, density)
+        y = nest_calc.GetYields(interaction,
+                                energy_deposit,
+                                lxe_density,
+                                drift_field,
+                                nucleus_A,
+                                nucleus_Z,
+                                )
+        q = nest_calc.GetQuanta(y, lxe_density)
         quanta.append(q.photons)
         quanta.append(q.electrons)
         exciton.append(q.excitons)
         exciton.append(0)
         # both S1 and S2
         recoil += [interaction_type, interaction_type]
+        e_dep += [energy_deposit, energy_deposit]
 
     inst['amp'] = quanta
     inst['local_field'] = drift_field
     inst['n_excitons'] = exciton
     inst['recoil'] = recoil
+    inst['e_dep'] = e_dep
     for field in inst.dtype.names:
         if np.any(inst[field] == -1):
             warn(f'{field} is not (fully) filled')
