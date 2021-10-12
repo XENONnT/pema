@@ -55,7 +55,7 @@ def rand_instructions(
     t = np.random.uniform(-np.pi, np.pi, n_events)
     inst['x'] = np.repeat(r * np.cos(t), 2)
     inst['y'] = np.repeat(r * np.sin(t), 2)
-    inst['z'] = np.repeat(np.random.uniform(tpc_length, 0, n_events), 2)
+    inst['z'] = np.repeat(np.random.uniform(-tpc_length, 0, n_events), 2)
 
     # Here we'll define our XENON-like detector
     nc = nestpy.NESTcalc(nestpy.VDetector())
