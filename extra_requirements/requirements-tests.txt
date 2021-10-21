@@ -1,5 +1,5 @@
 # Test compatibility with these most often:
-strax==1.0.0
+strax==1.1.0
 straxen==1.0.0
 wfsim==0.5.7
 
