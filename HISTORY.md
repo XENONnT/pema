@@ -4,6 +4,7 @@
  - Increase the coverage (#65, #66)
  - Make compatible with strax(en) -1.0.0rc (#44)
 
+
 0.2.2 / 2021-08-10
 ------------------
  - Fix master for strax, straxen, wfsim == 0.16.1, 0.19.3, 0.5.6 (#23)
@@ -13,10 +14,12 @@
  - Register from module (#22)
  - Less pinned requirements (#32)
 
+
 0.2.1 / 2021-60-17
 ------------------
 - Allow plot dump to pickle (#20)
 - minor commits
+
 
 0.2.0 / 2021-05-21
 ------------------
