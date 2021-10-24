@@ -65,19 +65,19 @@ class TestStack(unittest.TestCase):
         config_update = {
             "detector": 'XENONnT',
             "fax_file": os.path.abspath(instructions_csv),
-            "fax_config": 'fax_config_nt_design.json',
             "cmt_run_id_sim": run_id,
+            # TODO
+            "fax_config_override": {'s1_lce_correction_map':'XnT_S1_xyz_MLP_v0.1_B2d75n_C2d75n_G0d3p_A4d9p_T0d9n_PMTs1d3n_FSR0d65p_v0d677.json'},
         }
 
         print("Temporary directory is ", temp_dir)
         os.chdir(temp_dir)
 
-        st = pema.pema_context(fax_config='fax_config_nt_design.json',
+        st = pema.pema_context(fax_config='fax_config_nt_sr0_v0.json',
                                cmt_run_id_sim=run_id,
                                base_dir=temp_dir,
                                raw_dir=temp_dir,
                                data_dir=temp_dir,
-
                                config_update=config_update, )
         st.set_context_config(
             {'allow_shm': True,
