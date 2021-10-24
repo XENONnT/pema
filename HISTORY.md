@@ -1,3 +1,9 @@
+0.3.0 / 2021-10-24
+------------------
+ - New wfsim inst (#67)
+ - Increase the coverage (#65, #66)
+ - Make compatible with strax(en) -1.0.0rc (#44)
+
 0.2.2 / 2021-08-10
 ------------------
  - Fix master for strax, straxen, wfsim == 0.16.1, 0.19.3, 0.5.6 (#23)
