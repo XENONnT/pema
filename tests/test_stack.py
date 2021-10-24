@@ -67,7 +67,7 @@ class TestStack(unittest.TestCase):
             "fax_file": os.path.abspath(instructions_csv),
             "cmt_run_id_sim": run_id,
             # TODO
-            "fax_config_overwrite": {'s1_lce_correction_map':'XnT_S1_xyz_MLP_v0.1_B2d75n_C2d75n_G0d3p_A4d9p_T0d9n_PMTs1d3n_FSR0d65p_v0d677.json'},
+            "fax_config_override": {'s1_lce_correction_map':'XnT_S1_xyz_MLP_v0.1_B2d75n_C2d75n_G0d3p_A4d9p_T0d9n_PMTs1d3n_FSR0d65p_v0d677.json'},
         }
 
         print("Temporary directory is ", temp_dir)
