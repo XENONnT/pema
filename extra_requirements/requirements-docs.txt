@@ -5,4 +5,4 @@ nbsphinx
 recommonmark
 graphviz
 ipython
-numpy==1.20
+numpy==1.21.3
