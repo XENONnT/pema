@@ -29,9 +29,12 @@ class MatchPeaks(strax.OverlapWindowPlugin):
     """
     __version__ = '0.2.0'
     depends_on = ('truth', 'peak_basics')
-    provides = ('truth_matched', 'peaks_matched')
+    provides = ('truth_matched',
+                # 'peaks_matched'
+                )
     data_kind = immutabledict(truth_matched='truth',
-                              peaks_matched='peaks')
+                              # peaks_matched='peaks'
+                              )
 
     # keep track of number of peaks/truths seen for id of each.
     truth_seen = 0
@@ -69,15 +72,17 @@ class MatchPeaks(strax.OverlapWindowPlugin):
 
         self.truth_seen += len(truth)
         self.peaks_seen += len(peaks)
-        return {'truth_matched': res_truth,
-                'peaks_matched': res_peak}
+        return res_truth
+        # {'truth_matched': res_truth,
+        #         'peaks_matched': res_peak}
 
     def get_window_size(self):
         return self.config['truth_lookup_window']
 
     def infer_dtype(self):
         dtypes = {}
-        for dtype_for in ('truth', 'peaks'):
+        for dtype_for in ('truth',# 'peaks'
+                          ):
             match_to = 'peaks' if dtype_for == 'truth' else 'truth'
             dtype = strax.dtypes.time_fields + [
                 ((f'Id of element in {dtype_for}', 'id'), np.int64),
