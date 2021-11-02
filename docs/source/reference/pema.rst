@@ -44,14 +44,6 @@ pema.misc module
    :undoc-members:
    :show-inheritance:
 
-pema.recarray\_tools module
----------------------------
-
-.. automodule:: pema.recarray_tools
-   :members:
-   :undoc-members:
-   :show-inheritance:
-
 pema.scripts module
 -------------------
 

@@ -4,5 +4,3 @@ sphinx_rtd_theme
 nbsphinx
 recommonmark
 graphviz
-ipython
-numpy==1.20
