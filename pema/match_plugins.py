@@ -62,7 +62,7 @@ class MatchPeaks(strax.OverlapWindowPlugin):
 
         # Truth
         res_truth = np.zeros(len(truth), dtype=self.dtype)
-        for k in self.dtype['truth_matched'].names:
+        for k in self.dtype.names:
             res_truth[k] = truth_vs_peak[k]
         #
         # # Peaks
