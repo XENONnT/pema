@@ -42,7 +42,6 @@ class TestStack(unittest.TestCase):
     def set_script(cls):
         if not straxen.utilix_is_configured():
             return
-
         # setting up instructions like this may take a while. You can set e.g.
         instructions = dict(
             event_rate=50,  # Don't make too large -> overlapping truth info
@@ -66,8 +65,6 @@ class TestStack(unittest.TestCase):
             "detector": 'XENONnT',
             "fax_file": os.path.abspath(instructions_csv),
             "cmt_run_id_sim": run_id,
-            # TODO
-            "fax_config_override": {'s1_lce_correction_map':'XnT_S1_xyz_MLP_v0.1_B2d75n_C2d75n_G0d3p_A4d9p_T0d9n_PMTs1d3n_FSR0d65p_v0d677.json'},
         }
 
         print("Temporary directory is ", temp_dir)
@@ -93,10 +90,8 @@ class TestStack(unittest.TestCase):
                                          ))
         cls.script = script_writer
 
+    @unittest.skipIf(not straxen.utilix_is_configured(), "No db access, cannot test!")
     def test_first_run_execute(self):
-        if not straxen.utilix_is_configured():
-            return
-
         print(f'Start script - context hash {self.script.st._context_hash()}')
         cmd, name = self.script.make_cmd()
         self.script.exec_local(cmd, name)
@@ -126,10 +121,8 @@ class TestStack(unittest.TestCase):
                 print(self.script.read_log())
             raise pema.scripts.JobFailedError(f'Job did not finish')
 
+    @unittest.skipIf(not straxen.utilix_is_configured(), "No db access, cannot test!")
     def test_first_run_plugins(self):
-        if not straxen.utilix_is_configured():
-            return
-
         self.script.purge_below('match_acceptance_extended')
         for t in strax.to_str_tuple(self.script.target):
             for r in strax.to_str_tuple(self.script.run_id):
@@ -138,23 +131,19 @@ class TestStack(unittest.TestCase):
                     self.script.st.make(r, t)
                     assert self.script.st.is_stored(r, t)
 
+    @unittest.skipIf(not straxen.utilix_is_configured(), "No db access, cannot test!")
     def test_next_print(self):
-        if not straxen.utilix_is_configured():
-            return
         print(self.script)
 
+    @unittest.skipIf(not straxen.utilix_is_configured(), "No db access, cannot test!")
     def test_next_make_dali_script(self):
-        if not straxen.utilix_is_configured():
-            return
         # Just make sure we write some file, we are not actually going
         # to run it
         self.script.exec_dali('ls', 'test_job', 'dummy_activate')
         assert os.path.exists(self.script.script_file)
 
+    @unittest.skipIf(not straxen.utilix_is_configured(), "No db access, cannot test!")
     def test_later_compare(self):
-        if not straxen.utilix_is_configured():
-            return
-
         st = self.script.st
         st2 = st.new_context()
         for t in strax.to_str_tuple(self.script.target):
@@ -193,13 +182,13 @@ class TestStack(unittest.TestCase):
             )
             plt.clf()
 
+    @unittest.skipIf(not straxen.utilix_is_configured(), "No db access, cannot test!")
     def test_later_make_ev_matched(self):
         st = self.script.st
         st.get_array(run_id, 'truth_events')
 
+    @unittest.skipIf(not straxen.utilix_is_configured(), "No db access, cannot test!")
     def test_later_rec_bas(self):
-        if not straxen.utilix_is_configured():
-            return
         st = self.script.st
         st2 = st.new_context()
         peaks_1 = st.get_array(run_id, 'match_acceptance_extended')
@@ -219,9 +208,8 @@ class TestStack(unittest.TestCase):
             )
             plt.clf()
 
+    @unittest.skipIf(not straxen.utilix_is_configured(), "No db access, cannot test!")
     def test_later_inst_plot(self):
-        if not straxen.utilix_is_configured():
-            return
         st = self.script.st
         peaks = st.get_array(run_id, 'peaks')
         st.plot_peaks(run_id, time_within=peaks[0])
