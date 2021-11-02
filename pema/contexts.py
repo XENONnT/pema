@@ -47,7 +47,7 @@ def pema_context(
     st = straxen.contexts.xenonnt_simulation(
         fax_config=config['fax_config'],
         cmt_run_id_sim=cmt_run_id_sim,
-        cmt_version='v5',
+        cmt_version='global_v5',
     )
     st.set_config(config)
 
