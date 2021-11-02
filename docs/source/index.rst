@@ -12,11 +12,18 @@ Built on top of:
 Content
 ==========
 
+
 .. toctree::
     :maxdepth: 1
     :caption: Setup and basics
 
     setup
+
+
+.. toctree::
+    :maxdepth: 2
+    :caption: Tutorials:
+
     tutorials/Getting_started_with_Pema.ipynb
     tutorials/Using_pema_advanced.ipynb
 
@@ -40,3 +47,4 @@ Indices and tables
 
 * :ref:`genindex`
 * :ref:`modindex`
+* :ref:`search`
