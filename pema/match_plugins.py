@@ -1,6 +1,5 @@
 import strax
 import numba
-from immutabledict import immutabledict
 import numpy as np
 import pema
 import logging
@@ -11,6 +10,30 @@ logging.basicConfig(
     level=logging.INFO,
     format='%(asctime)s - %(threadName)s - %(name)s - %(levelname)s - %(message)s')
 log = logging.getLogger('Pema matching')
+
+
+class PeakId(strax.Plugin):
+    depends_on = 'peak_basics'
+    provides = 'peak_id'
+    peaks_seen = 0
+    save_when = strax.SaveWhen.NEVER
+
+    def infer_dtype(self):
+        dtype = list(self.deps[self.depends_on].dtype[self.depends_on])
+        id_field = [((f'Id of element in {self.provides}', 'id'), np.int64),]
+        return dtype + id_field
+
+    def compute(self, peaks):
+
+        peak_id = np.arange(len(peaks)) + self.peaks_seen
+        peaks = pema.append_fields(peaks, 'id', peak_id, dtypes=np.int64)
+        self.peaks_seen += len(peaks)
+        return peaks
+
+
+class TruthId(PeakId):
+    depends_on = 'truth'
+    provides = 'truth_id'
 
 
 @export
@@ -28,13 +51,9 @@ class MatchPeaks(strax.OverlapWindowPlugin):
         possible outcomes).
     """
     __version__ = '0.2.0'
-    depends_on = ('truth', 'peak_basics')
-    provides = ('truth_matched',
-                # 'peaks_matched'
-                )
-    data_kind = 'truth'#immutabledict(truth_matched='truth',
-                       #       # peaks_matched='peaks'
-                       #       )
+    depends_on = ('truth', 'truth_id', 'peak_basics', 'peak_id')
+    provides = 'truth_matched'
+    data_kind = 'truth'
 
     # keep track of number of peaks/truths seen for id of each.
     truth_seen = 0
@@ -46,12 +65,6 @@ class MatchPeaks(strax.OverlapWindowPlugin):
 
         # Append fields
         truth = pema.append_fields(truth, 'area', truth['n_photon'])
-        truth_id = np.arange(len(truth)) + self.truth_seen
-        truth = pema.append_fields(truth, 'id', truth_id, dtypes=np.int64)
-        peak_id = np.arange(len(peaks)) + self.peaks_seen
-        peaks = pema.append_fields(peaks, 'id', peak_id, dtypes=np.int64)
-        del truth_id
-        del peak_id
 
         # hack endtime
         log.warning(f'Patching endtime in the truth')
@@ -60,28 +73,19 @@ class MatchPeaks(strax.OverlapWindowPlugin):
         log.info('Starting matching')
         truth_vs_peak, peak_vs_truth = pema.match_peaks(truth, peaks)
 
-        # Truth
         res_truth = np.zeros(len(truth), dtype=self.dtype)
         for k in self.dtype.names:
             res_truth[k] = truth_vs_peak[k]
-        #
-        # # Peaks
-        # res_peak = {}
-        # for k in self.dtype['peaks_matched'].names:
-        #     res_peak[k] = peak_vs_truth[k]
 
         self.truth_seen += len(truth)
-        self.peaks_seen += len(peaks)
         return res_truth
-        # {'truth_matched': res_truth,
-        #         'peaks_matched': res_peak}
 
     def get_window_size(self):
         return self.config['truth_lookup_window']
 
     def infer_dtype(self):
         dtypes = {}
-        for dtype_for in ('truth',# 'peaks'
+        for dtype_for in ('truth',  # 'peaks'
                           ):
             match_to = 'peaks' if dtype_for == 'truth' else 'truth'
             dtype = strax.dtypes.time_fields + [
@@ -116,8 +120,7 @@ class AcceptanceComputer(strax.Plugin):
     reconstruction).
     """
     __version__ = '0.0.3'
-    depends_on = ('truth', 'truth_matched',  'peak_basics', #'peaks_matched'
-                  )
+    depends_on = ('truth', 'truth_matched', 'truth_id', 'peak_basics', 'peak_id')
     provides = 'match_acceptance'
     data_kind = 'truth'
     save_when = strax.SaveWhen.TARGET
@@ -179,13 +182,16 @@ class AcceptanceComputer(strax.Plugin):
         :return: array of length truth results of the reconstruction bias
         """
         for ti, t in enumerate(truth):
-            peak_i = t['matched_to']
-            if peak_i != no_peak_found:
+            peak_id = t['matched_to']
+            if peak_id != no_peak_found:
                 if t['n_photon'] == 0:
                     # How do we get 0 photons in instruction?
                     continue
-                if t['type'] == peaks[peak_i]['type']:
-                    frac = peaks[peak_i]['area'] / t['n_photon']
+                peak_mask = peaks['id'] == peak_id
+                if sum(peak_mask) == 0:
+                    raise ValueError
+                if t['type'] == peaks[peak_mask]['type']:
+                    frac = peaks[peak_mask]['area'] / t['n_photon']
                     buffer[ti] = frac
                     continue
             buffer[ti] = 0
@@ -252,10 +258,8 @@ class MatchEvents(strax.OverlapWindowPlugin):
               'start_match'), np.int64),
             ((f'Last (inclusive!) event number in event datatype within the truth event',
               'end_match'), np.int64),
-            ((f'Outcome of matching to events',
-              'outcome'), pema.matching.OUTCOME_DTYPE),
-            ((f'Truth event number',
-              'truth_number'), np.int64),
+            ((f'Outcome of matching to events', 'outcome'), pema.matching.OUTCOME_DTYPE),
+            ((f'Truth event number', 'truth_number'), np.int64),
         ]
         return dtype
 
