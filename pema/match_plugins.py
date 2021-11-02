@@ -15,7 +15,7 @@ log = logging.getLogger('Pema matching')
 @export
 @strax.takes_config(
     strax.Option('truth_lookup_window',
-                 default=int(10e6),
+                 default=int(1e9),
                  help='Look back and forth this many ns in the truth info'),
 )
 class MatchPeaks(strax.OverlapWindowPlugin):
@@ -175,7 +175,7 @@ class AcceptanceExtended(strax.MergeOnlyPlugin):
 
 @strax.takes_config(
     strax.Option('truth_lookup_window',
-                 default=int(10e6),
+                 default=int(1e9),
                  help='Look back and forth this many ns in the truth info'),
 )
 class MatchEvents(strax.OverlapWindowPlugin):
@@ -193,7 +193,8 @@ class MatchEvents(strax.OverlapWindowPlugin):
 
     dtype = strax.dtypes.time_fields + [
         ((f'First event number in event datatype within the truth event', 'start_match'), np.int64),
-        ((f'Last (inclusive!) event number in event datatype within the truth event', 'end_match'), np.int64),
+        ((f'Last (inclusive!) event number in event datatype within the truth event', 'end_match'),
+         np.int64),
         ((f'Outcome of matching to events', 'outcome'), pema.matching.OUTCOME_DTYPE),
         ((f'Truth event number', 'truth_number'), np.int64),
     ]

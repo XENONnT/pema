@@ -10,6 +10,7 @@ from matplotlib.colors import LogNorm
 
 export, __all__ = strax.exporter()
 
+
 outcome_colors = {
     'found': 'darkblue',
     'chopped': 'mediumslateblue',
