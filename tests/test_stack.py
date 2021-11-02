@@ -94,6 +94,8 @@ class TestStack(unittest.TestCase):
     def test_first_run_execute(self):
         print(f'Start script - context hash {self.script.st._context_hash()}')
         cmd, name = self.script.make_cmd()
+        for t in self.script.target:
+            self.script.st.make(self.script.run_id[0], t)
         self.script.exec_local(cmd, name)
 
         print(f'Starting\n\t{cmd}')
@@ -101,7 +103,7 @@ class TestStack(unittest.TestCase):
         print(self.script.process.communicate())
         print(f'took {time.time() - t0:.2f}s')
         print(f'Script done- context hash {self.script.st._context_hash()}')
-        time.sleep(10)
+        time.sleep(3)
 
         print(f'Done')
         print(f'Stored: {self.script.all_stored(show_key=True)}')

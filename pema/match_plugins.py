@@ -61,18 +61,18 @@ class MatchPeaks(strax.OverlapWindowPlugin):
         truth_vs_peak, peak_vs_truth = pema.match_peaks(truth, peaks)
 
         # Truth
-        res_truth = {}
-        for k in self.dtype['truth_matched'].names:
-            res_truth[k] = truth_vs_peak[k]
-
-        # Peaks
-        res_peak = {}
-        for k in self.dtype['peaks_matched'].names:
-            res_peak[k] = peak_vs_truth[k]
+        # res_truth = {}
+        # for k in self.dtype['truth_matched'].names:
+        #     res_truth[k] = truth_vs_peak[k]
+        #
+        # # Peaks
+        # res_peak = {}
+        # for k in self.dtype['peaks_matched'].names:
+        #     res_peak[k] = peak_vs_truth[k]
 
         self.truth_seen += len(truth)
         self.peaks_seen += len(peaks)
-        return res_truth
+        return truth_vs_peak
         # {'truth_matched': res_truth,
         #         'peaks_matched': res_peak}
 
