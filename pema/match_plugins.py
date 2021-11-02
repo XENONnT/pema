@@ -14,7 +14,12 @@ log = logging.getLogger('Pema matching')
 
 
 @export
-class MatchPeaks(strax.Plugin):
+@strax.takes_config(
+    strax.Option('truth_lookup_window',
+                 default=int(5e9),
+                 help='Look back and forth this many ns in the truth info'),
+)
+class MatchPeaks(strax.OverlapWindowPlugin):
     """
     Match WFSim truth to the outcome peaks. To this end use the
         matching algorithm of pema. Assign a peak-id to both the truth
@@ -22,53 +27,28 @@ class MatchPeaks(strax.Plugin):
         define the outcome of the matching (see pema.matching for
         possible outcomes).
     """
-    __version__ = '0.1.3'
+    __version__ = '0.2.0'
     depends_on = ('truth', 'peak_basics')
     provides = ('truth_matched', 'peaks_matched')
     data_kind = immutabledict(truth_matched='truth',
                               peaks_matched='peaks')
 
-    def setup(self):
-        # keep track of number of peaks/truths seen for id of each.
-        self.truth_seen = 0
-        self.peaks_seen = 0
-
-    def infer_dtype(self):
-        dtypes = {}
-        for dtype_for in ('truth', 'peaks'):
-            match_to = 'peaks' if dtype_for == 'truth' else 'truth'
-            dtype = strax.dtypes.time_fields + [
-                ((f'Id of element in {dtype_for}', 'id'),
-                 np.int64),
-                ((f'Outcome of matching to {match_to}', 'outcome'),
-                 pema.matching.OUTCOME_DTYPE),
-                ((f'Id of matching element in {match_to}', 'matched_to'),
-                 np.int64)
-            ]
-            dtypes[dtype_for + '_matched'] = dtype
-        return dtypes
+    # keep track of number of peaks/truths seen for id of each.
+    truth_seen = 0
+    peaks_seen = 0
 
     def compute(self, truth, peaks):
         log.debug(f'Starting {self.__class__.__name__}')
-
-        log.debug(f'Sort by time and add area')
-
-        # Shouldn't be needed, just double checking
-        truth = truth.copy()
-        truth.sort(order='time')
+        assert_ordered_truth(truth)
 
         # Append fields
         truth = pema.append_fields(truth, 'area', truth['n_photon'])
-        truth = pema.append_fields(
-            truth,
-            'id',
-            np.arange(len(truth)) + self.truth_seen,
-            dtypes=np.int64)
-        peaks = pema.append_fields(
-            peaks,
-            'id',
-            np.arange(len(peaks)) + self.peaks_seen,
-            dtypes=np.int64)
+        truth_id = np.arange(len(truth)) + self.truth_seen
+        truth = pema.append_fields(truth, 'id', truth_id, dtypes=np.int64)
+        peak_id = np.arange(len(peaks)) + self.peaks_seen
+        peaks = pema.append_fields(peaks, 'id', peak_id, dtypes=np.int64)
+        del truth_id
+        del peak_id
 
         # hack endtime
         log.warning(f'Patching endtime in the truth')
@@ -91,6 +71,21 @@ class MatchPeaks(strax.Plugin):
         self.peaks_seen += len(peaks)
         return {'truth_matched': res_truth,
                 'peaks_matched': res_peak}
+
+    def get_window_size(self):
+        return self.config['truth_lookup_window']
+
+    def infer_dtype(self):
+        dtypes = {}
+        for dtype_for in ('truth', 'peaks'):
+            match_to = 'peaks' if dtype_for == 'truth' else 'truth'
+            dtype = strax.dtypes.time_fields + [
+                ((f'Id of element in {dtype_for}', 'id'), np.int64),
+                ((f'Outcome of matching to {match_to}', 'outcome'), pema.matching.OUTCOME_DTYPE),
+                ((f'Id of matching element in {match_to}', 'matched_to'), np.int64)
+            ]
+            dtypes[dtype_for + '_matched'] = dtype
+        return dtypes
 
 
 @export
@@ -119,6 +114,7 @@ class AcceptanceComputer(strax.Plugin):
     depends_on = ('truth', 'truth_matched', 'peak_basics', 'peaks_matched')
     provides = 'match_acceptance'
     data_kind = 'truth'
+    save_when = strax.SaveWhen.TARGET
 
     dtype = strax.dtypes.time_fields + [
         ((f'Is the peak tagged "found" in the reconstructed data',
@@ -143,7 +139,7 @@ class AcceptanceComputer(strax.Plugin):
         rec_bias = self.compute_rec_bias(truth, peaks, rec_bias)
         res['rec_bias'] = rec_bias
 
-        # S1 acceptane is simply is the peak found or not
+        # S1 acceptance is simply is the peak found or not
         s1_mask = truth['type'] == 1
         res['acceptance_fraction'][s1_mask] = res['is_found'][s1_mask].astype(np.float)
 
@@ -197,3 +193,87 @@ class AcceptanceExtended(strax.MergeOnlyPlugin):
     provides = 'match_acceptance_extended'
     data_kind = 'truth'
     save_when = strax.SaveWhen.TARGET
+
+
+@strax.takes_config(
+    strax.Option('truth_lookup_window',
+                 default=int(5e9),
+                 help='Look back and forth this many ns in the truth info'),
+)
+class MatchEvents(strax.OverlapWindowPlugin):
+    """
+    Match WFSim truth to the outcome peaks. To this end use the
+        matching algorithm of pema. Assign a peak-id to both the truth
+        and the reconstructed peaks to be able to match the two. Also
+        define the outcome of the matching (see pema.matching for
+        possible outcomes).
+    """
+    __version__ = '0.0.0'
+    depends_on = ('truth', 'events')
+    provides = 'truth_events'
+    data_kind = 'truth_events'
+    save_when = strax.SaveWhen.NEVER
+
+    def compute(self, truth, events):
+        assert_ordered_truth(truth)
+
+        unique_numbers = np.unique(truth['event_number'])
+        res = np.zeros(len(unique_numbers), self.dtype)
+        res['truth_number'] = unique_numbers
+        fill_start_end(truth, res)
+        assert np.all(res['endtime'] > res['time'])
+        assert np.all(np.diff(res['time']) > 0)
+
+        tw = strax.touching_windows(events, res)
+        tw_start = tw[:, 0]
+        tw_end = tw[:, 1] - 1
+        found = tw_end - tw_start > 0
+        diff = np.diff(tw, axis=1)[:, 0]
+
+        res['start_match'][found] = events[tw_start[found]]['event_number']
+        res['end_match'][found] = events[tw_end[found]]['event_number']
+        res['outcome'] = self.outcomes(diff)
+        res['start_match'][~found] = pema.matching.INT_NAN
+        res['end_match'][~found] = pema.matching.INT_NAN
+        return res
+
+    def get_window_size(self):
+        return self.config['truth_lookup_window']
+
+    def infer_dtype(self):
+        dtype = strax.dtypes.time_fields + [
+            ((f'First event number in event datatype within the truth event',
+              'start_match'), np.int64),
+            ((f'Last (inclusive!) event number in event datatype within the truth event',
+              'end_match'), np.int64),
+            ((f'Outcome of matching to events',
+              'outcome'), pema.matching.OUTCOME_DTYPE),
+            ((f'Truth event number',
+              'truth_number'), np.int64),
+        ]
+        return dtype
+
+    @staticmethod
+    def outcomes(diff):
+        outcome = np.empty(len(diff), dtype=pema.matching.OUTCOME_DTYPE)
+        not_found_mask = diff < 0
+        one_found_mask = diff == 0
+        many_found_mask = diff >= 1
+        outcome[not_found_mask] = 'missed'
+        outcome[one_found_mask] = 'found'
+        outcome[many_found_mask] = 'split'
+        return outcome
+
+
+@numba.njit()
+def fill_start_end(truth, truth_event):
+    for i, ev_i in enumerate(truth_event['truth_number']):
+        mask = truth['event_number'] == ev_i
+        start = truth[mask]['time'].min()
+        stop = truth[mask]['endtime'].max()
+        truth_event['time'][i] = start
+        truth_event['endtime'][i] = stop
+
+
+def assert_ordered_truth(truth):
+    assert np.all(np.diff(truth['time']) >= 0), "truth is not sorted!"

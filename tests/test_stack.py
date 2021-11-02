@@ -193,6 +193,10 @@ class TestStack(unittest.TestCase):
             )
             plt.clf()
 
+    def test_later_make_ev_matched(self):
+        st = self.script.st
+        st.get_array(run_id, 'truth_events')
+
     def test_later_rec_bas(self):
         if not straxen.utilix_is_configured():
             return
