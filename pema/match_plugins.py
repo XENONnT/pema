@@ -160,7 +160,7 @@ class AcceptanceComputer(strax.Plugin):
                     raise ValueError("Invalid matching result?!")
                 matched_peaks = matched_peaks[0]
                 if t['type'] == matched_peaks['type']:
-                    frac = peaks[peak_mask]['area'] / t['n_photon']
+                    frac = matched_peaks['area'] / t['n_photon']
                     buffer[ti] = frac
                     continue
             buffer[ti] = 0
