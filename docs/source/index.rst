@@ -17,6 +17,8 @@ Content
     :caption: Setup and basics
 
     setup
+    tutorials/Getting_started_with_Pema.ipynb
+    tutorials/Using_pema_advanced.ipynb
 
 
 .. toctree::
