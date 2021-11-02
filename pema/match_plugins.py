@@ -15,7 +15,7 @@ log = logging.getLogger('Pema matching')
 @export
 @strax.takes_config(
     strax.Option('truth_lookup_window',
-                 default=int(5e9),
+                 default=int(10e6),
                  help='Look back and forth this many ns in the truth info'),
 )
 class MatchPeaks(strax.OverlapWindowPlugin):
@@ -74,7 +74,7 @@ class MatchPeaks(strax.OverlapWindowPlugin):
                       '(outcome, penalty_factor)'),
     strax.Option('min_s2_bias_rec', default=0.85,
                  help='If the S2 fraction is greater or equal than this, consider '
-                      'a peak succesfully found even if it is split or chopped.'),
+                      'a peak successfully found even if it is split or chopped.'),
 )
 class AcceptanceComputer(strax.Plugin):
     """
@@ -175,7 +175,7 @@ class AcceptanceExtended(strax.MergeOnlyPlugin):
 
 @strax.takes_config(
     strax.Option('truth_lookup_window',
-                 default=int(5e9),
+                 default=int(10e6),
                  help='Look back and forth this many ns in the truth info'),
 )
 class MatchEvents(strax.OverlapWindowPlugin):
@@ -190,6 +190,13 @@ class MatchEvents(strax.OverlapWindowPlugin):
     depends_on = ('truth', 'events')
     provides = 'truth_events'
     data_kind = 'truth_events'
+
+    dtype = strax.dtypes.time_fields + [
+        ((f'First event number in event datatype within the truth event', 'start_match'), np.int64),
+        ((f'Last (inclusive!) event number in event datatype within the truth event', 'end_match'), np.int64),
+        ((f'Outcome of matching to events', 'outcome'), pema.matching.OUTCOME_DTYPE),
+        ((f'Truth event number', 'truth_number'), np.int64),
+    ]
 
     def compute(self, truth, events):
         unique_numbers = np.unique(truth['event_number'])
@@ -214,17 +221,6 @@ class MatchEvents(strax.OverlapWindowPlugin):
 
     def get_window_size(self):
         return self.config['truth_lookup_window']
-
-    def infer_dtype(self):
-        dtype = strax.dtypes.time_fields + [
-            ((f'First event number in event datatype within the truth event',
-              'start_match'), np.int64),
-            ((f'Last (inclusive!) event number in event datatype within the truth event',
-              'end_match'), np.int64),
-            ((f'Outcome of matching to events', 'outcome'), pema.matching.OUTCOME_DTYPE),
-            ((f'Truth event number', 'truth_number'), np.int64),
-        ]
-        return dtype
 
     @staticmethod
     def outcomes(diff):
