@@ -1,5 +1,6 @@
 # File for the requirements of the documentation
 numpy==1.19.5
+autodocsumm==0.1.13
 sphinx
 sphinx_rtd_theme
 nbsphinx
