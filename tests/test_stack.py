@@ -85,7 +85,7 @@ class TestStack(unittest.TestCase):
         )
         script_writer = pema.ProcessRun(st, run_id,
                                         ('raw_records', 'records',
-                                         'peaklets', 'peaks_matched',
+                                         'peaklets', 'truth_matched',
                                          'match_acceptance_extended'
                                          ))
         cls.script = script_writer

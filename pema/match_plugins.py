@@ -32,9 +32,9 @@ class MatchPeaks(strax.OverlapWindowPlugin):
     provides = ('truth_matched',
                 # 'peaks_matched'
                 )
-    data_kind = immutabledict(truth_matched='truth',
-                              # peaks_matched='peaks'
-                              )
+    data_kind = 'truth'#immutabledict(truth_matched='truth',
+                       #       # peaks_matched='peaks'
+                       #       )
 
     # keep track of number of peaks/truths seen for id of each.
     truth_seen = 0
@@ -90,7 +90,7 @@ class MatchPeaks(strax.OverlapWindowPlugin):
                 ((f'Id of matching element in {match_to}', 'matched_to'), np.int64)
             ]
             dtypes[dtype_for + '_matched'] = dtype
-        return dtypes
+        return dtypes['truth_matched']
 
 
 @export
@@ -116,7 +116,8 @@ class AcceptanceComputer(strax.Plugin):
     reconstruction).
     """
     __version__ = '0.0.3'
-    depends_on = ('truth', 'truth_matched', 'peak_basics', 'peaks_matched')
+    depends_on = ('truth', 'truth_matched',  'peak_basics', #'peaks_matched'
+                  )
     provides = 'match_acceptance'
     data_kind = 'truth'
     save_when = strax.SaveWhen.TARGET
