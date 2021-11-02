@@ -31,11 +31,9 @@ class MatchPeaks(strax.OverlapWindowPlugin):
                   'peak_basics', 'peak_id')
     provides = 'truth_matched'
     data_kind = 'truth'
-    save_when = strax.SaveWhen.NEVER
 
     def compute(self, truth, peaks):
         log.debug(f'Starting {self.__class__.__name__}')
-        assert_ordered_truth(truth)
         truth = pema.append_fields(truth, 'area', truth['n_photon'])
 
         # hack endtime
@@ -90,7 +88,6 @@ class AcceptanceComputer(strax.Plugin):
     depends_on = ('truth', 'truth_matched', 'peak_basics', 'peak_id')
     provides = 'match_acceptance'
     data_kind = 'truth'
-    save_when = strax.SaveWhen.TARGET
 
     dtype = strax.dtypes.time_fields + [
         ((f'Is the peak tagged "found" in the reconstructed data',
@@ -193,11 +190,8 @@ class MatchEvents(strax.OverlapWindowPlugin):
     depends_on = ('truth', 'events')
     provides = 'truth_events'
     data_kind = 'truth_events'
-    save_when = strax.SaveWhen.NEVER
 
     def compute(self, truth, events):
-        assert_ordered_truth(truth)
-
         unique_numbers = np.unique(truth['event_number'])
         res = np.zeros(len(unique_numbers), self.dtype)
         res['truth_number'] = unique_numbers
@@ -273,6 +267,7 @@ class TruthId(PeakId):
     data_kind = 'truth'
 
     def compute(self, truth):
+        assert_ordered_truth(truth)
         return super().compute(truth)
 
 
