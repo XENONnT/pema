@@ -30,16 +30,14 @@ class MatchPeaks(strax.OverlapWindowPlugin):
     depends_on = ('truth', 'truth_id', 'peak_basics', 'peak_id')
     provides = 'truth_matched'
     data_kind = 'truth'
-
-    # keep track of number of peaks/truths seen for id of each.
-    truth_seen = 0
-    peaks_seen = 0
+    save_when = strax.SaveWhen.NEVER
+    # # keep track of number of peaks/truths seen for id of each.
+    # truth_seen = 0
+    # peaks_seen = 0
 
     def compute(self, truth, peaks):
         log.debug(f'Starting {self.__class__.__name__}')
         assert_ordered_truth(truth)
-
-        # Append fields
         truth = pema.append_fields(truth, 'area', truth['n_photon'])
 
         # hack endtime
@@ -48,12 +46,10 @@ class MatchPeaks(strax.OverlapWindowPlugin):
 
         log.info('Starting matching')
         truth_vs_peak, peak_vs_truth = pema.match_peaks(truth, peaks)
-
         res_truth = np.zeros(len(truth), dtype=self.dtype)
         for k in self.dtype.names:
             res_truth[k] = truth_vs_peak[k]
 
-        self.truth_seen += len(truth)
         return res_truth
 
     def get_window_size(self):
@@ -95,7 +91,7 @@ class AcceptanceComputer(strax.Plugin):
     an S2 into small S1 signals that could affect event
     reconstruction).
     """
-    __version__ = '0.0.3'
+    __version__ = '0.1.0'
     depends_on = ('truth', 'truth_matched', 'truth_id', 'peak_basics', 'peak_id')
     provides = 'match_acceptance'
     data_kind = 'truth'
@@ -103,8 +99,7 @@ class AcceptanceComputer(strax.Plugin):
 
     dtype = strax.dtypes.time_fields + [
         ((f'Is the peak tagged "found" in the reconstructed data',
-          'is_found'),
-         np.bool_),
+          'is_found'), np.bool_),
         ((f'Acceptance of the peak can be negative for penalized reconstruction',
           'acceptance_fraction'),
          np.float64),
@@ -115,7 +110,6 @@ class AcceptanceComputer(strax.Plugin):
 
     def compute(self, truth, peaks):
         res = np.zeros(len(truth), self.dtype)
-
         res['time'] = truth['time']
         res['endtime'] = strax.endtime(truth)
         res['is_found'] = truth['outcome'] == 'found'
@@ -164,9 +158,13 @@ class AcceptanceComputer(strax.Plugin):
                     # How do we get 0 photons in instruction?
                     continue
                 peak_mask = peaks['id'] == peak_id
-                if sum(peak_mask.astype(np.int)) == 0:
-                    raise ValueError
-                if t['type'] == peaks[peak_mask]['type']:
+                matched_peaks = peaks[peak_mask]
+                if len(matched_peaks) != 1:
+                    # How did we end up here, matching is only supposed
+                    # to give the biggest peak that it is matched to
+                    raise ValueError("Invalid matching result?!")
+                matched_peaks = matched_peaks[0]
+                if t['type'] == matched_peaks['type']:
                     frac = peaks[peak_mask]['area'] / t['n_photon']
                     buffer[ti] = frac
                     continue
@@ -257,16 +255,9 @@ class PeakId(strax.Plugin):
     provides = 'peak_id'
     data_kind = 'peaks'
     peaks_seen = 0
-    save_when = strax.SaveWhen.NEVER
+    save_when = strax.SaveWhen.TARGET
 
     def infer_dtype(self):
-        # assert len(self.depends_on) == 1
-        # parent = self.depends_on[0]
-        # dtype = self.deps[parent].dtype
-        # if isinstance(dtype, dict):
-        #     # Just in case the parent is multioutput
-        #     dtype = dtype[parent]
-        # dtype = strax.unpack_dtype(dtype)
         dtype = strax.time_fields
         id_field = [((f'Id of element in {self.data_kind}', 'id'), np.int64), ]
         return dtype + id_field
@@ -276,7 +267,7 @@ class PeakId(strax.Plugin):
         res['time'] = peaks['time']
         res['endtime'] = peaks['endtime']
         peak_id = np.arange(len(peaks)) + self.peaks_seen
-        res = pema.append_fields(res, 'id', peak_id, dtypes=np.int64)
+        res['id'] = peak_id
         self.peaks_seen += len(peaks)
         return res
 
