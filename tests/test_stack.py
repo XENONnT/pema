@@ -35,8 +35,9 @@ class TestStack(unittest.TestCase):
     @classmethod
     def set_temporary_test_folder(cls):
         temp_folder = uuid.uuid4().hex
-        cls.tempdir = os.path.join(tempfile.gettempdir(), temp_folder)
-        os.mkdir(cls.tempdir)
+        # cls.tempdir = os.path.join(tempfile.gettempdir(), temp_folder)
+        # os.mkdir(cls.tempdir)
+        cls.tempdir = '/tmp/'
 
     @classmethod
     def set_script(cls):
@@ -223,4 +224,5 @@ class TestStack(unittest.TestCase):
 
     @classmethod
     def tearDownClass(cls):
-        shutil.rmtree(cls.tempdir)
+        print(cls.tempdir)
+        # shutil.rmtree(cls.tempdir)

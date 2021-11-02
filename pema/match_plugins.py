@@ -12,30 +12,6 @@ logging.basicConfig(
 log = logging.getLogger('Pema matching')
 
 
-class PeakId(strax.Plugin):
-    depends_on = 'peak_basics'
-    provides = 'peak_id'
-    peaks_seen = 0
-    save_when = strax.SaveWhen.NEVER
-
-    def infer_dtype(self):
-        dtype = list(self.deps[self.depends_on].dtype[self.depends_on])
-        id_field = [((f'Id of element in {self.provides}', 'id'), np.int64),]
-        return dtype + id_field
-
-    def compute(self, peaks):
-
-        peak_id = np.arange(len(peaks)) + self.peaks_seen
-        peaks = pema.append_fields(peaks, 'id', peak_id, dtypes=np.int64)
-        self.peaks_seen += len(peaks)
-        return peaks
-
-
-class TruthId(PeakId):
-    depends_on = 'truth'
-    provides = 'truth_id'
-
-
 @export
 @strax.takes_config(
     strax.Option('truth_lookup_window',
@@ -188,7 +164,7 @@ class AcceptanceComputer(strax.Plugin):
                     # How do we get 0 photons in instruction?
                     continue
                 peak_mask = peaks['id'] == peak_id
-                if sum(peak_mask) == 0:
+                if sum(peak_mask.astype(np.int)) == 0:
                     raise ValueError
                 if t['type'] == peaks[peak_mask]['type']:
                     frac = peaks[peak_mask]['area'] / t['n_photon']
@@ -201,7 +177,7 @@ class AcceptanceComputer(strax.Plugin):
 class AcceptanceExtended(strax.MergeOnlyPlugin):
     """Merge the matched acceptance to the extended truth"""
     __version__ = '0.0.1'
-    depends_on = ('match_acceptance', 'truth', 'truth_matched')
+    depends_on = ('match_acceptance', 'truth', 'truth_id', 'truth_matched')
     provides = 'match_acceptance_extended'
     data_kind = 'truth'
     save_when = strax.SaveWhen.TARGET
@@ -273,6 +249,38 @@ class MatchEvents(strax.OverlapWindowPlugin):
         outcome[one_found_mask] = 'found'
         outcome[many_found_mask] = 'split'
         return outcome
+
+
+class PeakId(strax.Plugin):
+    """Add id field to datakind"""
+    depends_on = 'peak_basics'
+    provides = 'peak_id'
+    data_kind = 'peaks'
+    peaks_seen = 0
+    save_when = strax.SaveWhen.NEVER
+
+    def infer_dtype(self):
+        assert len(self.depends_on) == 1
+        parent = self.depends_on[0]
+        dtype = self.deps[parent].dtype
+        if isinstance(dtype, dict):
+            # Just in case the parent is multioutput
+            dtype = dtype[parent]
+        dtype = strax.unpack_dtype(dtype)
+        id_field = [((f'Id of element in {self.data_kind}', 'id'), np.int64), ]
+        return dtype + id_field
+
+    def compute(self, peaks):
+        peak_id = np.arange(len(peaks)) + self.peaks_seen
+        peaks = pema.append_fields(peaks, 'id', peak_id, dtypes=np.int64)
+        self.peaks_seen += len(peaks)
+        return peaks
+
+
+class TruthId(PeakId):
+    depends_on = 'truth'
+    provides = 'truth_id'
+    data_kind = 'truth'
 
 
 @numba.njit()
