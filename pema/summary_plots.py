@@ -231,6 +231,8 @@ def rec_diff(def_data,
     for axi, dat in enumerate([def_data, cust_data]):
         plt.sca(axes[0][axi])
         mask = (dat['type'] == 1) & (dat['rec_bias'] > 0)
+        if not np.sum(mask):
+            continue
         rec_plot(dat[mask], **s1_kwargs)
         plt.axhline(1, linestyle='--', c='k')
         plt.title(f'{["default", "custom"][axi]} S1 rec. bias')
@@ -240,6 +242,8 @@ def rec_diff(def_data,
     for axi, dat in enumerate([def_data, cust_data]):
         plt.sca(axes[1][axi])
         mask = (dat['type'] == 2) & (dat['rec_bias'] > 0)
+        if not np.sum(mask):
+            continue
         rec_plot(dat[mask], **s2_kwargs)
         plt.axhline(1, linestyle='--', c='k')
         plt.title(f'{["default", "custom"][axi]} S2 rec. bias')
