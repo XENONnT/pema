@@ -260,27 +260,34 @@ class PeakId(strax.Plugin):
     save_when = strax.SaveWhen.NEVER
 
     def infer_dtype(self):
-        assert len(self.depends_on) == 1
-        parent = self.depends_on[0]
-        dtype = self.deps[parent].dtype
-        if isinstance(dtype, dict):
-            # Just in case the parent is multioutput
-            dtype = dtype[parent]
-        dtype = strax.unpack_dtype(dtype)
+        # assert len(self.depends_on) == 1
+        # parent = self.depends_on[0]
+        # dtype = self.deps[parent].dtype
+        # if isinstance(dtype, dict):
+        #     # Just in case the parent is multioutput
+        #     dtype = dtype[parent]
+        # dtype = strax.unpack_dtype(dtype)
+        dtype = strax.time_fields
         id_field = [((f'Id of element in {self.data_kind}', 'id'), np.int64), ]
         return dtype + id_field
 
     def compute(self, peaks):
+        res = np.zeros(len(peaks), dtype=self.dtype)
+        res['time'] = peaks['time']
+        res['endtime'] = peaks['endtime']
         peak_id = np.arange(len(peaks)) + self.peaks_seen
-        peaks = pema.append_fields(peaks, 'id', peak_id, dtypes=np.int64)
+        res = pema.append_fields(res, 'id', peak_id, dtypes=np.int64)
         self.peaks_seen += len(peaks)
-        return peaks
+        return res
 
 
 class TruthId(PeakId):
     depends_on = 'truth'
     provides = 'truth_id'
     data_kind = 'truth'
+
+    def compute(self, truth):
+        return super().compute(truth)
 
 
 @numba.njit()
