@@ -27,13 +27,11 @@ class MatchPeaks(strax.OverlapWindowPlugin):
         possible outcomes).
     """
     __version__ = '0.2.0'
-    depends_on = ('truth', 'truth_id', 'peak_basics', 'peak_id')
+    depends_on = ('truth', 'truth_id',
+                  'peak_basics', 'peak_id')
     provides = 'truth_matched'
     data_kind = 'truth'
     save_when = strax.SaveWhen.NEVER
-    # # keep track of number of peaks/truths seen for id of each.
-    # truth_seen = 0
-    # peaks_seen = 0
 
     def compute(self, truth, peaks):
         log.debug(f'Starting {self.__class__.__name__}')
@@ -46,6 +44,8 @@ class MatchPeaks(strax.OverlapWindowPlugin):
 
         log.info('Starting matching')
         truth_vs_peak, peak_vs_truth = pema.match_peaks(truth, peaks)
+
+        # copy to the result buffer
         res_truth = np.zeros(len(truth), dtype=self.dtype)
         for k in self.dtype.names:
             res_truth[k] = truth_vs_peak[k]
@@ -56,17 +56,12 @@ class MatchPeaks(strax.OverlapWindowPlugin):
         return self.config['truth_lookup_window']
 
     def infer_dtype(self):
-        dtypes = {}
-        for dtype_for in ('truth',  # 'peaks'
-                          ):
-            match_to = 'peaks' if dtype_for == 'truth' else 'truth'
-            dtype = strax.dtypes.time_fields + [
-                ((f'Id of element in {dtype_for}', 'id'), np.int64),
-                ((f'Outcome of matching to {match_to}', 'outcome'), pema.matching.OUTCOME_DTYPE),
-                ((f'Id of matching element in {match_to}', 'matched_to'), np.int64)
-            ]
-            dtypes[dtype_for + '_matched'] = dtype
-        return dtypes['truth_matched']
+        dtype = strax.dtypes.time_fields + [
+            ((f'Id of element in truth', 'id'), np.int64),
+            ((f'Outcome of matching to peaks', 'outcome'), pema.matching.OUTCOME_DTYPE),
+            ((f'Id of matching element in peaks', 'matched_to'), np.int64)
+        ]
+        return dtype
 
 
 @export
@@ -92,7 +87,7 @@ class AcceptanceComputer(strax.Plugin):
     reconstruction).
     """
     __version__ = '0.1.0'
-    depends_on = ('truth', 'truth_matched', 'truth_id', 'peak_basics', 'peak_id')
+    depends_on = ('truth', 'truth_matched', 'peak_basics', 'peak_id')
     provides = 'match_acceptance'
     data_kind = 'truth'
     save_when = strax.SaveWhen.TARGET
