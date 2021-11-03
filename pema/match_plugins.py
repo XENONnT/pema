@@ -84,7 +84,7 @@ class AcceptanceComputer(strax.Plugin):
     an S2 into small S1 signals that could affect event
     reconstruction).
     """
-    __version__ = '0.2.0'
+    __version__ = '0.2.1'
     depends_on = ('truth', 'truth_matched', 'peak_basics', 'peak_id')
     provides = 'match_acceptance'
     data_kind = 'truth'
@@ -160,7 +160,8 @@ class AcceptanceComputer(strax.Plugin):
                     frac = matched_peaks['area'] / t['n_photon']
                     buffer[ti] = frac
                     continue
-            buffer[ti] = 0
+            else:
+                buffer[ti] = 0
         return buffer
 
 
