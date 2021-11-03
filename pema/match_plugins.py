@@ -107,7 +107,7 @@ class AcceptanceComputer(strax.Plugin):
         res['is_found'] = truth['outcome'] == 'found'
 
         rec_bias = np.zeros(len(truth), dtype=np.float64)
-        self.compute_rec_bias(truth, peaks, rec_bias, pema.matching.INT_NAN)
+        compute_rec_bias(truth, peaks, rec_bias, pema.matching.INT_NAN)
         if np.all(rec_bias) == 0:
             log.warning(f'Computed only 0 bias peaks, that looks unlikely')
         res['rec_bias'] = rec_bias
