@@ -1,3 +1,7 @@
+0.3.1 / 2021-11-03
+------------------
+ - use overlap window for matching, include events (#86)
+
 0.3.0 / 2021-10-24
 ------------------
  - New wfsim inst (#67)
