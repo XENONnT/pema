@@ -26,7 +26,7 @@ class MatchPeaks(strax.OverlapWindowPlugin):
         define the outcome of the matching (see pema.matching for
         possible outcomes).
     """
-    __version__ = '0.2.0'
+    __version__ = '0.3.0'
     depends_on = ('truth', 'truth_id',
                   'peak_basics', 'peak_id')
     provides = 'truth_matched'
@@ -84,7 +84,7 @@ class AcceptanceComputer(strax.Plugin):
     an S2 into small S1 signals that could affect event
     reconstruction).
     """
-    __version__ = '0.1.0'
+    __version__ = '0.2.0'
     depends_on = ('truth', 'truth_matched', 'peak_basics', 'peak_id')
     provides = 'match_acceptance'
     data_kind = 'truth'
@@ -166,7 +166,7 @@ class AcceptanceComputer(strax.Plugin):
 
 class AcceptanceExtended(strax.MergeOnlyPlugin):
     """Merge the matched acceptance to the extended truth"""
-    __version__ = '0.0.1'
+    __version__ = '0.1.0'
     depends_on = ('match_acceptance', 'truth', 'truth_id', 'truth_matched')
     provides = 'match_acceptance_extended'
     data_kind = 'truth'
@@ -186,7 +186,7 @@ class MatchEvents(strax.OverlapWindowPlugin):
         define the outcome of the matching (see pema.matching for
         possible outcomes).
     """
-    __version__ = '0.0.0'
+    __version__ = '0.1.0'
     depends_on = ('truth', 'events')
     provides = 'truth_events'
     data_kind = 'truth_events'
@@ -240,6 +240,8 @@ class PeakId(strax.Plugin):
     depends_on = 'peak_basics'
     provides = 'peak_id'
     data_kind = 'peaks'
+    __version__ = '0.0.0'
+
     peaks_seen = 0
     save_when = strax.SaveWhen.TARGET
 
@@ -262,6 +264,7 @@ class TruthId(PeakId):
     depends_on = 'truth'
     provides = 'truth_id'
     data_kind = 'truth'
+    __version__ = '0.0.0'
 
     def compute(self, truth):
         assert_ordered_truth(truth)
