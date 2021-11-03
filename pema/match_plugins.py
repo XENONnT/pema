@@ -84,7 +84,7 @@ class AcceptanceComputer(strax.Plugin):
     an S2 into small S1 signals that could affect event
     reconstruction).
     """
-    __version__ = '0.3.0'
+    __version__ = '0.3.1'
     depends_on = ('truth', 'truth_matched', 'peak_basics', 'peak_id')
     provides = 'match_acceptance'
     data_kind = 'truth'
@@ -108,7 +108,7 @@ class AcceptanceComputer(strax.Plugin):
 
         rec_bias = np.zeros(len(truth), dtype=np.float64)
         compute_rec_bias(truth, peaks, rec_bias, pema.matching.INT_NAN)
-        if np.all(rec_bias) == 0:
+        if np.all(rec_bias == 0):
             log.warning(f'Computed only 0 bias peaks, that looks unlikely')
         res['rec_bias'] = rec_bias
 
