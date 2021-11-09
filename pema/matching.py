@@ -26,7 +26,7 @@ def match_peaks(allpeaks1, allpeaks2,
                 unknown_types=(0,)):
     """
     Perform peak matching between two numpy record arrays with fields:
-        Event, left, right, type, area
+        time, endtime (or dt and length), id, type, area
     If a peak is split into many fragments (e.g. two close peaks split
     into three peaks), the results are unreliable and depend on which
     peak set is peaks1 and which is peaks2.
