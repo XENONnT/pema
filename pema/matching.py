@@ -31,9 +31,8 @@ def match_peaks(allpeaks1, allpeaks2,
     into three peaks), the results are unreliable and depend on which
     peak set is peaks1 and which is peaks2.
 
-    Returns (allpeaks1, allpeaks2), each with three extra fields:
-    id, outcome, matched_to:
-        id: unique number for each peak
+    Returns (allpeaks1, allpeaks2), each with two extra fields:
+    outcome, matched_to:
         outcome: Can be one of:
             found:  Peak was matched 1-1 between peaks1 and peaks2 (type agrees,
              no other peaks in range).
@@ -41,18 +40,18 @@ def match_peaks(allpeaks1, allpeaks2,
             missed: Peak is not present in the other list
             misid_as_XX: Peak is present in the other list, but has type XX
             merged: Peak is merged with another peak in the other list, the new
-            'super-peak' has the same type
+                'super-peak' has the same type
             merged_to_XX: As above, but 'super-peak' has type XX
             split: Peak is split in the other list, but more than one fragment
-            has the same type as the parent.
+                has the same type as the parent.
             chopped: As split, but one or several fragments are unclassified,
-            exactly one has the correct type.
+                exactly one has the correct type.
             split_and_unclassified: As split, but all fragments are unclassified
-            in the other list.
+                in the other list.
             split_and_misid: As split, but at least one fragment has a different
-            peak type.
+                peak type.
         matched_to: id of matching in *peak* in the other list if outcome is found
-        or misid_as_XX, INT_NAN otherwise.
+            or misid_as_XX, INT_NAN otherwise.
     """
     # Check required fields
     for i, d in enumerate((allpeaks1, allpeaks2)):
