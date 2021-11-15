@@ -115,7 +115,7 @@ def _plot_truth(data, start_end, t_range, xlim):
     plt.xlim(*xlim)
 
 
-def _plot_peak(st_default, truth_vs_default, default_label, peak_i, t_range, xlim, run_id):
+def _plot_peak(st_default, truth_vs_default, default_label, peak_i, t_range, xlim, run_id, del_xtick_labels=False):
     plt.title(default_label)
 
     if run_id is None:
@@ -128,8 +128,9 @@ def _plot_peak(st_default, truth_vs_default, default_label, peak_i, t_range, xli
     for t in t_range:
         axvline(t / 1e9, label=t)
     plt.xlim(*xlim)
-    plt.gca().set_xticklabels([])
-    plt.xlabel('')
+    if del_xtick_labels:
+        plt.gca().set_xticklabels([])
+        plt.xlabel('')
     plt.text(0.05, 0.95,
              truth_vs_default[peak_i]['outcome'],
              transform=plt.gca().transAxes,
@@ -162,6 +163,7 @@ def compare_truth_and_outcome(
         show: bool = True,
         randomize: bool = True,
         run_id: ty.Union[None, str] = None,
+        raw: bool = True,
 ) -> None:
     """
     Compare the outcomes of the truth and the reconstructed peaks
@@ -192,6 +194,7 @@ def compare_truth_and_outcome(
         try:
             if 'run_id' in data.dtype.names:
                 run_mask = data['run_id'] == data[peak_i]['run_id']
+                run_id = data[peak_i]['run_id']
             else:
                 run_mask = np.ones(len(data), dtype=np.bool_)
             t_range, start_end, xlim = _get_time_ranges(data,
@@ -199,12 +202,22 @@ def compare_truth_and_outcome(
                                                         match_fuzz,
                                                         plot_fuzz)
 
-            axes = _get_axes_for_compare_plot(2)
+            axes = iter(_get_axes_for_compare_plot(2 + int(raw)))
 
-            plt.sca(axes[0])
+            plt.sca(next(axes))
             _plot_truth(data[run_mask], start_end, t_range, xlim)
 
-            plt.sca(axes[1])
+            if raw:
+                plt.sca(next(axes))
+                st.plot_records_matrix(run_id,
+                                       raw=True,
+                                       single_figure=False,
+                                       time_range=t_range,
+                                       time_selection='touching',
+                                       )
+                plt.xticks([])
+
+            plt.sca(next(axes))
             _plot_peak(st, data, label, peak_i, t_range, xlim, run_id)
 
             _save_and_show('example_wf', fig_dir, show, peak_i)
@@ -227,6 +240,7 @@ def compare_outcomes(st_default: strax.Context,
                      randomize: bool = True,
                      different_by: ty.Union[bool, str] = 'acceptance_fraction',
                      run_id: ty.Union[None, str] = None,
+                     raw: bool = True,
                      ) -> None:
     """
     Compare the outcomes of two contexts with one another. In order to
@@ -270,6 +284,7 @@ def compare_outcomes(st_default: strax.Context,
         try:
             if 'run_id' in truth_vs_custom.dtype.names:
                 run_mask = truth_vs_custom['run_id'] == truth_vs_custom[peak_i]['run_id']
+                run_id = truth_vs_custom[peak_i]['run_id']
             else:
                 run_mask = np.ones(len(truth_vs_custom), dtype=np.bool_)
             t_range, start_end, xlim = _get_time_ranges(truth_vs_custom,
@@ -277,16 +292,33 @@ def compare_outcomes(st_default: strax.Context,
                                                         match_fuzz,
                                                         plot_fuzz)
 
-            axes = _get_axes_for_compare_plot(3)
+            axes = iter(_get_axes_for_compare_plot(3 + int(raw)))
 
-            plt.sca(axes[0])
+            plt.sca(next(axes))
             _plot_truth(truth_vs_custom[run_mask], start_end, t_range, xlim)
 
-            plt.sca(axes[1])
-            _plot_peak(st_default, truth_vs_default, default_label, peak_i,
-                       t_range, xlim, run_id)
+            if raw:
+                plt.sca(next(axes))
+                st_default.plot_records_matrix(run_id,
+                                               raw=True,
+                                               single_figure=False,
+                                               time_range=t_range,
+                                               time_selection='touching',
+                                               )
+                plt.xticks([])
 
-            plt.sca(axes[2])
+            plt.sca(next(axes))
+            _plot_peak(st_default,
+                       truth_vs_default,
+                       default_label,
+                       peak_i,
+                       t_range,
+                       xlim,
+                       run_id,
+                       del_xtick_labels=True
+                       )
+
+            plt.sca(next(axes))
             _plot_peak(st_custom, truth_vs_custom, custom_label, peak_i,
                        t_range, xlim, run_id)
 
@@ -320,10 +352,10 @@ def _check_args(truth_vs_default, truth_vs_custom=None, run_id=None):
 
 
 def _get_axes_for_compare_plot(n_axis):
-    assert n_axis in [2, 3]
+    assert n_axis in [2, 3, 4]
     _, axes = plt.subplots(n_axis, 1,
                            figsize=(10 * (n_axis / 3), 10),
-                           gridspec_kw={'height_ratios': [0.5, 1, 1][:n_axis]})
+                           gridspec_kw={'height_ratios': [0.5, 1, 1, 1][:n_axis]})
     return axes
 
 
