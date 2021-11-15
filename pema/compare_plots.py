@@ -209,16 +209,9 @@ def compare_truth_and_outcome(
 
             if raw:
                 plt.sca(next(axes))
-                st.plot_records_matrix(run_id,
-                                       raw=True,
-                                       single_figure=False,
-                                       time_range=t_range,
-                                       time_selection='touching',
-                                       )
-                for t in t_range:
-                    axvline(t / 1e9, label=t)
-                plt.xlabel('')
+                raw_plot(raw, st, run_id, t_range)
                 plt.xticks([])
+                plt.xlabel('')
 
             plt.sca(next(axes))
             _plot_peak(st, data, label, peak_i, t_range, xlim, run_id)
@@ -302,13 +295,9 @@ def compare_outcomes(st_default: strax.Context,
 
             if raw:
                 plt.sca(next(axes))
-                st_default.plot_records_matrix(run_id,
-                                               raw=True,
-                                               single_figure=False,
-                                               time_range=t_range,
-                                               time_selection='touching',
-                                               )
+                raw_plot(raw, st_default, run_id, t_range)
                 plt.xticks([])
+                plt.xlabel('')
 
             plt.sca(next(axes))
             _plot_peak(st_default,
@@ -329,6 +318,37 @@ def compare_outcomes(st_default: strax.Context,
         except (ValueError, RuntimeError) as e:
             print(f'Error making {peak_i}: {type(e)}, {e}')
             plt.show()
+
+
+def raw_plot(raw, st, run_id, t_range, **kwargs):
+    if isinstance(raw, bool):
+        st.plot_records_matrix(run_id,
+                                       raw=True,
+                                       single_figure=False,
+                                       time_range=t_range,
+                                       time_selection='touching',
+                                       )
+    if raw == 'pulse':
+        kwargs.setdefault('legend', False)
+        rr_simple_plot(st, run_id, t_range, **kwargs)
+
+
+def rr_simple_plot(st, run_id, t_range, legend=False):
+    cmap = plt.cm.twilight(np.arange(straxen.n_tpc_pmts))
+    raw_records = st.get_array(run_id, 'raw_records',
+                               time_range=t_range,
+                               time_selection='touching')
+    raw_records = np.sort(raw_records, order='channel')
+    for rr in raw_records:
+        y = rr['data'][:rr['length']]
+        x = np.arange(len(y)) * rr['dt'] + rr['time']
+        ch = rr['channel']
+        idx = rr['record_i']
+        plt.plot(x, y, label=f'ch{ch:03}: rec_{idx}', c=cmap[ch])
+    for t in t_range:
+        axvline(t/ 1e9)
+    if legend:
+        plt.legend(fontsize='xx-small')
 
 
 def axvline(v, **kwargs):
