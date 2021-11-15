@@ -1,11 +1,12 @@
+import typing as ty
+
+import matplotlib.pyplot as plt
+import numpy as np
+import pema
 import strax
 import straxen
-import numpy as np
-import matplotlib.pyplot as plt
-from straxen.analyses.waveform_plot import time_and_samples, seconds_range_xaxis
-import pema
-import typing as ty
 from strax.utils import tqdm  # For widget pbar in notebooks
+from straxen.analyses.waveform_plot import time_and_samples, seconds_range_xaxis
 
 
 @straxen.mini_analysis(
@@ -82,7 +83,7 @@ def plot_peak(p, t0=None, center_time=True, include_info=None, **kwargs):
                  )
 
 
-def _plot_truth(data, start_end, t_range, xlim,del_xtick_labels=True):
+def _plot_truth(data, start_end, t_range, xlim, del_xtick_labels=True):
     plt.title('Instructions')
     for pk, pi in enumerate(
             range(*strax.touching_windows(data, start_end)[0])):
@@ -115,7 +116,8 @@ def _plot_truth(data, start_end, t_range, xlim,del_xtick_labels=True):
     plt.xlim(*xlim)
 
 
-def _plot_peak(st_default, truth_vs_default, default_label, peak_i, t_range, xlim, run_id, del_xtick_labels=False):
+def _plot_peak(st_default, truth_vs_default, default_label, peak_i, t_range, xlim, run_id,
+               del_xtick_labels=False):
     plt.title(default_label)
 
     if run_id is None:
@@ -202,7 +204,7 @@ def compare_truth_and_outcome(
                                                         match_fuzz,
                                                         plot_fuzz)
 
-            axes = iter(_get_axes_for_compare_plot(2 + int(raw)))
+            axes = iter(_get_axes_for_compare_plot(2 + int(bool(raw))))
 
             plt.sca(next(axes))
             _plot_truth(data[run_mask], start_end, t_range, xlim)
@@ -288,7 +290,7 @@ def compare_outcomes(st_default: strax.Context,
                                                         match_fuzz,
                                                         plot_fuzz)
 
-            axes = iter(_get_axes_for_compare_plot(3 + int(raw)))
+            axes = iter(_get_axes_for_compare_plot(3 + int(bool(raw))))
 
             plt.sca(next(axes))
             _plot_truth(truth_vs_custom[run_mask], start_end, t_range, xlim)
@@ -323,11 +325,11 @@ def compare_outcomes(st_default: strax.Context,
 def raw_plot(raw, st, run_id, t_range, **kwargs):
     if isinstance(raw, bool):
         st.plot_records_matrix(run_id,
-                                       raw=True,
-                                       single_figure=False,
-                                       time_range=t_range,
-                                       time_selection='touching',
-                                       )
+                               raw=True,
+                               single_figure=False,
+                               time_range=t_range,
+                               time_selection='touching',
+                               )
     if raw == 'pulse':
         kwargs.setdefault('legend', False)
         rr_simple_plot(st, run_id, t_range, **kwargs)
@@ -346,7 +348,7 @@ def rr_simple_plot(st, run_id, t_range, legend=False):
         idx = rr['record_i']
         plt.plot(x, y, label=f'ch{ch:03}: rec_{idx}', c=cmap[ch])
     for t in t_range:
-        axvline(t/ 1e9)
+        axvline(t / 1e9)
     if legend:
         plt.legend(fontsize='xx-small')
 
