@@ -82,7 +82,7 @@ def plot_peak(p, t0=None, center_time=True, include_info=None, **kwargs):
                  )
 
 
-def _plot_truth(data, start_end, t_range, xlim):
+def _plot_truth(data, start_end, t_range, xlim,del_xtick_labels=True):
     plt.title('Instructions')
     for pk, pi in enumerate(
             range(*strax.touching_windows(data, start_end)[0])):
@@ -215,6 +215,9 @@ def compare_truth_and_outcome(
                                        time_range=t_range,
                                        time_selection='touching',
                                        )
+                for t in t_range:
+                    axvline(t / 1e9, label=t)
+                plt.xlabel('')
                 plt.xticks([])
 
             plt.sca(next(axes))
@@ -355,6 +358,7 @@ def _get_axes_for_compare_plot(n_axis):
     assert n_axis in [2, 3, 4]
     _, axes = plt.subplots(n_axis, 1,
                            figsize=(10 * (n_axis / 3), 10),
+                           sharex=True,
                            gridspec_kw={'height_ratios': [0.5, 1, 1, 1][:n_axis]})
     return axes
 
