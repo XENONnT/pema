@@ -218,6 +218,8 @@ def compare_truth_and_outcome(
                                        time_range=t_range,
                                        time_selection='touching',
                                        )
+                for t in t_range:
+                    axvline(t / 1e9)
                 plt.xticks([])
                 plt.xlabel('')
 
@@ -316,6 +318,8 @@ def compare_outcomes(st_default: strax.Context,
                                                time_range=t_range,
                                                time_selection='touching',
                                                )
+                for t in t_range:
+                    axvline(t / 1e9)
                 plt.xticks([])
                 plt.xlabel('')
 
@@ -355,10 +359,10 @@ def rr_simple_plot(st, run_id, t_range, legend=False):
     plt.ylabel('ADC counts')
     for rr in raw_records:
         y = rr['data'][:rr['length']]
-        x = np.arange(len(y)) * rr['dt'] + rr['time']
+        time = np.arange(len(y)) * rr['dt'] + rr['time']
         ch = rr['channel']
         idx = rr['record_i']
-        plt.plot(x, y, label=f'ch{ch:03}: rec_{idx}', c=cmap[ch])
+        plt.plot(time/1e9, y, label=f'ch{ch:03}: rec_{idx}', c=cmap[ch])
     for t in t_range:
         axvline(t / 1e9)
     if legend:
