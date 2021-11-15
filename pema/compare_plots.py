@@ -6,7 +6,7 @@ import pema
 import strax
 import straxen
 from strax.utils import tqdm  # For widget pbar in notebooks
-from straxen.analyses.waveform_plot import time_and_samples, seconds_range_xaxis
+from straxen.analyses.waveform_plot import time_and_samples
 
 
 @straxen.mini_analysis(
@@ -419,3 +419,48 @@ def _get_time_ranges(truth_vs_custom, peak_i, matching_fuzz, plot_fuzz):
 
     xlim = (t_range[0] - plot_fuzz) / 1e9, (t_range[1] + plot_fuzz) / 1e9
     return t_range, start_end, xlim
+
+
+def seconds_range_xaxis(seconds_range, t0=None):
+    """Make a pretty time axis given seconds_range"""
+    plt.xlim(*seconds_range)
+    ax = plt.gca()
+    # disable for now ax.ticklabel_format(useOffset=False)
+    xticks = plt.xticks()[0]
+    if not len(xticks):
+        return
+
+    # Format the labels
+    # I am not very proud of this code...
+    def chop(x):
+        return np.floor(x).astype(np.int)
+
+    if t0 is None:
+        xticks_ns = np.round(xticks * int(1e9)).astype(np.int)
+    else:
+        xticks_ns = np.round((xticks - xticks[0]) * int(1e9)).astype(np.int)
+    sec = chop(xticks_ns // int(1e9))
+    ms = chop((xticks_ns % int(1e9)) // int(1e6))
+    us = chop((xticks_ns % int(1e6)) // int(1e3))
+    samples = chop((xticks_ns % int(1e3)) // 10)
+
+    labels = [str(sec[i]) for i in range(len(xticks))]
+    print_ns = np.any(samples != samples[0])
+    print_us = print_ns | np.any(us != us[0])
+    print_ms = print_us | np.any(ms != ms[0])
+    if print_ms and t0 is None:
+        labels = [l + f'.{ms[i]:03}' for i, l in enumerate(labels)]
+        if print_us:
+            labels = [l + r' $\bf{' + f'{us[i]:03}' + '}$'
+                      for i, l in enumerate(labels)]
+            if print_ns:
+                labels = [l + f' {samples[i]:02}0' for i, l in enumerate(labels)]
+        plt.xticks(ticks=xticks, labels=labels, rotation=90)
+    else:
+        labels = list(chop((xticks_ns // 10) * 10))
+        labels[-1] = ""
+        plt.xticks(ticks=xticks, labels=labels, rotation=0)
+    if t0 is None:
+        plt.xlabel("Time since run start [sec]")
+    else:
+        plt.xlabel("Time [ns]")
