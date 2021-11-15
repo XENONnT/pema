@@ -127,7 +127,6 @@ def _plot_peak(st_default, truth_vs_default, default_label, peak_i, t_range, xli
                           single_figure=False,
                           include_info=['area', 'rise_time', 'tight_coincidence'],
                           time_range=t_range,
-                          xaxis=False,
                           )
     for t in t_range:
         axvline(t / 1e9, label=t)
@@ -135,6 +134,7 @@ def _plot_peak(st_default, truth_vs_default, default_label, peak_i, t_range, xli
     if del_xtick_labels:
         plt.gca().set_xticklabels([])
         plt.xlabel('')
+
     plt.text(0.05, 0.95,
              truth_vs_default[peak_i]['outcome'],
              transform=plt.gca().transAxes,
