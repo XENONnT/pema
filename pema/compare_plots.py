@@ -115,7 +115,7 @@ def _plot_truth(data, start_end, t_range, xlim):
     plt.xlim(*xlim)
 
 
-def _plot_peak(st_default, truth_vs_default, default_label, peak_i, t_range, xlim, run_id):
+def _plot_peak(st_default, truth_vs_default, default_label, peak_i, t_range, xlim, run_id, del_xtick_labels=False):
     plt.title(default_label)
 
     if run_id is None:
@@ -128,8 +128,9 @@ def _plot_peak(st_default, truth_vs_default, default_label, peak_i, t_range, xli
     for t in t_range:
         axvline(t / 1e9, label=t)
     plt.xlim(*xlim)
-    plt.gca().set_xticklabels([])
-    plt.xlabel('')
+    if del_xtick_labels:
+        plt.gca().set_xticklabels([])
+        plt.xlabel('')
     plt.text(0.05, 0.95,
              truth_vs_default[peak_i]['outcome'],
              transform=plt.gca().transAxes,
@@ -208,9 +209,13 @@ def compare_truth_and_outcome(
 
             if raw:
                 plt.sca(next(axes))
-                st.plot_records_matrix(run_id, raw=True,
+                st.plot_records_matrix(run_id,
+                                       raw=True,
                                        single_figure=False,
-                                       time_range=t_range)
+                                       time_range=t_range,
+                                       time_selection='touching',
+                                       )
+                plt.xticks([])
 
             plt.sca(next(axes))
             _plot_peak(st, data, label, peak_i, t_range, xlim, run_id)
@@ -297,11 +302,21 @@ def compare_outcomes(st_default: strax.Context,
                 st_default.plot_records_matrix(run_id,
                                                raw=True,
                                                single_figure=False,
-                                               time_range=t_range)
+                                               time_range=t_range,
+                                               time_selection='touching',
+                                               )
+                plt.xticks([])
 
             plt.sca(next(axes))
-            _plot_peak(st_default, truth_vs_default, default_label, peak_i,
-                       t_range, xlim, run_id)
+            _plot_peak(st_default,
+                       truth_vs_default,
+                       default_label,
+                       peak_i,
+                       t_range,
+                       xlim,
+                       run_id,
+                       del_xtick_labels=True
+                       )
 
             plt.sca(next(axes))
             _plot_peak(st_custom, truth_vs_custom, custom_label, peak_i,
