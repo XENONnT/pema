@@ -166,6 +166,7 @@ def compare_truth_and_outcome(
         randomize: bool = True,
         run_id: ty.Union[None, str] = None,
         raw: bool = True,
+        pulse: bool = True,
 ) -> None:
     """
     Compare the outcomes of the truth and the reconstructed peaks
@@ -204,14 +205,25 @@ def compare_truth_and_outcome(
                                                         match_fuzz,
                                                         plot_fuzz)
 
-            axes = iter(_get_axes_for_compare_plot(2 + int(bool(raw))))
+            axes = iter(_get_axes_for_compare_plot(2 + bool(raw) + bool(pulse)))
 
             plt.sca(next(axes))
             _plot_truth(data[run_mask], start_end, t_range, xlim)
 
             if raw:
                 plt.sca(next(axes))
-                raw_plot(raw, st, run_id, t_range)
+                st.plot_records_matrix(run_id,
+                                       raw=True,
+                                       single_figure=False,
+                                       time_range=t_range,
+                                       time_selection='touching',
+                                       )
+                plt.xticks([])
+                plt.xlabel('')
+
+            if pulse:
+                plt.sca(next(axes))
+                rr_simple_plot(st, run_id, t_range, legend=False)
                 plt.xticks([])
                 plt.xlabel('')
 
@@ -239,6 +251,7 @@ def compare_outcomes(st_default: strax.Context,
                      different_by: ty.Union[bool, str] = 'acceptance_fraction',
                      run_id: ty.Union[None, str] = None,
                      raw: bool = True,
+                     pulse: bool = True,
                      ) -> None:
     """
     Compare the outcomes of two contexts with one another. In order to
@@ -290,14 +303,25 @@ def compare_outcomes(st_default: strax.Context,
                                                         match_fuzz,
                                                         plot_fuzz)
 
-            axes = iter(_get_axes_for_compare_plot(3 + int(bool(raw))))
+            axes = iter(_get_axes_for_compare_plot(3 + int(raw) + int(pulse)))
 
             plt.sca(next(axes))
             _plot_truth(truth_vs_custom[run_mask], start_end, t_range, xlim)
 
             if raw:
                 plt.sca(next(axes))
-                raw_plot(raw, st_default, run_id, t_range)
+                st_default.plot_records_matrix(run_id,
+                                               raw=True,
+                                               single_figure=False,
+                                               time_range=t_range,
+                                               time_selection='touching',
+                                               )
+                plt.xticks([])
+                plt.xlabel('')
+
+            if pulse:
+                plt.sca(next(axes))
+                rr_simple_plot(st_default, run_id, t_range, legend=False)
                 plt.xticks([])
                 plt.xlabel('')
 
@@ -322,25 +346,13 @@ def compare_outcomes(st_default: strax.Context,
             plt.show()
 
 
-def raw_plot(raw, st, run_id, t_range, **kwargs):
-    if isinstance(raw, bool):
-        st.plot_records_matrix(run_id,
-                               raw=True,
-                               single_figure=False,
-                               time_range=t_range,
-                               time_selection='touching',
-                               )
-    if raw == 'pulse':
-        kwargs.setdefault('legend', False)
-        rr_simple_plot(st, run_id, t_range, **kwargs)
-
-
 def rr_simple_plot(st, run_id, t_range, legend=False):
     cmap = plt.cm.twilight(np.arange(straxen.n_tpc_pmts))
     raw_records = st.get_array(run_id, 'raw_records',
                                time_range=t_range,
                                time_selection='touching')
     raw_records = np.sort(raw_records, order='channel')
+    plt.ylabel('ADC counts')
     for rr in raw_records:
         y = rr['data'][:rr['length']]
         x = np.arange(len(y)) * rr['dt'] + rr['time']
