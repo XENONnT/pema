@@ -162,13 +162,16 @@ class TestStack(unittest.TestCase):
             max_peaks=2,
             show=False,
             fig_dir=self.tempdir,
+            raw=True
         )
+        plt.clf()
         pema.compare_outcomes(st, peaks_1,
                               st2, peaks_2,
                               max_peaks=2,
                               show=False,
                               different_by=None,
                               fig_dir=self.tempdir,
+                              raw=False,
                               )
         plt.clf()
         if len(peaks_1):
