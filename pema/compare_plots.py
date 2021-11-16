@@ -210,6 +210,8 @@ def compare_truth_and_outcome(
     :param pulse: plot raw-record traces.
     :return: None
     """
+    if kwargs:
+        kwargs['different_by'] = None
     compare_outcomes(st=st,
                      data=data,
                      st_alt=None,

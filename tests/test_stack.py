@@ -201,7 +201,7 @@ class TestStack(unittest.TestCase):
         peaks_2 = st2.get_array(run_id, 'match_acceptance_extended')
         peaks_1_kwargs = dict(bins=10)
         if len(peaks_1):
-            pema.summary_plots.rec_plot(peaks_1, **peaks_1_kwargs)
+            pema.summary_plots.rec_plot(peaks_1, s1_kwargs=peaks_1_kwargs)
             pema.summary_plots.reconstruction_bias(peaks_1, **peaks_1_kwargs)
             plt.clf()
         if len(peaks_1) and len(peaks_2):
