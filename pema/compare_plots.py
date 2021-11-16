@@ -288,12 +288,12 @@ def compare_outcomes(st: strax.Context,
 
     for peak_i in tqdm(peaks_idx[:max_peaks]):
         try:
-            if 'run_id' in data_alt.dtype.names:
-                run_mask = data_alt['run_id'] == data_alt[peak_i]['run_id']
-                run_id = data_alt[peak_i]['run_id']
+            if 'run_id' in data.dtype.names:
+                run_mask = data['run_id'] == data[peak_i]['run_id']
+                run_id = data[peak_i]['run_id']
             else:
-                run_mask = np.ones(len(data_alt), dtype=np.bool_)
-            t_range, start_end, xlim = _get_time_ranges(data_alt,
+                run_mask = np.ones(len(data), dtype=np.bool_)
+            t_range, start_end, xlim = _get_time_ranges(data,
                                                         peak_i,
                                                         match_fuzz,
                                                         plot_fuzz)
@@ -306,7 +306,7 @@ def compare_outcomes(st: strax.Context,
             )
 
             plt.sca(next(axes))
-            _plot_truth(data_alt[run_mask], start_end, t_range)
+            _plot_truth(data[run_mask], start_end, t_range)
 
             if raw:
                 plt.sca(next(axes))
