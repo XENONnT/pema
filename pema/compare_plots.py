@@ -409,7 +409,7 @@ def _check_args(truth_vs_default, truth_vs_custom=None, run_id=None):
 
 
 def _get_axes_for_compare_plot(n_axis):
-    assert n_axis in [2, 3, 4]
+    assert n_axis in [2, 3, 4, 5]
     _, axes = plt.subplots(
         n_axis,
         1,
