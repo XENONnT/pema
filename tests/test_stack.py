@@ -202,6 +202,7 @@ class TestStack(unittest.TestCase):
         peaks_1_kwargs = dict(bins=10)
         if len(peaks_1):
             pema.summary_plots.rec_plot(peaks_1, **peaks_1_kwargs)
+            pema.summary_plots.reconstruction_bias(peaks_1, **peaks_1_kwargs)
             plt.clf()
         if len(peaks_1) and len(peaks_2):
             if not np.sum(peaks_1['type'] == 1):
