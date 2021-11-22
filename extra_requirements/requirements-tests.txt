@@ -1,7 +1,7 @@
 # Test compatibility with these most often:
 strax==1.1.2
 straxen==1.1.3
-wfsim==0.5.9
+wfsim==0.5.10
 
 # File for the requirements of pema with the automated tests
 blosc==1.10.4                                   # Strax dependency
@@ -11,10 +11,10 @@ dill==0.3.4                                     # Strax dependency
 coveralls==3.3.1
 commentjson==0.9.0
 coverage==5.5
-dask==2021.11.1
+dask==2021.11.2
 flake8==4.0.1
 hypothesis==6.21.1
-matplotlib==3.4.3
+matplotlib==3.5.0
 multihist==0.6.4
 npshmex==0.2.1                                  # Strax dependency
 numba==0.53.1                                   # Strax dependency
