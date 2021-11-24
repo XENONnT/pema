@@ -21,7 +21,8 @@ OUTCOME_DTYPE = '<U32'
 
 
 @export
-def match_peaks(allpeaks1, allpeaks2,
+def match_peaks(allpeaks1,
+                allpeaks2,
                 matching_fuzz=0,
                 unknown_types=(0,)):
     """

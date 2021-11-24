@@ -37,7 +37,6 @@ class TestStack(unittest.TestCase):
         temp_folder = uuid.uuid4().hex
         cls.tempdir = os.path.join(tempfile.gettempdir(), temp_folder)
         os.mkdir(cls.tempdir)
-        # cls.tempdir = '/tmp/'
 
     @classmethod
     def set_script(cls):
@@ -76,7 +75,8 @@ class TestStack(unittest.TestCase):
                                base_dir=temp_dir,
                                raw_dir=temp_dir,
                                data_dir=temp_dir,
-                               config_update=config_update, )
+                               config_update=config_update,
+                               )
         st.set_context_config(
             {'allow_shm': True,
              'allow_lazy': False,
@@ -85,8 +85,10 @@ class TestStack(unittest.TestCase):
              }
         )
         script_writer = pema.ProcessRun(st, run_id,
-                                        ('raw_records', 'records',
-                                         'peaklets', 'truth_matched',
+                                        ('raw_records',
+                                         'records',
+                                         'peaklets',
+                                         'truth_matched',
                                          'match_acceptance_extended'
                                          ))
         cls.script = script_writer
@@ -162,13 +164,16 @@ class TestStack(unittest.TestCase):
             max_peaks=2,
             show=False,
             fig_dir=self.tempdir,
+            raw=True
         )
+        plt.clf()
         pema.compare_outcomes(st, peaks_1,
                               st2, peaks_2,
                               max_peaks=2,
                               show=False,
                               different_by=None,
                               fig_dir=self.tempdir,
+                              raw=False,
                               )
         plt.clf()
         if len(peaks_1):
@@ -199,6 +204,7 @@ class TestStack(unittest.TestCase):
         peaks_1_kwargs = dict(bins=10)
         if len(peaks_1):
             pema.summary_plots.rec_plot(peaks_1, **peaks_1_kwargs)
+            pema.summary_plots.reconstruction_bias(peaks_1, s1_kwargs=peaks_1_kwargs)
             plt.clf()
         if len(peaks_1) and len(peaks_2):
             if not np.sum(peaks_1['type'] == 1):
