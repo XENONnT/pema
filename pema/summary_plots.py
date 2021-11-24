@@ -6,10 +6,8 @@ from multihist import Hist1d
 import strax
 import multihist
 from scipy.stats import norm
-from matplotlib.colors import LogNorm
 
 export, __all__ = strax.exporter()
-
 
 outcome_colors = {
     'found': 'darkblue',
@@ -127,7 +125,7 @@ def binom_interval(success, total, conf_level=0.95):
     Code stolen from https://gist.github.com/paulgb/6627336
     Agrees with http://statpages.info/confint.html for binom_interval(1, 10)
     """
-    # Sould we add a special case for success = 0 or = total? see wikipedia
+    # Should we add a special case for success = 0 or = total? see wikipedia
     quantile = (1 - conf_level) / 2.
     lower = beta.ppf(quantile, success, total - success + 1)
     upper = beta.ppf(1 - quantile, success + 1, total - success)
@@ -194,20 +192,33 @@ def _plot_acc(bin_centers, values, yerr, plot_label):
 
 def rec_plot(dat, show_hist=True, **kwargs):
     kwargs.setdefault('bins', 50)
-    kwargs.setdefault('range', [[0, 50], [0, 1.5]])
+    kwargs.setdefault('range', [[0, 50], [-1, 1]])
     m2 = multihist.Histdd(axis_names=['n photon', 'Reconstruction bias'], **kwargs)
-    m2.add(dat['n_photon'], dat['rec_bias'])
+    m2.add(dat['n_photon'], dat['rec_bias'] - 1)
 
     median = m2.percentile(50, m2.axis_names[1])
-    plt.plot(median.bin_centers, median, color='white', drawstyle='steps-mid', label='median')
+    plt.plot(median.bin_centers,
+             median,
+             color='white',
+             drawstyle='steps-mid',
+             label='median',
+             )
 
     sigma_high = m2.percentile(100 * norm.cdf(1), m2.axis_names[1])
-    plt.plot(sigma_high.bin_centers, sigma_high, color='cyan', drawstyle='steps-mid',
-             label='90% quantile')
+    plt.plot(sigma_high.bin_centers,
+             sigma_high,
+             color='cyan',
+             drawstyle='steps-mid',
+             label='90% quantile',
+             )
 
     sigma_low = m2.percentile(100 * norm.cdf(-1), m2.axis_names[1])
-    plt.plot(sigma_low.bin_centers, sigma_low, color='green', drawstyle='steps-mid',
-             label='10% quantile')
+    plt.plot(sigma_low.bin_centers,
+             sigma_low,
+             color='green',
+             drawstyle='steps-mid',
+             label='10% quantile',
+             )
     if show_hist:
         m2.plot(log_scale=True)
     plt.grid()
@@ -222,31 +233,44 @@ def _rec_kwargs(s1_kwargs=None,
     return s1_kwargs, s2_kwargs
 
 
-def rec_diff(def_data,
-             cust_data,
-             s1_kwargs=None,
-             s2_kwargs=None):
-    f, axes = plt.subplots(2, 2, figsize=(18, 13))
-    s1_kwargs, s2_kwargs = _rec_kwargs(s1_kwargs, s2_kwargs)
+def _rec_diff_inner(dat, title, **kwargs):
+    if not len(dat):
+        return
+    rec_plot(dat, **kwargs)
+    plt.axhline(0, linestyle='--', c='k')
+    plt.title(title)
+    plt.xlabel('N photons detected')
 
-    for axi, dat in enumerate([def_data, cust_data]):
-        plt.sca(axes[0][axi])
+
+def reconstruction_bias(data, **kwargs):
+    rec_diff(data, None, **kwargs)
+
+
+def rec_diff(def_data,
+             data_alt,
+             data_set_names=("default", "custom"),
+             s1_kwargs=None,
+             s2_kwargs=None,
+             ):
+    make_diff = data_alt is not None
+    data_sets = [def_data, data_alt] if make_diff else [def_data]
+
+    f, axes = plt.subplots(2, len(data_sets), figsize=(18, 13))
+    s1_kwargs, s2_kwargs = _rec_kwargs(s1_kwargs,
+                                       s2_kwargs)
+    axes = iter(axes.flatten())
+    for axi, dat in enumerate(data_sets):
+        plt.sca(next(axes))
         mask = (dat['type'] == 1) & (dat['rec_bias'] > 0)
-        if not np.sum(mask):
-            continue
-        rec_plot(dat[mask], **s1_kwargs)
-        plt.axhline(1, linestyle='--', c='k')
-        plt.title(f'{["default", "custom"][axi]} S1 rec. bias')
-        plt.xlabel('N photons detected')
+        _rec_diff_inner(dat[mask],
+                        title=f'{data_set_names[axi]} S1 rec. bias',
+                        **s1_kwargs)
         if axi == 0:
             plt.legend()
-    for axi, dat in enumerate([def_data, cust_data]):
-        plt.sca(axes[1][axi])
+    for axi, dat in enumerate(data_sets):
+        plt.sca(next(axes))
         mask = (dat['type'] == 2) & (dat['rec_bias'] > 0)
-        if not np.sum(mask):
-            continue
-        rec_plot(dat[mask], **s2_kwargs)
-        plt.axhline(1, linestyle='--', c='k')
-        plt.title(f'{["default", "custom"][axi]} S2 rec. bias')
-        plt.xlabel('N photons detected')
+        _rec_diff_inner(dat[mask],
+                        title=f'{data_set_names[axi]} S2 rec. bias',
+                        **s2_kwargs)
     return axes
