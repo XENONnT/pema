@@ -39,9 +39,9 @@ def plot_peaks(peaks,
     elif xaxis:
         seconds_range_xaxis(seconds_range)
         plt.xlim(*seconds_range)
-    else:
-        plt.xticks([])
-        plt.xlim(*seconds_range)
+#     else:
+#         plt.xticks([])
+#         plt.xlim(*seconds_range)
     plt.ylabel("Intensity [PE/ns]")
     if single_figure:
         plt.tight_layout()
@@ -113,7 +113,7 @@ def _plot_truth(data, start_end, t_range, xlim, del_xtick_labels=True):
 
     plt.legend(loc='lower left', fontsize='x-small')
 
-    plt.xlim(*xlim)
+#     plt.xlim(*xlim)
 
 
 def _plot_peak(st_default, truth_vs_default, default_label, peak_i, t_range, xlim, run_id,
@@ -130,11 +130,14 @@ def _plot_peak(st_default, truth_vs_default, default_label, peak_i, t_range, xli
                           )
     for t in t_range:
         axvline(t / 1e9, label=t)
-    plt.xlim(*xlim)
     if del_xtick_labels:
-        plt.gca().set_xticklabels([])
-        plt.xlabel('')
-
+        pass
+#         plt.xlim(*xlim)
+#         plt.gca().set_xticklabels([])
+#         plt.xlabel('')
+    else:
+        seconds_range_xaxis(xlim)
+        plt.xlim(*xlim)
     plt.text(0.05, 0.95,
              truth_vs_default[peak_i]['outcome'],
              transform=plt.gca().transAxes,
@@ -222,14 +225,14 @@ def compare_truth_and_outcome(
                                        )
                 for t in t_range:
                     axvline(t / 1e9)
-                plt.xticks([])
-                plt.xlabel('')
+#                 plt.xticks([])
+#                 plt.xlabel('')
 
             if pulse:
                 plt.sca(next(axes))
                 rr_simple_plot(st, run_id, t_range, legend=False)
-                plt.xticks([])
-                plt.xlabel('')
+#                 plt.xticks([])
+#                 plt.xlabel('')
 
             plt.sca(next(axes))
             _plot_peak(st, data, label, peak_i, t_range, xlim, run_id)
@@ -322,14 +325,14 @@ def compare_outcomes(st_default: strax.Context,
                                                )
                 for t in t_range:
                     axvline(t / 1e9)
-                plt.xticks([])
-                plt.xlabel('')
+#                 plt.xticks([])
+#                 plt.xlabel('')
 
             if pulse:
                 plt.sca(next(axes))
                 rr_simple_plot(st_default, run_id, t_range, legend=False)
-                plt.xticks([])
-                plt.xlabel('')
+#                 plt.xticks([])
+#                 plt.xlabel('')
 
             plt.sca(next(axes))
             _plot_peak(st_default,
@@ -355,8 +358,10 @@ def compare_outcomes(st_default: strax.Context,
 def rr_simple_plot(st, run_id, t_range, legend=False):
     cmap = plt.cm.twilight(np.arange(straxen.n_tpc_pmts))
     raw_records = st.get_array(run_id, 'raw_records',
+                               progress_bar=False,
                                time_range=t_range,
-                               time_selection='touching')
+                               time_selection='touching',
+                               )
     raw_records = np.sort(raw_records, order='channel')
     plt.ylabel('ADC counts')
     for rr in raw_records:
