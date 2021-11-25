@@ -152,6 +152,7 @@ def _plot_peak(st_default,
                           single_figure=False,
                           include_info=['area', 'rise_time', 'tight_coincidence'],
                           time_range=t_range,
+                          xaxis=label_x_axis,
                           )
     for t in t_range:
         axvline(t / 1e9, label=t)
