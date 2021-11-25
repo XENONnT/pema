@@ -6,8 +6,12 @@ from multihist import Hist1d
 import strax
 import multihist
 from scipy.stats import norm
+from immutabledict import immutabledict
+from copy import deepcopy
+
 
 export, __all__ = strax.exporter()
+
 
 outcome_colors = {
     'found': 'darkblue',
@@ -30,11 +34,14 @@ outcome_colors = {
 }
 
 
+DEFAULT_NPH_LABEL = r'$\#\mathrm{Photon\ detected\ (excl. DPE)}$'
+
+
 @export
 def peak_matching_histogram(results, histogram_key, bin_edges):
     """
-    Make 1D histogram of peak matching results (=peaks with extra fields
-     added by matagainst histogram_key
+    Make 1D histogram of peak matching results (=peaks with extra fields)
+    added by histogram_key
     """
 
     if histogram_key not in results.dtype.names:
@@ -64,9 +71,9 @@ def plot_peak_matching_histogram(*args, **kwargs):
 
 def _plot_peak_matching_histogram(hists):
     """
-    Make 1D histogram of peak matching results (=peaks with extra fields
-     added by matagainst histogram_key
-     """
+    Make 1D histogram of peak matching results (=peaks with extra fields)
+    added by histogram_key
+    """
 
     n_peaks_hist = hists['_total']
 
@@ -190,37 +197,69 @@ def _plot_acc(bin_centers, values, yerr, plot_label):
                  )
 
 
-def rec_plot(dat, show_hist=True, **kwargs):
+def _plot_mh_percentile(mh: multihist.Histdd,
+                        percentile: int,
+                        **kwargs,
+                        ):
+    percentile_from_mh = mh.percentile(percentile, mh.axis_names[1])
+    kwargs.setdefault('drawstyle', 'steps-mid', )
+    plt.plot(percentile_from_mh.bin_centers,
+             percentile_from_mh,
+             **kwargs
+             )
+
+
+def rec_plot(dat,
+             dpe_offset=0.0,
+             show_hist=True,
+             axis_names=('n_photon', 'rec_bias'),
+             print_dpe=True,
+             _percentiles_y_bins=500,
+             _y_label_kwargs=immutabledict(fontsize=22),
+             **kwargs):
     kwargs.setdefault('bins', 50)
     kwargs.setdefault('range', [[0, 50], [-1, 1]])
-    m2 = multihist.Histdd(axis_names=['n photon', 'Reconstruction bias'], **kwargs)
-    m2.add(dat['n_photon'], dat['rec_bias'] - 1)
+    x_ax, y_ax = axis_names
 
-    median = m2.percentile(50, m2.axis_names[1])
-    plt.plot(median.bin_centers,
-             median,
-             color='white',
-             drawstyle='steps-mid',
-             label='median',
-             )
+    mh_display = multihist.Histdd(axis_names=axis_names, **kwargs)
 
-    sigma_high = m2.percentile(100 * norm.cdf(1), m2.axis_names[1])
-    plt.plot(sigma_high.bin_centers,
-             sigma_high,
-             color='cyan',
-             drawstyle='steps-mid',
-             label='90% quantile',
-             )
+    # Make a second Multihist with the full y-range for reliable percentiles,
+    # otherwise you might get wrong results since you cut away data from the
+    # range kwargs.
+    percentile_kwargs = deepcopy(kwargs)
+    y_data = dat[y_ax]/(1+dpe_offset)-1
+    percentile_kwargs['range'][1] = [y_data.min(), y_data.max()]
+    if len(kwargs['bins']):
+        percentile_kwargs['bins'] = [kwargs['bins'][0], _percentiles_y_bins]
+    else:
+        percentile_kwargs['bins'] = [kwargs['bins'], _percentiles_y_bins]
+    mh_for_percentiles = multihist.Histdd(axis_names=axis_names, **percentile_kwargs)
 
-    sigma_low = m2.percentile(100 * norm.cdf(-1), m2.axis_names[1])
-    plt.plot(sigma_low.bin_centers,
-             sigma_low,
-             color='green',
-             drawstyle='steps-mid',
-             label='10% quantile',
-             )
+    mh_display.add(dat[x_ax], y_data)
+    mh_for_percentiles.add(dat[x_ax], y_data)
+
+    one_sigma = 100*(1-norm.cdf(1))
+    median = 50
+    minus_one_sigma = 100*(1-norm.cdf(-1))
+    _plot_mh_percentile(mh_for_percentiles, median,
+                        color='whitesmoke', label='median')
+    _plot_mh_percentile(mh_for_percentiles, one_sigma,
+                        color='cyan', label=f'{one_sigma:.1f}% quantile')
+    _plot_mh_percentile(mh_for_percentiles, minus_one_sigma,
+                        color='green', label=f'{minus_one_sigma:.1f}% quantile')
+
+    del mh_for_percentiles
+
     if show_hist:
-        m2.plot(log_scale=True)
+        mh_display.plot(log_scale=True)
+    a_rec = r'\frac{\mathrm{Area}_\mathrm{reconstructed}\mathrm{\ }[\mathrm{PE}]'
+    dpe_div = r'\mathrm{\ }/\mathrm{\ }p_{DPE}}'
+    if print_dpe:
+        dpe_div = dpe_div[:-1] + r'\mathrm{\ }'+f'({dpe_offset})' + '}'
+    true_nph = DEFAULT_NPH_LABEL
+    plt.xlabel(true_nph)
+    y_label = r'$'+a_rec+dpe_div+r'{'+true_nph.replace('$', '') + r'}-1$'
+    plt.ylabel(y_label, **_y_label_kwargs)
     plt.grid()
 
 
@@ -239,7 +278,6 @@ def _rec_diff_inner(dat, title, **kwargs):
     rec_plot(dat, **kwargs)
     plt.axhline(0, linestyle='--', c='k')
     plt.title(title)
-    plt.xlabel('N photons detected')
 
 
 def reconstruction_bias(data, **kwargs):
@@ -249,8 +287,8 @@ def reconstruction_bias(data, **kwargs):
 def rec_diff(def_data,
              data_alt,
              data_set_names=("default", "custom"),
-             s1_kwargs=None,
-             s2_kwargs=None,
+             s1_kwargs=immutabledict(dpe_offset=0.0),
+             s2_kwargs=immutabledict(dpe_offset=0.0),
              ):
     make_diff = data_alt is not None
     data_sets = [def_data, data_alt] if make_diff else [def_data]
