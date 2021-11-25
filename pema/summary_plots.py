@@ -229,7 +229,7 @@ def rec_plot(dat,
     percentile_kwargs = deepcopy(kwargs)
     y_data = dat[y_ax]/(1+dpe_offset)-1
     percentile_kwargs['range'][1] = [y_data.min(), y_data.max()]
-    if len(kwargs['bins']):
+    if isinstance(kwargs['bins'], (list, tuple, np.ndarray)):
         percentile_kwargs['bins'] = [kwargs['bins'][0], _percentiles_y_bins]
     else:
         percentile_kwargs['bins'] = [kwargs['bins'], _percentiles_y_bins]
