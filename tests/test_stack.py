@@ -50,7 +50,7 @@ class TestStack(unittest.TestCase):
             n_chunk=2,
             tpc_radius=straxen.tpc_r,
             tpc_length=straxen.tpc_z,
-            drift_field=10,  # kV/cm
+            drift_field=200,  # kV/cm
             energy_range=[2, 10],  # keV
             nest_inst_types=wfsim.NestId.ER,
         )
