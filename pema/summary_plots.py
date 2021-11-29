@@ -253,9 +253,9 @@ def rec_plot(dat,
     if show_hist:
         mh_display.plot(log_scale=True)
     a_rec = r'\frac{\mathrm{Area}_\mathrm{reconstructed}\mathrm{\ }[\mathrm{PE}]'
-    dpe_div = r'\mathrm{\ }/\mathrm{\ }p_{DPE}}'
+    dpe_div = r'\mathrm{\ }/\mathrm{\ }(1+p_{DPE})}'
     if print_dpe:
-        dpe_div = dpe_div[:-1] + r'\mathrm{\ }'+f'({dpe_offset})' + '}'
+        dpe_div = dpe_div[:-2] + r'_{\mathrm{\ }'+f'({dpe_offset})' + '}}'
     true_nph = DEFAULT_NPH_LABEL
     plt.xlabel(true_nph)
     y_label = r'$'+a_rec+dpe_div+r'{'+true_nph.replace('$', '') + r'}-1$'
