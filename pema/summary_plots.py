@@ -299,7 +299,7 @@ def rec_diff(def_data,
     axes = iter(axes.flatten())
     for axi, dat in enumerate(data_sets):
         plt.sca(next(axes))
-        mask = (dat['type'] == 1) & (dat['rec_bias'] > 0)
+        mask = (dat['type'] == 1) & (dat['outcome'] == 'found')
         _rec_diff_inner(dat[mask],
                         title=f'{data_set_names[axi]} S1 rec. bias',
                         **s1_kwargs)
@@ -307,7 +307,7 @@ def rec_diff(def_data,
             plt.legend()
     for axi, dat in enumerate(data_sets):
         plt.sca(next(axes))
-        mask = (dat['type'] == 2) & (dat['rec_bias'] > 0)
+        mask = (dat['type'] == 2) & (dat['outcome'] == 'found')
         _rec_diff_inner(dat[mask],
                         title=f'{data_set_names[axi]} S2 rec. bias',
                         **s2_kwargs)
