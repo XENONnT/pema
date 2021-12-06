@@ -152,6 +152,7 @@ def _plot_peak(st_default,
                           single_figure=False,
                           include_info=['area', 'rise_time', 'tight_coincidence'],
                           time_range=t_range,
+                          xaxis=label_x_axis,
                           )
     for t in t_range:
         axvline(t / 1e9, label=t)
@@ -274,7 +275,7 @@ def compare_outcomes(st: strax.Context,
 
     if (st_alt is None) != (data_alt is None):
         raise RuntimeError('Both st_alt and data_alt should be specified simultaneously')
-    _plot_difference = st_alt is None
+    _plot_difference = st_alt is not None
 
     if _plot_difference:
         _check_args(data, data_alt, run_id)
