@@ -16,7 +16,6 @@ straxen.print_versions(['strax', 'straxen', 'wfsim', 'nestpy', 'pema'])
 run_id = '008000'
 
 
-@unittest.skipIf(not straxen.utilix_is_configured(), "No db access, cannot test!")
 class TestStack(unittest.TestCase):
     """
     Test the entire chain, from simulation to plotting the results
@@ -50,8 +49,8 @@ class TestStack(unittest.TestCase):
             n_chunk=2,
             tpc_radius=straxen.tpc_r,
             tpc_length=straxen.tpc_z,
-            drift_field=200,  # kV/cm
-            energy_range=[2, 10],  # keV
+            drift_field=10,  # kV/cm
+            energy_range=[1, 10],  # keV
             nest_inst_types=wfsim.NestId.ER,
         )
         temp_dir = cls.tempdir
@@ -94,6 +93,7 @@ class TestStack(unittest.TestCase):
                                          ))
         cls.script = script_writer
 
+    @unittest.skipIf(not straxen.utilix_is_configured(), "No db access, cannot test!")
     def test_first_run_execute(self):
         print(f'Start script - context hash {self.script.st._context_hash()}')
         cmd, name = self.script.make_cmd()
@@ -126,6 +126,7 @@ class TestStack(unittest.TestCase):
                 print(self.script.read_log())
             raise pema.scripts.JobFailedError(f'Job did not finish')
 
+    @unittest.skipIf(not straxen.utilix_is_configured(), "No db access, cannot test!")
     def test_first_run_plugins(self):
         self.script.purge_below('match_acceptance_extended')
         for t in strax.to_str_tuple(self.script.target):
@@ -135,15 +136,18 @@ class TestStack(unittest.TestCase):
                     self.script.st.make(r, t)
                     assert self.script.st.is_stored(r, t)
 
+    @unittest.skipIf(not straxen.utilix_is_configured(), "No db access, cannot test!")
     def test_next_print(self):
         print(self.script)
 
+    @unittest.skipIf(not straxen.utilix_is_configured(), "No db access, cannot test!")
     def test_next_make_dali_script(self):
         # Just make sure we write some file, we are not actually going
         # to run it
         self.script.exec_dali('ls', 'test_job', 'dummy_activate')
         assert os.path.exists(self.script.script_file)
 
+    @unittest.skipIf(not straxen.utilix_is_configured(), "No db access, cannot test!")
     def test_later_compare(self):
         st = self.script.st
         st2 = st.new_context()
@@ -186,10 +190,12 @@ class TestStack(unittest.TestCase):
             )
             plt.clf()
 
+    @unittest.skipIf(not straxen.utilix_is_configured(), "No db access, cannot test!")
     def test_later_make_ev_matched(self):
         st = self.script.st
         st.get_array(run_id, 'truth_events')
 
+    @unittest.skipIf(not straxen.utilix_is_configured(), "No db access, cannot test!")
     def test_later_rec_bas(self):
         st = self.script.st
         st2 = st.new_context()
@@ -211,6 +217,7 @@ class TestStack(unittest.TestCase):
             )
             plt.clf()
 
+    @unittest.skipIf(not straxen.utilix_is_configured(), "No db access, cannot test!")
     def test_later_inst_plot(self):
         st = self.script.st
         peaks = st.get_array(run_id, 'peaks')
