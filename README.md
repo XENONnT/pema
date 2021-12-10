@@ -13,10 +13,12 @@
 Peak clustering and classification validation using the WFsim
 
 
-# Install
+# Installation
+To install `pema`, one can easily get the latest version via Pipy. For increased usability one needs some XENONnT credentials, see [this page](https://straxen.readthedocs.io/en/latest/setup.html).
 ```bash
 pip install pema
 ```
+
 
 ## Test installation
 ```bash

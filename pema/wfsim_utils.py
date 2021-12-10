@@ -109,4 +109,8 @@ def inst_to_csv(csv_file: str,
     S1 S2 instructions from
     :param kwargs: key word arguments to give to the get_inst_from-function
     """
-    pd.DataFrame(get_inst_from(**kwargs)).to_csv(csv_file, index=False)
+    df = pd.DataFrame(get_inst_from(**kwargs))
+    if np.any(df['amp'] <= 0):
+        warn('Removing zero amplitude from instruction, but that shouldn\'t be here')
+        df = df[df['amp'] > 0]
+    df.to_csv(csv_file, index=False)
