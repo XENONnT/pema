@@ -215,7 +215,7 @@ def rec_plot(dat,
              axis_names=('n_photon', 'rec_bias'),
              print_dpe=True,
              _percentiles_y_bins=500,
-             _y_label_kwargs=immutabledict(fontsize=22),
+             _y_label_kwargs=immutabledict(fontsize=18),
              **kwargs):
     kwargs.setdefault('bins', 50)
     kwargs.setdefault('range', [[0, 50], [-1, 1]])
@@ -255,7 +255,7 @@ def rec_plot(dat,
     a_rec = r'\frac{\mathrm{Area}_\mathrm{reconstructed}\mathrm{\ }[\mathrm{PE}]'
     dpe_div = r'\mathrm{\ }/\mathrm{\ }(1+p_{DPE})}'
     if print_dpe:
-        dpe_div = dpe_div[:-2] + r'_{\mathrm{\ }'+f'({dpe_offset})' + '}}'
+        dpe_div = dpe_div[:-1] + r'\mathrm{\ }|\mathrm{\ }p_{DPE}='+f'{dpe_offset}' + '}'
     true_nph = DEFAULT_NPH_LABEL
     plt.xlabel(true_nph)
     y_label = r'$'+a_rec+dpe_div+r'{'+true_nph.replace('$', '') + r'}-1$'
