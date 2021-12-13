@@ -14,7 +14,7 @@ coverage==6.2
 dask==2021.11.2
 flake8==4.0.1
 hypothesis==6.21.1
-matplotlib==3.5.0
+matplotlib==3.5.1
 multihist==0.6.4
 npshmex==0.2.1                                  # Strax dependency
 numba==0.53.1                                   # Strax dependency
