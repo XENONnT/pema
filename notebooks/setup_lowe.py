@@ -5,6 +5,7 @@ import wfsim
 
 name = 'lowe'
 base_dir = '/dali/lgrandi/angevaare/wfsims/pema'
+fax_file = 'fax_config_nt_sr0_v0.json'
 
 # Fixed
 data_name = f'pema_w{wfsim.__version__}_p{pema.__version__}'
@@ -29,29 +30,27 @@ run_list = list(f'{r:06}' for r in range(19000, 19000 + 2))
 # Just some id which allows CMT to load
 run_id = run_list[0]
 
-# setting up instructions like this may take a while. You can set e.g. 
+# setting up instructions like this may take a while. You can set e.g.
 instructions = dict(
     event_rate=20,  # Don't make too large -> overlapping truth info
     chunk_size=5,  # keep large -> less overhead but takes more RAM
-    nchunk=1000,  # set to 100
-    photons_low=1,  # PE
-    photons_high=100,  # PE
-    electrons_low=1,  #
-    electrons_high=100,
+    n_chunk=200,
     tpc_radius=straxen.tpc_r,
     tpc_length=straxen.tpc_z,
-    drift_field=straxen.get_resource('fax_config_nt_low_field.json', fmt='json').get('drift_field'),
-    timing='uniform',  # Double S1 peaks uniform over time
+    drift_field=straxen.get_resource(fax_file, fmt='json').get('drift_field'),
+    energy_range=[1,10], # keV
+    nest_inst_types = wfsim.NestId.ER,
 )
 
 pema.inst_to_csv(
-    instructions,
     instructions_csv,
-    get_inst_from=pema.rand_instructions)
+    get_inst_from=pema.rand_instructions,
+    **instructions,
+)
 
 # TODO can we add noise?
 config_update = dict(
     detector='XENONnT',
     fax_file=os.path.abspath(instructions_csv),
-    fax_config='fax_config_nt_low_field.json',
+    fax_config=fax_file,
 )
