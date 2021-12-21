@@ -84,7 +84,7 @@ class AcceptanceComputer(strax.Plugin):
     an S2 into small S1 signals that could affect event
     reconstruction).
     """
-    __version__ = '0.3.1'
+    __version__ = '0.4.0'
     depends_on = ('truth', 'truth_matched', 'peak_basics', 'peak_id')
     provides = 'match_acceptance'
     data_kind = 'truth'
@@ -279,7 +279,7 @@ def compute_rec_bias(truth, peaks, buffer, no_peak_found):
                 raise ValueError
             matched_peak = peaks[peak_i]
             if t['type'] == matched_peak['type']:
-                frac = matched_peak['area'] / t['n_photon']
+                frac = matched_peak['area'] / t['raw_area_trigger']
                 buffer[t_i] = frac
                 continue
         buffer[t_i] = 0
