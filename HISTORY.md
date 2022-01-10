@@ -1,6 +1,15 @@
+0.3.6 / 2021-12-10
+------------------
+- Use raw_area_trigger for reconstruction bias (#123)
+- add gitattributes, fix #132 (#133)
+- test making docs (#137)
+- Requirements (many)
+
+
 0.3.5 / 2021-12-10
 ------------------
 - Fix bias to #112 (#122)
+
 
 0.3.4 / 2021-12-10
 ------------------
@@ -8,10 +17,12 @@
 - Bump WFSim (#121)
 - Pin pymongo (#116)
 
+
 0.3.3 / 2021-11-08
 ------------------
  - Add rr matrix (#96, #101)
- 
+
+
 0.3.2 / 2021-11-08
 ------------------
 - Several tweaks to v0.3.1 (ec3f2821eab059c812db9fec2e723da6c5cbfc8e, 9d5bae41b91855041dc61717594da70cae5e8292, 437677c301003f4e9812420603390b8b3b93f27b, 437677c301003f4e9812420603390b8b3b93f27b)
