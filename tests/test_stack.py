@@ -61,8 +61,8 @@ class TestStack(unittest.TestCase):
         event_inst = pema.rand_instructions(**instructions)
 
         peak_instructions = {
-            k: v
-            for k, v in
+            k: instructions[k]
+            for k in
             'tpc_radius tpc_length drift_field nest_inst_types'.split()
         }
         peak_instructions.update(dict(n_s1=100,
