@@ -10,6 +10,7 @@ import unittest
 import shutil
 import uuid
 import numpy as np
+import pandas as pd
 
 straxen.print_versions(['strax', 'straxen', 'wfsim', 'nestpy', 'pema'])
 
@@ -51,16 +52,29 @@ class TestStack(unittest.TestCase):
             tpc_radius=straxen.tpc_r,
             tpc_length=straxen.tpc_z,
             drift_field=200,  # kV/cm
-            energy_range=[2, 10],  # keV
+            energy_range=[1, 10],  # keV
             nest_inst_types=wfsim.NestId.ER,
         )
         temp_dir = cls.tempdir
         instructions_csv = os.path.join(temp_dir, 'inst.csv')
 
-        pema.inst_to_csv(
-            instructions_csv,
-            get_inst_from=pema.rand_instructions,
-            **instructions)
+        event_inst = pema.rand_instructions(**instructions)
+
+        peak_instructions = {
+            k: v
+            for k, v in
+            'tpc_radius tpc_length drift_field nest_inst_types'.split()
+        }
+        peak_instructions.update(dict(n_s1=100,
+                                      n_s2=100,
+                                      s1_amplitude_range=[1, 100],
+                                      s2_amplitude_range=[1, 1000],
+                                      time_separation_ns=1000,
+                                      start_time=np.max(event_inst['time']),
+                                      ))
+        df = pd.DataFrame(np.concatenate([event_inst, peak_instructions]))
+        df = df[df['amp'] > 0]
+        df.to_csv(instructions_csv, index=False)
 
         config_update = {
             "detector": 'XENONnT',

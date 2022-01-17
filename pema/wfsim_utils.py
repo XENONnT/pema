@@ -94,7 +94,55 @@ def rand_instructions(
     inst['e_dep'] = e_dep
     for field in inst.dtype.names:
         if np.any(inst[field] == -1):
-            warn(f'{field} is not (fully) filled')
+            warn(f'{field} is not (fully) filled', UserWarning)
+    return inst
+
+
+@export
+def random_peaks(n_s1: int,
+                 n_s2: int,
+                 s1_amplitude_range: ty.Union[list, tuple],
+                 s2_amplitude_range: ty.Union[list, tuple],
+                 time_separation_ns: int,
+                 drift_field: float,
+                 start_time: int = 0,
+                 nest_inst_types: ty.Union[ty.List[int],
+                                           ty.Tuple[ty.List],
+                                           np.ndarray,
+                                           None] = None,
+                 tpc_length: float = straxen.tpc_z,
+                 tpc_radius: float = straxen.tpc_r,
+                 ) -> np.ndarray:
+
+    if nest_inst_types is None:
+        nest_inst_types = [7]
+
+    n_peaks = n_s1 + n_s2
+
+    inst = np.zeros(n_peaks, dtype=wfsim.instruction_dtype)
+    inst[:] = -1
+
+    rand_times = np.random.exponential(time_separation_ns, n_peaks).astype(np.int_)
+
+    inst['time'] = np.cumsum(rand_times) + start_time
+    inst['event_number'] = np.arange(n_peaks)
+    inst['type'] = np.random.randint(1, 2+1, )
+
+    r = np.sqrt(np.random.uniform(0, tpc_radius ** 2, n_peaks))
+    t = np.random.uniform(-np.pi, np.pi, n_peaks)
+    inst['x'] = r * np.cos(t)
+    inst['y'] = r * np.sin(t)
+    inst['z'] = np.random.uniform(-tpc_length, 0, n_peaks)
+    mask = inst['type'] == 1
+    inst['amp'][mask] = np.random.randint(*s1_amplitude_range, n_s1)
+    inst['amp'][~mask] = np.random.randint(*s2_amplitude_range, n_s2)
+    inst['local_field'] = drift_field
+    inst['n_excitons'][:] = 0
+    inst['recoil'] = np.random.choice(nest_inst_types, size=len(inst))
+    inst['e_dep'][:] = 0
+    for field in inst.dtype.names:
+        if np.any(inst[field] == -1):
+            warn(f'{field} is not (fully) filled', UserWarning)
     return inst
 
 
@@ -109,6 +157,7 @@ def inst_to_csv(csv_file: str,
     S1 S2 instructions from
     :param kwargs: key word arguments to give to the get_inst_from-function
     """
+
     df = pd.DataFrame(get_inst_from(**kwargs))
     if np.any(df['amp'] <= 0):
         warn('Removing zero amplitude from instruction, but that shouldn\'t be here')
