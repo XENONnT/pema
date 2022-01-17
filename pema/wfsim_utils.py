@@ -134,8 +134,8 @@ def random_peaks(n_s1: int,
     inst['y'] = r * np.sin(t)
     inst['z'] = np.random.uniform(-tpc_length, 0, n_peaks)
     mask = inst['type'] == 1
-    inst['amp'][mask] = np.random.randint(*s1_amplitude_range, n_s1)
-    inst['amp'][~mask] = np.random.randint(*s2_amplitude_range, n_s2)
+    inst[mask]['amp'] = np.random.randint(*s1_amplitude_range, n_s1)
+    inst[~mask]['amp'] = np.random.randint(*s2_amplitude_range, n_s2)
     inst['local_field'] = drift_field
     inst['n_excitons'][:] = 0
     inst['recoil'] = np.random.choice(nest_inst_types, size=len(inst))
