@@ -126,7 +126,7 @@ def random_peaks(n_s1: int,
 
     inst['time'] = np.cumsum(rand_times) + start_time
     inst['event_number'] = np.arange(n_peaks)
-    inst['type'] = np.random.randint(1, 2+1, )
+    inst['type'] = np.random.randint(1, 2+1, size=n_peaks)
 
     r = np.sqrt(np.random.uniform(0, tpc_radius ** 2, n_peaks))
     t = np.random.uniform(-np.pi, np.pi, n_peaks)
