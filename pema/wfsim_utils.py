@@ -99,8 +99,7 @@ def rand_instructions(
 
 
 @export
-def random_peaks(n_s1: int,
-                 n_s2: int,
+def random_peaks(n_peaks: int,
                  s1_amplitude_range: ty.Union[list, tuple],
                  s2_amplitude_range: ty.Union[list, tuple],
                  time_separation_ns: int,
@@ -117,8 +116,6 @@ def random_peaks(n_s1: int,
     if nest_inst_types is None:
         nest_inst_types = [7]
 
-    n_peaks = n_s1 + n_s2
-
     inst = np.zeros(n_peaks, dtype=wfsim.instruction_dtype)
     inst[:] = -1
 
@@ -134,8 +131,8 @@ def random_peaks(n_s1: int,
     inst['y'] = r * np.sin(t)
     inst['z'] = np.random.uniform(-tpc_length, 0, n_peaks)
     mask = inst['type'] == 1
-    inst[mask]['amp'] = np.random.randint(*s1_amplitude_range, n_s1)
-    inst[~mask]['amp'] = np.random.randint(*s2_amplitude_range, n_s2)
+    inst[mask]['amp'] = np.random.randint(*s1_amplitude_range, np.sum(mask))
+    inst[~mask]['amp'] = np.random.randint(*s2_amplitude_range, np.sum(~mask))
     inst['local_field'] = drift_field
     inst['n_excitons'][:] = 0
     inst['recoil'] = np.random.choice(nest_inst_types, size=len(inst))

@@ -65,8 +65,7 @@ class TestStack(unittest.TestCase):
             for k in
             'tpc_radius tpc_length drift_field nest_inst_types'.split()
         }
-        peak_instructions.update(dict(n_s1=100,
-                                      n_s2=100,
+        peak_instructions.update(dict(n_peaks=200,
                                       s1_amplitude_range=[1, 100],
                                       s2_amplitude_range=[1, 1000],
                                       time_separation_ns=1000,
