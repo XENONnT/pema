@@ -72,7 +72,8 @@ class TestStack(unittest.TestCase):
                                       time_separation_ns=1000,
                                       start_time=np.max(event_inst['time']),
                                       ))
-        df = pd.DataFrame(np.concatenate([event_inst, peak_instructions]))
+        peak_inst = pema.random_peaks(**peak_instructions)
+        df = pd.DataFrame(np.concatenate([event_inst, peak_inst]))
         df = df[df['amp'] > 0]
         df.to_csv(instructions_csv, index=False)
 
