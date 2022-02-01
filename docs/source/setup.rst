@@ -28,7 +28,7 @@ Imagine you want to load peaks from ``wfsim`` and check the properly matched pea
   truths = st_wfsim.get_array(run_id, 'match_acceptance_extended')  # Super type of truth
 
   truth_are_matched = truths['outcome']=='found'  # This means that the peak as in the truth was correctly found
-  peaks_are_machted = np.in1d(peaks['id]', truths[truth_are_matched]['matched_to'])
+  peaks_are_machted = np.in1d(peaks['id'], truths[truth_are_matched]['matched_to'])
 
   assert len(peaks_are_matched) == len(peaks)
 
