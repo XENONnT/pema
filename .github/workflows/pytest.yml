@@ -29,16 +29,12 @@ jobs:
     strategy:
       fail-fast: False
       matrix:
-        python-version: [3.7, 3.8, 3.9]
+        python-version: [3.8, 3.9]
         test: ['coveralls', 'pytest', 'pytest_no_database']
         # Only run coverage / no_database on py3.8
         exclude:
-          - python-version: 3.7
-            test: coveralls
           - python-version: 3.9
             test: coveralls
-          - python-version: 3.7
-            test: pytest_no_database
           - python-version: 3.9
             test: pytest_no_database
     steps:
@@ -87,12 +83,11 @@ jobs:
         # This is running a normal test
         if: matrix.test == 'pytest_no_database' || matrix.test == 'pytest'
         run: |
-          pytest -vs --log-level=DEBUG --durations 0
+          coverage run --source=pema -m pytest -vs --log-level=DEBUG --durations 0
       - name: Coveralls
         # Make the coverage report and upload
         env:
           NUMBA_DISABLE_JIT: 1
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           # We need to check if we had access to the secrets, otherwise coveralls
           # will yield a low coverage because of the lack of interfacing with the
           # database.
@@ -100,7 +95,10 @@ jobs:
         if: matrix.test == 'coveralls' && env.HAVE_ACCESS_TO_SECTETS != null
         run: |
           coverage run --source=pema setup.py test -v
-          coveralls --service=github
+      - name: Coveralls
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: coveralls --service=github
       # Done
       - name: goodbye
         run: echo "tests done, bye bye"
