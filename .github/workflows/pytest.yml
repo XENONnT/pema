@@ -35,7 +35,7 @@ jobs:
         exclude:
           - python-version: 3.9
             test: coveralls
-          - python-version: " 3.10"
+          - python-version: "3.10"
             test: coveralls
           - python-version: 3.9
             test: pytest_no_database
