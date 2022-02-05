@@ -39,6 +39,7 @@ setuptools.setup(name='pema',
                  package_data={'extra_requirements': ['requirements-docs.txt',
                                                       'requirements-tests.txt']},
                  scripts=['bin/pema_straxer',
+                          'bin/pema-run'
                           'bin/pema_init.py',
                           ],
                  classifiers=[

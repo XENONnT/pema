@@ -8,6 +8,8 @@ import subprocess
 from collections import defaultdict
 import pandas
 import shutil
+import utilix
+from utilix import batchq
 
 job_script = """\
 #!/bin/bash
@@ -173,23 +175,26 @@ class ProcessRun:
     def exec_dali(self,
                   cmd,
                   job_name,
-                  bash_activate,
                   mem=2000,
                   partition='xenon1t',
-                  max_hours="04:00:00"
+                  max_hours="04:00:00",
+                  container='development'
                   ):
+
+
         self.log_file = self._fmt('logs', f'{job_name}.log')
         self.script_file = self._fmt('scripts', f'{job_name}.sh')
-        script = job_script.format(
-            bash_activate=bash_activate,
-            log_file=self.log_file,
-            cmd=cmd,
-            mem=mem,
+        utilix.batchq.submit_job(
+            jobstring=cmd,
+            log=self.log_file,
+            jobname=job_name,
+            mem_per_cpu=int(mem),
+            cpus_per_task=1,  # Almost never an issue, better ask for more RAM
+            container=container,
+            sbatch_file=self.script_file,
             partition=partition,
-            max_hours=max_hours)
-        write_script(self.script_file, script)
-        cp = subprocess.run(f'sbatch {self.script_file}', shell=True, capture_output=True)
-        self.job_id = cp.stdout
+            max_hours=max_hours,
+        )
         return self.job_id
 
     def exec_local(self, cmd, job_name):
@@ -215,6 +220,7 @@ class ProcessRun:
         f.close()
         return lines
 
+    @property
     def job_finished(self):
         finished = False
         for line in self.read_log()[-10:]:
