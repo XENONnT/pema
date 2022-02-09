@@ -217,7 +217,7 @@ class TestStack(unittest.TestCase):
         st.plot_peaks(run_id, time_within=peaks[0])
         plt.clf()
         st.plot_peaks(run_id, time_within=peaks[0], xaxis='since_start')
-        pema.plot_peak(peaks[:1], t0=None)
+        pema.plot_peak(peaks[0], t0=None)
         plt.clf()
 
         st.plot_peaks(run_id, time_within=peaks[0], xaxis=False)

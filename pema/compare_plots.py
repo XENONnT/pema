@@ -72,7 +72,7 @@ def plot_peak(p, t0=None, center_time=True, include_info=None, **kwargs):
     # Mark center time with thin black line
     if center_time:
         if t0 is None:
-            t0 = 0
+            t0 = p['time']
         ct = (p['center_time'] - t0) / int(1e9)
         plt.axvline(ct,
                     c='k',
