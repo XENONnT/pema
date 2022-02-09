@@ -213,7 +213,7 @@ class TestStack(unittest.TestCase):
 
     def test_later_inst_plot(self):
         st = self.script.st
-        peaks = st.get_array(run_id, 'peaks')
+        peaks = st.get_array(run_id, ('peaks', 'peak_basics'))
         st.plot_peaks(run_id, time_within=peaks[0])
         plt.clf()
         st.plot_peaks(run_id, time_within=peaks[0], xaxis='since_start')
