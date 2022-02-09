@@ -322,7 +322,7 @@ def compare_outcomes(st: strax.Context,
 
             if pulse:
                 plt.sca(next(axes))
-                rr_simple_plot(st, run_id, t_range, legend=False)
+                rr_simple_plot(st, run_id, t_range)
 
             plt.sca(next(axes))
             _plot_peak(st,
@@ -353,7 +353,7 @@ def compare_outcomes(st: strax.Context,
             plt.show()
 
 
-def rr_simple_plot(st, run_id, t_range, legend=None):
+def rr_simple_plot(st, run_id, t_range):
     """
     Plot some raw-record pulses within (touching) the t_range
     :param st:
@@ -382,8 +382,6 @@ def rr_simple_plot(st, run_id, t_range, legend=None):
                  )
     for t in t_range:
         axvline(t / 1e9)
-    if legend:
-        plt.legend(fontsize='xx-small')
 
 
 def axvline(v, **kwargs):
