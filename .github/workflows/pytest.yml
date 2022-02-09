@@ -96,7 +96,7 @@ jobs:
       - name: Coveralls
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        if: matrix.test != 'pytest_no_database' & env.HAVE_ACCESS_TO_SECTETS != null
+        if: matrix.test != 'pytest_no_database' && env.HAVE_ACCESS_TO_SECTETS != null
         run: coveralls --service=github
       # Done
       - name: goodbye
