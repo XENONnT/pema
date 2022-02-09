@@ -26,15 +26,17 @@ class MatchPeaks(strax.OverlapWindowPlugin):
         define the outcome of the matching (see pema.matching for
         possible outcomes).
     """
-    __version__ = '0.3.0'
-    depends_on = ('truth', 'truth_id',
-                  'peak_basics', 'peak_id')
+    __version__ = '0.4.0'
+    depends_on = ('truth',
+                  'truth_id',
+                  'peak_basics',
+                  'peak_id')
     provides = 'truth_matched'
     data_kind = 'truth'
 
     def compute(self, truth, peaks):
         log.debug(f'Starting {self.__class__.__name__}')
-        truth = pema.append_fields(truth, 'area', truth['n_photon'])
+        truth = pema.append_fields(truth, 'area', truth['raw_area'])
 
         # hack endtime
         log.warning(f'Patching endtime in the truth')
@@ -84,7 +86,7 @@ class AcceptanceComputer(strax.Plugin):
     an S2 into small S1 signals that could affect event
     reconstruction).
     """
-    __version__ = '0.4.0'
+    __version__ = '0.5.0'
     depends_on = ('truth', 'truth_matched', 'peak_basics', 'peak_id')
     provides = 'match_acceptance'
     data_kind = 'truth'
@@ -114,14 +116,14 @@ class AcceptanceComputer(strax.Plugin):
 
         # S1 acceptance is simply is the peak found or not
         s1_mask = truth['type'] == 1
-        res['acceptance_fraction'][s1_mask] = res['is_found'][s1_mask].astype(np.float)
+        res['acceptance_fraction'][s1_mask] = res['is_found'][s1_mask].astype(np.float64)
 
         # For the S2 acceptance we calculate an arbitrary acceptance
         # that takes into account penalty factors and that S2s may be
         # split (as long as their bias fraction is not too small).
         s2_mask = truth['type'] == 2
         s2_outcomes = truth['outcome'][s2_mask].copy()
-        s2_acceptance = (rec_bias[s2_mask] > self.config['min_s2_bias_rec']).astype(np.float)
+        s2_acceptance = (rec_bias[s2_mask] > self.config['min_s2_bias_rec']).astype(np.float64)
         for outcome, penalty in self.config['penalty_s2_by']:
             s2_out_mask = s2_outcomes == outcome
             s2_acceptance[s2_out_mask] = penalty
@@ -271,7 +273,7 @@ def compute_rec_bias(truth, peaks, buffer, no_peak_found):
         t = truth[t_i]
         peak_id = t['matched_to']
         if peak_id != no_peak_found:
-            if t['n_photon'] == 0:
+            if t['raw_area'] <= 0:
                 # How do we get 0 photons in instruction?
                 continue
             peak_i = get_idx(peaks['id'], peak_id, no_peak_found)
@@ -279,7 +281,7 @@ def compute_rec_bias(truth, peaks, buffer, no_peak_found):
                 raise ValueError
             matched_peak = peaks[peak_i]
             if t['type'] == matched_peak['type']:
-                frac = matched_peak['area'] / t['raw_area_trigger']
+                frac = matched_peak['area'] / t['raw_area']
                 buffer[t_i] = frac
                 continue
         buffer[t_i] = 0

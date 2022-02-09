@@ -105,7 +105,7 @@ def _plot_truth(data, start_end, t_range):
         hatch_cycle = ['/', '*', '+', '|']
         _t_range = tpeak[['time', 'endtime']]
         x = np.array(list(_t_range))
-        y = tpeak['n_photon'] / np.diff(x)
+        y = tpeak['n_pe'] / np.diff(x)
         ct = tpeak['t_mean_photon']
         stype = tpeak['type']
         plt.gca()
@@ -123,7 +123,7 @@ def _plot_truth(data, start_end, t_range):
                    6: 'orange',
                    4: 'purple',
                    }[stype],
-            label=f'Peak S{stype}. {tpeak["n_photon"]} PE',
+            label=f'Peak S{stype}. {tpeak["n_pe"]} PE',
             alpha=0.4,
             hatch=hatch_cycle[pk]
         )
