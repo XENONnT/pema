@@ -43,7 +43,7 @@ def _create_dummy_records(data_length, n_data_types, truth_length, n_truth_types
 @example(length=3, dtypenum=0)
 def test_combine_and_flip(length, dtypenum):
     """Check that combine and flip works correctly"""
-    known_dtypes = (np.bool_, np.bool, np.int)
+    known_dtypes = (np.bool_, np.int8, np.int64)
     dtype = known_dtypes[dtypenum]
     arr1 = np.random.randint(0, 2, length).astype(dtype)
     arr2 = np.random.randint(0, 2, length).astype(dtype)
