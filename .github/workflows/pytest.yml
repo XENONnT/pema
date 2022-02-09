@@ -16,7 +16,7 @@ name: Test package
 on:
   workflow_dispatch:
   release:
-    types: [created]
+    types: [ created ]
   pull_request:
   push:
     branches:
@@ -29,16 +29,18 @@ jobs:
     strategy:
       fail-fast: False
       matrix:
-        python-version: [3.8, 3.9, "3.10"]
-        test: ['coveralls', 'pytest', 'pytest_no_database']
+        python-version: [ 3.8, 3.9, "3.10" ]
+        test: [ 'coveralls', 'pytest', 'pytest_no_database' ]
         # Only run coverage / no_database on py3.8
         exclude:
-          - python-version: 3.9
-            test: coveralls
-          - python-version: "3.10"
-            test: coveralls
+          #          - python-version: 3.9
+          #            test: coveralls
+          #          - python-version: "3.10"
+          #            test: coveralls
           - python-version: 3.9
             test: pytest_no_database
+    env:
+      HAVE_ACCESS_TO_SECTETS: ${{ secrets.RUNDB_API_URL }}
     steps:
       # Setup and installation
       - name: Setup python
@@ -49,12 +51,12 @@ jobs:
         uses: actions/checkout@v2
       - name: Install requirements for tests and latest strax
         run: |
-            pip install -r extra_requirements/requirements-tests.txt
-            python setup.py develop
+          pip install -r extra_requirements/requirements-tests.txt
+          python setup.py develop
       # Secrets and required files
       - name: patch utilix file
         # Patch this file if we want to have access to the database
-        if:  matrix.test != 'pytest_no_database'
+        if: matrix.test != 'pytest_no_database'
         run: bash .github/scripts/create_readonly_utilix_config.sh
         env:
           # RunDB
@@ -74,8 +76,6 @@ jobs:
       - name: Create pre-apply function file
         # In case we do not have database. We need to make a local file for
         # The pre_apply_function (see #559).
-        env:
-          HAVE_ACCESS_TO_SECTETS: ${{ secrets.RUNDB_API_URL }}
         if: env.HAVE_ACCESS_TO_SECTETS == null || matrix.test == 'pytest_no_database'
         run: |
           bash .github/scripts/create_pre_apply_function.sh $HOME
@@ -90,17 +90,13 @@ jobs:
         # Make the coverage report and upload
         env:
           NUMBA_DISABLE_JIT: 1
-          # We need to check if we had access to the secrets, otherwise coveralls
-          # will yield a low coverage because of the lack of interfacing with the
-          # database.
-          HAVE_ACCESS_TO_SECTETS: ${{ secrets.RUNDB_API_URL }}
         if: matrix.test == 'coveralls' && env.HAVE_ACCESS_TO_SECTETS != null
         run: |
-          coverage run --source=pema setup.py test -v
+          coverage run --source=pema -m pytest -v --durations 0
       - name: Coveralls
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        if: matrix.test != 'pytest_no_database' 
+        if: matrix.test != 'pytest_no_database' && env.HAVE_ACCESS_TO_SECTETS != null
         run: coveralls --service=github
       # Done
       - name: goodbye

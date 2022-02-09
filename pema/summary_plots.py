@@ -9,9 +9,7 @@ from scipy.stats import norm
 from immutabledict import immutabledict
 from copy import deepcopy
 
-
 export, __all__ = strax.exporter()
-
 
 outcome_colors = {
     'found': 'darkblue',
@@ -32,7 +30,6 @@ outcome_colors = {
     'split_and_unclassified': 'seagreen',
     'merged_and_unclassified': 'limegreen',
 }
-
 
 DEFAULT_NPH_LABEL = r'$\#\mathrm{Photon\ detected\ (excl. DPE)}$'
 
@@ -212,7 +209,7 @@ def _plot_mh_percentile(mh: multihist.Histdd,
 def rec_plot(dat,
              dpe_offset=0.0,
              show_hist=True,
-             axis_names=('n_photon', 'rec_bias'),
+             axis_names=('raw_area_trigger', 'rec_bias'),
              print_dpe=True,
              _percentiles_y_bins=500,
              _y_label_kwargs=immutabledict(fontsize=18),
@@ -227,7 +224,7 @@ def rec_plot(dat,
     # otherwise you might get wrong results since you cut away data from the
     # range kwargs.
     percentile_kwargs = deepcopy(kwargs)
-    y_data = dat[y_ax]/(1+dpe_offset)-1
+    y_data = dat[y_ax] / (1 + dpe_offset) - 1
     percentile_kwargs['range'][1] = [y_data.min(), y_data.max()]
     if isinstance(kwargs['bins'], (list, tuple, np.ndarray)):
         percentile_kwargs['bins'] = [kwargs['bins'][0], _percentiles_y_bins]
@@ -238,9 +235,9 @@ def rec_plot(dat,
     mh_display.add(dat[x_ax], y_data)
     mh_for_percentiles.add(dat[x_ax], y_data)
 
-    one_sigma = 100*(1-norm.cdf(1))
+    one_sigma = 100 * (1 - norm.cdf(1))
     median = 50
-    minus_one_sigma = 100*(1-norm.cdf(-1))
+    minus_one_sigma = 100 * (1 - norm.cdf(-1))
     _plot_mh_percentile(mh_for_percentiles, median,
                         color='whitesmoke', label='median')
     _plot_mh_percentile(mh_for_percentiles, one_sigma,
@@ -255,10 +252,10 @@ def rec_plot(dat,
     a_rec = r'\frac{\mathrm{Area}_\mathrm{reconstructed}\mathrm{\ }[\mathrm{PE}]'
     dpe_div = r'\mathrm{\ }/\mathrm{\ }(1+p_{DPE})}'
     if print_dpe:
-        dpe_div = dpe_div[:-1] + r'\mathrm{\ }|\mathrm{\ }p_{DPE}='+f'{dpe_offset}' + '}'
+        dpe_div = dpe_div[:-1] + r'\mathrm{\ }|\mathrm{\ }p_{DPE}=' + f'{dpe_offset}' + '}'
     true_nph = DEFAULT_NPH_LABEL
     plt.xlabel(true_nph)
-    y_label = r'$'+a_rec+dpe_div+r'{'+true_nph.replace('$', '') + r'}-1$'
+    y_label = r'$' + a_rec + dpe_div + r'{' + true_nph.replace('$', '') + r'}-1$'
     plt.ylabel(y_label, **_y_label_kwargs)
     plt.grid()
 

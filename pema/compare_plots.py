@@ -105,7 +105,7 @@ def _plot_truth(data, start_end, t_range):
         hatch_cycle = ['/', '*', '+', '|']
         _t_range = tpeak[['time', 'endtime']]
         x = np.array(list(_t_range))
-        y = tpeak['n_photon'] / np.diff(x)
+        y = tpeak['n_pe'] / np.diff(x)
         ct = tpeak['t_mean_photon']
         stype = tpeak['type']
         plt.gca()
@@ -123,7 +123,7 @@ def _plot_truth(data, start_end, t_range):
                    6: 'orange',
                    4: 'purple',
                    }[stype],
-            label=f'Peak S{stype}. {tpeak["n_photon"]} PE',
+            label=f'Peak S{stype}. {tpeak["n_pe"]} PE',
             alpha=0.4,
             hatch=hatch_cycle[pk]
         )
@@ -322,7 +322,7 @@ def compare_outcomes(st: strax.Context,
 
             if pulse:
                 plt.sca(next(axes))
-                rr_simple_plot(st, run_id, t_range, legend=False)
+                rr_simple_plot(st, run_id, t_range)
 
             plt.sca(next(axes))
             _plot_peak(st,
@@ -353,7 +353,7 @@ def compare_outcomes(st: strax.Context,
             plt.show()
 
 
-def rr_simple_plot(st, run_id, t_range, legend=None):
+def rr_simple_plot(st, run_id, t_range):
     """
     Plot some raw-record pulses within (touching) the t_range
     :param st:
@@ -382,8 +382,6 @@ def rr_simple_plot(st, run_id, t_range, legend=None):
                  )
     for t in t_range:
         axvline(t / 1e9)
-    if legend:
-        plt.legend(fontsize='xx-small')
 
 
 def axvline(v, **kwargs):
@@ -451,12 +449,12 @@ def seconds_range_xaxis(seconds_range, t0=None):
     # Format the labels
     # I am not very proud of this code...
     def chop(x):
-        return np.floor(x).astype(np.int)
+        return np.floor(x).astype(np.int64)
 
     if t0 is None:
-        xticks_ns = np.round(xticks * int(1e9)).astype(np.int)
+        xticks_ns = np.round(xticks * int(1e9)).astype(np.int64)
     else:
-        xticks_ns = np.round((xticks - xticks[0]) * int(1e9)).astype(np.int)
+        xticks_ns = np.round((xticks - xticks[0]) * int(1e9)).astype(np.int64)
     sec = chop(xticks_ns // int(1e9))
     ms = chop((xticks_ns % int(1e9)) // int(1e6))
     us = chop((xticks_ns % int(1e6)) // int(1e3))
