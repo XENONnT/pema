@@ -145,3 +145,34 @@ def get_deepwindows(windows, peaks_a, peaks_b, matching_fuzz):
         _deep_windows.append(this_window)
     deep_windows = np.array(_deep_windows, dtype=(np.int64, np.int64))
     return deep_windows
+
+
+def test_peak_merges():
+    """Test some examples"""
+    dtype = [(('outcome of matching', 'outcome'), pema.matching.OUTCOME_DTYPE),
+             (('Number', 'id'), np.int64),
+             (('matched to', 'matched_to'), np.int64),
+             (('type of p', 'type'), np.int16),
+             (('area of p', 'area'), np.float64)]
+    unknown_types = np.array([0])
+    parent = np.zeros(1, dtype=dtype)
+    fragment = np.zeros(2, dtype=dtype)
+
+    parent['type'] = 1
+    fragment['type'] = 1, 2
+    pema.matching.handle_peak_merge(parent[0], fragment, unknown_types)
+    assert parent['outcome'] == 'split_and_misid'
+    assert fragment[0]['outcome'] == 'merged'
+    assert fragment[1]['outcome'] == 'merged_to_s1'
+
+    fragment['type'] = 1, 0
+    pema.matching.handle_peak_merge(parent[0], fragment, unknown_types)
+    assert parent['outcome'] == 'chopped'
+
+    fragment['type'] = 1, 2
+    pema.matching.handle_peak_merge(parent[0], fragment, unknown_types)
+    assert parent['outcome'] == 'split_and_misid'
+
+    fragment['type'] = 1, 1
+    pema.matching.handle_peak_merge(parent[0], fragment, unknown_types)
+    assert parent['outcome'] == 'split'
