@@ -37,7 +37,7 @@ class SimpleTests(TestCase):
             peak2 = peak1
             pema.match_peaks(peak1, peak2)
 
-    @skipIf(straxen.utilix_is_configured(), 'no utilix file')
+    @skipIf(not straxen.utilix_is_configured(), 'no utilix file')
     def test_context(self):
         with self.assertRaises(FileNotFoundError):
             pema.pema_context(base_dir='/the/moon/path', fax_config='bla', cmt_run_id_sim='1')
@@ -45,6 +45,6 @@ class SimpleTests(TestCase):
             pema.pema_context(base_dir='./', config_update=1, fax_config='bla', cmt_run_id_sim='1')
         with self.assertRaises(RuntimeError):
             pema.pema_context(base_dir='./',
-                              config_update=1,
+                              config_update={},
                               fax_config='fax_config_nt_design.json',
                               cmt_run_id_sim='1')
