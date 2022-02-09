@@ -29,7 +29,7 @@ class SimpleTests(TestCase):
             pema.compare_plots._check_args([], truth_vs_custom=truth, run_id='bla')
 
     def test_show(self):
-        pema.compare_plots._save_and_show('a', 'b', show=True, peak_i=1)
+        pema.compare_plots._save_and_show('a', '.test', show=True, peak_i=1)
 
     def test_warnings_for_matching(self):
         with self.assertRaises(ValueError):
