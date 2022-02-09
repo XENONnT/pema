@@ -39,8 +39,8 @@ jobs:
           #            test: coveralls
           - python-version: 3.9
             test: pytest_no_database
-      env:
-        HAVE_ACCESS_TO_SECTETS: ${{ secrets.RUNDB_API_URL }}
+    env:
+      HAVE_ACCESS_TO_SECTETS: ${{ secrets.RUNDB_API_URL }}
     steps:
       # Setup and installation
       - name: Setup python
