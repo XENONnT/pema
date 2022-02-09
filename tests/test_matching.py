@@ -165,14 +165,27 @@ def test_peak_merges():
     assert fragment[0]['outcome'] == 'merged'
     assert fragment[1]['outcome'] == 'merged_to_s1'
 
+    parent['type'] = 1
     fragment['type'] = 1, 0
     pema.matching.handle_peak_merge(parent[0], fragment, unknown_types)
     assert parent['outcome'] == 'chopped'
 
+    parent['type'] = 1
     fragment['type'] = 1, 2
     pema.matching.handle_peak_merge(parent[0], fragment, unknown_types)
     assert parent['outcome'] == 'split_and_misid'
 
+    parent['type'] = 1
     fragment['type'] = 1, 1
     pema.matching.handle_peak_merge(parent[0], fragment, unknown_types)
     assert parent['outcome'] == 'split'
+
+    parent['type'] = 0
+    fragment['type'] = 1, 1
+    pema.matching.handle_peak_merge(parent[0], fragment, unknown_types)
+    assert fragment[0]['outcome'] == 'merged_to_unknown'
+
+    parent['type'] = 1
+    fragment['type'] = 0, 0
+    pema.matching.handle_peak_merge(parent[0], fragment, unknown_types)
+    assert parent['outcome'] == 'split_and_unclassified'
