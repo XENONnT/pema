@@ -1,3 +1,11 @@
+0.4.0 / 2022-02-11
+------------------
+- Field usage updates (#173)
+- Update docs requirements (#155)
+- Bump straxen (#167)
+- Only allow py>3.8 (#165)
+
+
 0.3.6 / 2021-12-10
 ------------------
 - Use raw_area_trigger for reconstruction bias (#123)
