@@ -21,7 +21,7 @@ tests_requires = open_requirements('extra_requirements/requirements-tests.txt')
 doc_requires = open_requirements('extra_requirements/requirements-docs.txt')
 
 setuptools.setup(name='pema',
-                 version='0.3.6',
+                 version='0.4.0',
                  description='Peak matching for XENON simulations',
                  author='Joran Angevaare',
                  url='https://github.com/XENONnT/peakmatching',
