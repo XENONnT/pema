@@ -5,6 +5,8 @@
 - Bump straxen (#167)
 - Only allow py>3.8 (#165)
 
+Notes:
+ - updates to peak matching based on S2s, lineages changes
 
 0.3.6 / 2021-12-10
 ------------------
