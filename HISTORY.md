@@ -8,6 +8,7 @@
 Notes:
  - updates to peak matching based on S2s, lineages changes
 
+
 0.3.6 / 2021-12-10
 ------------------
 - Use raw_area_trigger for reconstruction bias (#123)
