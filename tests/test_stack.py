@@ -130,8 +130,7 @@ class TestStack(unittest.TestCase):
         self.script.purge_below('match_acceptance_extended')
         for t in strax.to_str_tuple(self.script.target):
             for r in strax.to_str_tuple(self.script.run_id):
-                if (self.script.st._plugin_class_registry[t].save_when
-                        > strax.SaveWhen.NEVER):
+                if (self.script.st.get_save_when(t) > strax.SaveWhen.NEVER):
                     self.script.st.make(r, t)
                     assert self.script.st.is_stored(r, t)
 
