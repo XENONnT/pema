@@ -1,3 +1,9 @@
+0.4.2 / 2022-03-02
+------------------
+- ignore raises on testing (#189)
+- Test with straxen v1.4.0 (#190)
+
+
 0.4.1 / 2022-02-16
 ------------------
 - Fix for new versions (#180)
