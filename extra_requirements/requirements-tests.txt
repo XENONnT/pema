@@ -1,38 +1,4 @@
-# Test compatibility with these most often:
 strax==1.2.0
 straxen==1.6.0
 wfsim==0.5.13
-
-# File for the requirements of pema with the automated tests
-blosc==1.10.4                                   # Strax dependency
-boltons==21.0.0
-datashader==0.13.0
-dill==0.3.4                                     # Strax dependency
-coveralls==3.3.1
-commentjson==0.9.0
-coverage==6.3.2
-dask==2022.3.0
-flake8==4.0.1
-hypothesis==6.21.1
-matplotlib==3.5.1
-multihist==0.6.5
-# nestpy==1.5.1; python_version<="3.9"
-# git+https://github.com/NESTCollaboration/nestpy.git; python_version=="3.10"
-npshmex==0.2.1                                  # Strax dependency
-numba==0.55.1                                   # Strax dependency
-numpy==1.21.5
-nestpy==1.5.0
-pandas==1.4.1                                   # Strax dependency
-psutil==5.9.0                                   # Strax dependency
-pytest==7.1.1
-pytest-cov==3.0.0
-pymongo==3.12.0                                 # Strax dependency
-scikit-learn==1.0.2
-scipy==1.8.0                                    # Strax dependency
-tensorflow==2.8.0
-tqdm==4.63.1
-xarray==2022.3.0
-utilix==0.6.7
-uproot==4.2.2
-zstd==1.5.1.0                                   # Strax dependency
-
+git+https://github.com/XENONnT/ax_env
