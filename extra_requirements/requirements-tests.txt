@@ -30,7 +30,7 @@ pymongo==3.12.0                                 # Strax dependency
 scikit-learn==1.0.2
 scipy==1.8.0                                    # Strax dependency
 tensorflow==2.8.0
-tqdm==4.63.1
+tqdm==4.64.0
 xarray==2022.3.0
 utilix==0.6.7
 uproot==4.2.2
