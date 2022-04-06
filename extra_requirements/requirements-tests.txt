@@ -1,4 +1,4 @@
 strax==1.2.0
 straxen==1.6.0
-wfsim==0.5.13
+wfsim==0.6.0
 git+https://github.com/XENONnT/ax_env
