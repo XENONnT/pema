@@ -6,9 +6,6 @@ import logging
 
 export, __all__ = strax.exporter()
 
-logging.basicConfig(
-    level=logging.INFO,
-    format='%(asctime)s - %(threadName)s - %(name)s - %(levelname)s - %(message)s')
 log = logging.getLogger('Pema matching')
 
 
