@@ -1,3 +1,25 @@
+0.4.2 / 2022-04-12
+------------------
+
+## What's Changed
+* Bump utilix from 0.6.6 to 0.6.7 in /extra_requirements by @dependabot in https://github.com/XENONnT/pema/pull/194
+* Bump actions/checkout from 2 to 3 by @dependabot in https://github.com/XENONnT/pema/pull/193
+* Bump xarray from 0.21.1 to 2022.3.0 in /extra_requirements by @dependabot in https://github.com/XENONnT/pema/pull/192
+* Bump straxen by @JoranAngevaare in https://github.com/XENONnT/pema/pull/195
+* Bump uproot from 4.2.0 to 4.2.1 in /extra_requirements by @dependabot in https://github.com/XENONnT/pema/pull/197
+* Bump pytest from 7.0.1 to 7.1.0 in /extra_requirements by @dependabot in https://github.com/XENONnT/pema/pull/198
+* Bump uproot from 4.2.1 to 4.2.2 in /extra_requirements by @dependabot in https://github.com/XENONnT/pema/pull/201
+* Bump tqdm from 4.63.0 to 4.63.1 in /extra_requirements by @dependabot in https://github.com/XENONnT/pema/pull/203
+* Bump pytest from 7.1.0 to 7.1.1 in /extra_requirements by @dependabot in https://github.com/XENONnT/pema/pull/200
+* Bump dask from 2022.2.1 to 2022.3.0 in /extra_requirements by @dependabot in https://github.com/XENONnT/pema/pull/199
+* Bump sphinx from 4.4.0 to 4.5.0 in /extra_requirements by @dependabot in https://github.com/XENONnT/pema/pull/202
+* remote dependabot by @JoranAngevaare in https://github.com/XENONnT/pema/pull/204
+* WFSim bump by @JoranAngevaare in https://github.com/XENONnT/pema/pull/208
+* Fix logger classes in pema by @JoranAngevaare in https://github.com/XENONnT/pema/pull/210
+
+
+**Full Changelog**: https://github.com/XENONnT/pema/compare/v0.4.2...v0.4.3
+
 0.4.2 / 2022-03-02
 ------------------
 - ignore raises on testing (#189)
