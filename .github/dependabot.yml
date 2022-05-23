@@ -14,7 +14,7 @@ updates:
   # Maintain the requirements requirements folder
   - package-ecosystem: "pip"
     directory: "/extra_requirements"
-    ignore: autodocsumm commonmark gitpython graphviz nbsphinx numpy recommonmark scipy spinx typing-extensions
+    ignore: [autodocsumm, commonmark gitpython, graphviz, nbsphinx, numpy, recommonmark, scipy, spinx, typing-extensions]
     schedule:
       interval: "daily"
     open-pull-requests-limit: 15
