@@ -126,7 +126,7 @@ class AcceptanceComputer(strax.Plugin):
         mask = peak_idx != INT_NAN
         if np.sum(mask):
             # need to get at least one peak for each, even if we are going to remove those later
-            sel_peaks = np.clip(peak_idx, 0, np.inf)
+            sel_peaks = np.clip(peak_idx, 0, np.inf).astype(np.int64)
             for k in self.keep_peak_fields:
                 res[mask][f'rec_{k}'] = peaks[sel_peaks][mask]
         return res
