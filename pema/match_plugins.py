@@ -29,10 +29,6 @@ class MatchPeaks(strax.OverlapWindowPlugin):
         default=int(1e9),
         help='Look back and forth this many ns in the truth info',
     )
-    keep_peak_fields = straxen.URLConfig(
-        default=('area', 'range_50p_area', 'area_fraction_top', 'rise_time', 'tight_coincidence'),
-        help='Add the reconstructed value of these variables',
-    )
 
     def compute(self, truth, peaks):
         log.debug(f'Starting {self.__class__.__name__}')
@@ -47,16 +43,9 @@ class MatchPeaks(strax.OverlapWindowPlugin):
 
         # copy to the result buffer
         res_truth = np.zeros(len(truth), dtype=self.dtype)
-        for k in set(self.dtype.names) - set(self.keep_peak_fields):
+        for k in self.dtype.names:
             res_truth[k] = truth_vs_peak[k]
 
-        peak_idx = truth_vs_peak['matched_to']
-        mask = peak_idx != INT_NAN
-        if np.sum(mask):
-            # need to get at least one peak for each, even if we are going to remove those later
-            sel_peaks = np.clip(peak_idx, 0, np.inf)
-            for k in self.keep_peak_fields:
-                res_truth[mask][f'rec_{k}'] = peaks[sel_peaks][mask]
         return res_truth
 
     def get_window_size(self):
@@ -68,11 +57,6 @@ class MatchPeaks(strax.OverlapWindowPlugin):
             ((f'Outcome of matching to peaks', 'outcome'), pema.matching.OUTCOME_DTYPE),
             ((f'Id of matching element in peaks', 'matched_to'), np.int64)
         ]
-        for descr in self.deps['peak_basics'].dtype_for('peak_basics').descr:
-            # Add peak fields
-            field = descr[0][1]
-            if field in self.keep_peak_fields:
-                dtype += [((descr[0][0], f'rec_{field}'), descr[1])]
         return dtype
 
 
@@ -98,21 +82,14 @@ class AcceptanceComputer(strax.Plugin):
     an S2 into small S1 signals that could affect event
     reconstruction).
     """
-    __version__ = '0.5.0'
+    __version__ = '1.0.0'
     depends_on = ('truth', 'truth_matched', 'peak_basics', 'peak_id')
     provides = 'match_acceptance'
     data_kind = 'truth'
-
-    dtype = strax.dtypes.time_fields + [
-        ((f'Is the peak tagged "found" in the reconstructed data',
-          'is_found'), np.bool_),
-        ((f'Acceptance of the peak can be negative for penalized reconstruction',
-          'acceptance_fraction'),
-         np.float64),
-        ((f'Reconstruction bias 1 is perfect, 0.1 means incorrect',
-          'rec_bias'),
-         np.float64),
-    ]
+    keep_peak_fields = straxen.URLConfig(
+        default=('area', 'range_50p_area', 'area_fraction_top', 'rise_time', 'tight_coincidence'),
+        help='Add the reconstructed value of these variables',
+    )
 
     def compute(self, truth, peaks):
         res = np.zeros(len(truth), self.dtype)
@@ -142,7 +119,34 @@ class AcceptanceComputer(strax.Plugin):
 
         # now update the acceptance fraction in the results
         res['acceptance_fraction'][s2_mask] = s2_acceptance
+
+
+        peak_idx = truth['matched_to']
+        mask = peak_idx != INT_NAN
+        if np.sum(mask):
+            # need to get at least one peak for each, even if we are going to remove those later
+            sel_peaks = np.clip(peak_idx, 0, np.inf)
+            for k in self.keep_peak_fields:
+                res[mask][f'rec_{k}'] = peaks[sel_peaks][mask]
         return res
+
+    def infer_dtype(self):
+        dtype = strax.dtypes.time_fields + [
+            ((f'Is the peak tagged "found" in the reconstructed data',
+              'is_found'), np.bool_),
+            ((f'Acceptance of the peak can be negative for penalized reconstruction',
+              'acceptance_fraction'),
+             np.float64),
+            ((f'Reconstruction bias 1 is perfect, 0.1 means incorrect',
+              'rec_bias'),
+             np.float64),
+        ]
+        for descr in self.deps['peak_basics'].dtype_for('peak_basics').descr:
+            # Add peak fields
+            field = descr[0][1]
+            if field in self.keep_peak_fields:
+                dtype += [((descr[0][0], f'rec_{field}'), descr[1])]
+        return dtype
 
 
 class AcceptanceExtended(strax.MergeOnlyPlugin):
