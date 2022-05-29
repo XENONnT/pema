@@ -128,7 +128,7 @@ class AcceptanceComputer(strax.Plugin):
             # need to get at least one peak for each, even if we are going to remove those later
             sel_peaks = np.clip(peak_idx, 0, np.inf).astype(np.int64)
             for k in self.keep_peak_fields:
-                res[mask][f'rec_{k}'] = peaks[sel_peaks][mask]
+                res[mask][f'rec_{k}'] = peaks[sel_peaks][k][mask]
         return res
 
     def infer_dtype(self):
