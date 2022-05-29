@@ -1,4 +1,30 @@
-0.4.2 / 2022-04-12
+0.5.0 / 2022-05-29
+------------------
+## What's Changed
+* Extend match_acceptance_extended with peak level info by @JoranAngevaare in https://github.com/XENONnT/pema/pull/224
+
+
+**Full Changelog**: https://github.com/XENONnT/pema/compare/v0.4.4...v0.5.0
+
+0.4.4 / 2022-05-29
+------------------
+## What's Changed
+* Update requirements by @JoranAngevaare in https://github.com/XENONnT/pema/pull/211
+* Bump typing-extensions from 4.1.1 to 4.2.0 in /extra_requirements by @dependabot in https://github.com/XENONnT/pema/pull/212
+* Bump straxen from 1.6.1 to 1.6.2 in /extra_requirements by @dependabot in https://github.com/XENONnT/pema/pull/214
+* Bump straxen from 1.6.2 to 1.7.0 in /extra_requirements by @dependabot in https://github.com/XENONnT/pema/pull/216
+* Test with latest strax by @JoranAngevaare in https://github.com/XENONnT/pema/pull/217
+* Bump straxen from 1.7.0 to 1.7.1 in /extra_requirements by @dependabot in https://github.com/XENONnT/pema/pull/218
+* Bump scipy from 1.8.0 to 1.8.1 in /extra_requirements by @dependabot in https://github.com/XENONnT/pema/pull/219
+* Update dependabot.yml by @JoranAngevaare in https://github.com/XENONnT/pema/pull/221
+* cmt_version by @JoranAngevaare in https://github.com/XENONnT/pema/pull/222
+* test with  wfsim pre release by @JoranAngevaare in https://github.com/XENONnT/pema/pull/223
+
+
+**Full Changelog**: https://github.com/XENONnT/pema/compare/v0.4.3...v0.4.4
+
+
+0.4.3 / 2022-04-12
 ------------------
 
 ## What's Changed
