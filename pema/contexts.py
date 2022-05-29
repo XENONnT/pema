@@ -13,7 +13,7 @@ def pema_context(
         fax_config: str,
         cmt_run_id_sim: str,
         config_update: dict = None,
-        cmt_version='global_v7',
+        cmt_version='global_v8',
         raw_dir=None,
         data_dir=None,
         raw_types=None,
@@ -44,22 +44,17 @@ def pema_context(
         if not isinstance(config_update, dict):
             raise ValueError(f'Invalid config update {config_update}')
         config = strax.combine_configs(config, config_update)
-
+    context_options = dict(
+        free_options= ('n_nveto_pmts', 'channel_map', 'n_mveto_pmts',
+                       'gain_model_nv', 'gain_model_mv', 'cmt_run_id_sim'),
+    )
     st = straxen.contexts.xenonnt_simulation(
         fax_config=config['fax_config'],
         cmt_run_id_sim=cmt_run_id_sim,
         cmt_version=cmt_version,
+        **context_options
     )
     st.set_config(config)
-
-    # Disable warning for these options
-    st.set_context_config({'free_options': ('n_nveto_pmts',
-                                            'channel_map',
-                                            'n_mveto_pmts',
-                                            'gain_model_nv',
-                                            'gain_model_mv',
-                                            'cmt_run_id_sim'
-                                            )})
 
     # Setup the plugins for nT
     # st.register(wfsim.RawRecordsFromFaxNT)

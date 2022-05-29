@@ -1,3 +1,5 @@
+import warnings
+
 import strax
 import numba
 import numpy as np
@@ -61,19 +63,6 @@ class MatchPeaks(strax.OverlapWindowPlugin):
 
 
 @export
-@strax.takes_config(
-    strax.Option('penalty_s2_by',
-                 default=(('misid_as_s1', -1.),
-                          ('split_and_misid', -1.),
-                          ),
-                 help='Add a penalty to the acceptance fraction if the peak '
-                      'has the outcome. Should be tuple of tuples where each '
-                      'tuple should have the format of '
-                      '(outcome, penalty_factor)'),
-    strax.Option('min_s2_bias_rec', default=0.85,
-                 help='If the S2 fraction is greater or equal than this, consider '
-                      'a peak successfully found even if it is split or chopped.'),
-)
 class AcceptanceComputer(strax.Plugin):
     """
     Compute the acceptance of the matched peaks. This is done on the
@@ -86,9 +75,21 @@ class AcceptanceComputer(strax.Plugin):
     depends_on = ('truth', 'truth_matched', 'peak_basics', 'peak_id')
     provides = 'match_acceptance'
     data_kind = 'truth'
+
     keep_peak_fields = straxen.URLConfig(
         default=('area', 'range_50p_area', 'area_fraction_top', 'rise_time', 'tight_coincidence'),
         help='Add the reconstructed value of these variables',
+    )
+    penalty_s2_by=straxen.URLConfig(
+        default=(('misid_as_s1', -1.), ('split_and_misid', -1.),),
+        help='Add a penalty to the acceptance fraction if the peak has the '
+             'outcome. Should be tuple of tuples where each tuple should '
+             'have the format of (outcome, penalty_factor)',
+    )
+    min_s2_bias_rec=straxen.URLConfig(
+        default=0.85,
+        help='If the S2 fraction is greater or equal than this, consider a '
+             'peak successfully found even if it is split or chopped.',
     )
 
     def compute(self, truth, peaks):
@@ -154,6 +155,19 @@ class AcceptanceExtended(strax.MergeOnlyPlugin):
     __version__ = '0.1.0'
     depends_on = ('match_acceptance', 'truth', 'truth_id', 'truth_matched')
     provides = 'match_acceptance_extended'
+    data_kind = 'truth'
+    save_when = strax.SaveWhen.TARGET
+
+    def setup(self):
+        warnings.warn(f'match_acceptance_extended is deprecated use truth_extended', DeprecationWarning)
+        super().setup()
+
+@export
+class TruthExtended(strax.MergeOnlyPlugin):
+    """Merge the matched acceptance to the extended truth"""
+    __version__ = '0.1.0'
+    depends_on = ('match_acceptance', 'truth', 'truth_id', 'truth_matched')
+    provides = 'truth_extended'
     data_kind = 'truth'
     save_when = strax.SaveWhen.TARGET
 
