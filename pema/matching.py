@@ -1,9 +1,7 @@
 """
 Utility to match peaks from results of different processor versions / processor and simulator
 """
-
 import numpy as np
-import pema
 import strax
 import numba
 import logging

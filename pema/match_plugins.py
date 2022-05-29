@@ -1,8 +1,12 @@
+import warnings
+
 import strax
 import numba
 import numpy as np
 import pema
 import logging
+import straxen
+from .matching import INT_NAN
 
 export, __all__ = strax.exporter()
 
@@ -10,11 +14,6 @@ log = logging.getLogger('Pema matching')
 
 
 @export
-@strax.takes_config(
-    strax.Option('truth_lookup_window',
-                 default=int(1e9),
-                 help='Look back and forth this many ns in the truth info'),
-)
 class MatchPeaks(strax.OverlapWindowPlugin):
     """
     Match WFSim truth to the outcome peaks. To this end use the
@@ -23,13 +22,15 @@ class MatchPeaks(strax.OverlapWindowPlugin):
         define the outcome of the matching (see pema.matching for
         possible outcomes).
     """
-    __version__ = '0.4.0'
-    depends_on = ('truth',
-                  'truth_id',
-                  'peak_basics',
-                  'peak_id')
+    __version__ = '0.5.0'
+    depends_on = ('truth', 'truth_id', 'peak_basics', 'peak_id')
     provides = 'truth_matched'
     data_kind = 'truth'
+
+    truth_lookup_window = straxen.URLConfig(
+        default=int(1e9),
+        help='Look back and forth this many ns in the truth info',
+    )
 
     def compute(self, truth, peaks):
         log.debug(f'Starting {self.__class__.__name__}')
@@ -62,19 +63,6 @@ class MatchPeaks(strax.OverlapWindowPlugin):
 
 
 @export
-@strax.takes_config(
-    strax.Option('penalty_s2_by',
-                 default=(('misid_as_s1', -1.),
-                          ('split_and_misid', -1.),
-                          ),
-                 help='Add a penalty to the acceptance fraction if the peak '
-                      'has the outcome. Should be tuple of tuples where each '
-                      'tuple should have the format of '
-                      '(outcome, penalty_factor)'),
-    strax.Option('min_s2_bias_rec', default=0.85,
-                 help='If the S2 fraction is greater or equal than this, consider '
-                      'a peak successfully found even if it is split or chopped.'),
-)
 class AcceptanceComputer(strax.Plugin):
     """
     Compute the acceptance of the matched peaks. This is done on the
@@ -83,21 +71,26 @@ class AcceptanceComputer(strax.Plugin):
     an S2 into small S1 signals that could affect event
     reconstruction).
     """
-    __version__ = '0.5.0'
+    __version__ = '1.0.0'
     depends_on = ('truth', 'truth_matched', 'peak_basics', 'peak_id')
     provides = 'match_acceptance'
     data_kind = 'truth'
 
-    dtype = strax.dtypes.time_fields + [
-        ((f'Is the peak tagged "found" in the reconstructed data',
-          'is_found'), np.bool_),
-        ((f'Acceptance of the peak can be negative for penalized reconstruction',
-          'acceptance_fraction'),
-         np.float64),
-        ((f'Reconstruction bias 1 is perfect, 0.1 means incorrect',
-          'rec_bias'),
-         np.float64),
-    ]
+    keep_peak_fields = straxen.URLConfig(
+        default=('area', 'range_50p_area', 'area_fraction_top', 'rise_time', 'tight_coincidence'),
+        help='Add the reconstructed value of these variables',
+    )
+    penalty_s2_by=straxen.URLConfig(
+        default=(('misid_as_s1', -1.), ('split_and_misid', -1.),),
+        help='Add a penalty to the acceptance fraction if the peak has the '
+             'outcome. Should be tuple of tuples where each tuple should '
+             'have the format of (outcome, penalty_factor)',
+    )
+    min_s2_bias_rec=straxen.URLConfig(
+        default=0.85,
+        help='If the S2 fraction is greater or equal than this, consider a '
+             'peak successfully found even if it is split or chopped.',
+    )
 
     def compute(self, truth, peaks):
         res = np.zeros(len(truth), self.dtype)
@@ -127,7 +120,34 @@ class AcceptanceComputer(strax.Plugin):
 
         # now update the acceptance fraction in the results
         res['acceptance_fraction'][s2_mask] = s2_acceptance
+
+
+        peak_idx = truth['matched_to']
+        mask = peak_idx != INT_NAN
+        if np.sum(mask):
+            # need to get at least one peak for each, even if we are going to remove those later
+            sel_peaks = np.clip(peak_idx, 0, np.inf).astype(np.int64)
+            for k in self.keep_peak_fields:
+                res[mask][f'rec_{k}'] = peaks[sel_peaks][k][mask]
         return res
+
+    def infer_dtype(self):
+        dtype = strax.dtypes.time_fields + [
+            ((f'Is the peak tagged "found" in the reconstructed data',
+              'is_found'), np.bool_),
+            ((f'Acceptance of the peak can be negative for penalized reconstruction',
+              'acceptance_fraction'),
+             np.float64),
+            ((f'Reconstruction bias 1 is perfect, 0.1 means incorrect',
+              'rec_bias'),
+             np.float64),
+        ]
+        for descr in self.deps['peak_basics'].dtype_for('peak_basics').descr:
+            # Add peak fields
+            field = descr[0][1]
+            if field in self.keep_peak_fields:
+                dtype += [((descr[0][0], f'rec_{field}'), descr[1])]
+        return dtype
 
 
 class AcceptanceExtended(strax.MergeOnlyPlugin):
@@ -135,6 +155,19 @@ class AcceptanceExtended(strax.MergeOnlyPlugin):
     __version__ = '0.1.0'
     depends_on = ('match_acceptance', 'truth', 'truth_id', 'truth_matched')
     provides = 'match_acceptance_extended'
+    data_kind = 'truth'
+    save_when = strax.SaveWhen.TARGET
+
+    def setup(self):
+        warnings.warn(f'match_acceptance_extended is deprecated use truth_extended', DeprecationWarning)
+        super().setup()
+
+@export
+class TruthExtended(strax.MergeOnlyPlugin):
+    """Merge the matched acceptance to the extended truth"""
+    __version__ = '0.1.0'
+    depends_on = ('match_acceptance', 'truth', 'truth_id', 'truth_matched')
+    provides = 'truth_extended'
     data_kind = 'truth'
     save_when = strax.SaveWhen.TARGET
 
