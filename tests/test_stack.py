@@ -151,6 +151,10 @@ class TestStack(unittest.TestCase):
             st2.make(run_id, t)
         peaks_1 = st.get_array(run_id, 'match_acceptance_extended')
         peaks_2 = st2.get_array(run_id, 'match_acceptance_extended')
+
+        assert 'rec_area' in peaks_1.dtype.names
+        assert np.sum(peaks_1[peaks_1['outcome']=='missed']['rec_area']) == 0
+
         if 'run_id' not in peaks_1.dtype.names:
             peaks_1 = pema.append_fields(peaks_1, 'run_id', [run_id] * len(peaks_1))
             peaks_2 = pema.append_fields(peaks_2, 'run_id', [run_id] * len(peaks_2))

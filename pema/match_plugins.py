@@ -3,6 +3,8 @@ import numba
 import numpy as np
 import pema
 import logging
+import straxen
+from .matching import INT_NAN
 
 export, __all__ = strax.exporter()
 
@@ -10,11 +12,6 @@ log = logging.getLogger('Pema matching')
 
 
 @export
-@strax.takes_config(
-    strax.Option('truth_lookup_window',
-                 default=int(1e9),
-                 help='Look back and forth this many ns in the truth info'),
-)
 class MatchPeaks(strax.OverlapWindowPlugin):
     """
     Match WFSim truth to the outcome peaks. To this end use the
@@ -23,13 +20,19 @@ class MatchPeaks(strax.OverlapWindowPlugin):
         define the outcome of the matching (see pema.matching for
         possible outcomes).
     """
-    __version__ = '0.4.0'
-    depends_on = ('truth',
-                  'truth_id',
-                  'peak_basics',
-                  'peak_id')
+    __version__ = '0.5.0'
+    depends_on = ('truth', 'truth_id', 'peak_basics', 'peak_id')
     provides = 'truth_matched'
     data_kind = 'truth'
+
+    truth_lookup_window = straxen.URLConfig(
+        default=int(1e9),
+        help='Look back and forth this many ns in the truth info',
+    )
+    keep_peak_fields = straxen.URLConfig(
+        default=('area', 'range_50p_area', 'area_fraction_top', 'rise_time', 'tight_coincidence'),
+        help='Add the reconstructed value of these variables',
+    )
 
     def compute(self, truth, peaks):
         log.debug(f'Starting {self.__class__.__name__}')
@@ -44,9 +47,16 @@ class MatchPeaks(strax.OverlapWindowPlugin):
 
         # copy to the result buffer
         res_truth = np.zeros(len(truth), dtype=self.dtype)
-        for k in self.dtype.names:
+        for k in set(self.dtype.names) - set(self.keep_peak_fields):
             res_truth[k] = truth_vs_peak[k]
 
+        peak_idx = truth_vs_peak['matched_to']
+        mask = peak_idx != INT_NAN
+        if np.sum(mask):
+            # need to get at least one peak for each, even if we are going to remove those later
+            sel_peaks = np.clip(peak_idx, 0, np.inf)
+            for k in self.keep_peak_fields:
+                res_truth[mask][f'rec_{k}'] = peaks[sel_peaks][mask]
         return res_truth
 
     def get_window_size(self):
@@ -58,6 +68,11 @@ class MatchPeaks(strax.OverlapWindowPlugin):
             ((f'Outcome of matching to peaks', 'outcome'), pema.matching.OUTCOME_DTYPE),
             ((f'Id of matching element in peaks', 'matched_to'), np.int64)
         ]
+        for descr in self.deps['peak_basics'].dtype_for('peak_basics').descr:
+            # Add peak fields
+            field = descr[0][1]
+            if field in self.keep_peak_fields:
+                dtype += [((descr[0][0], f'rec_{field}'), descr[1])]
         return dtype
 
 
