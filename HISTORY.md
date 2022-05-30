@@ -1,3 +1,11 @@
+0.6.0 / 2022-05-30
+------------------
+## What's Changed
+* simplify matching - keep multiple columns and fix + test chunking artefacts by @JoranAngevaare in https://github.com/XENONnT/pema/pull/225
+
+
+**Full Changelog**: https://github.com/XENONnT/pema/compare/v0.5.2...v0.6.0
+
 0.5.0 / 2022-05-29
 ------------------
 ## What's Changed
