@@ -71,7 +71,7 @@ class AcceptanceComputer(strax.Plugin):
     an S2 into small S1 signals that could affect event
     reconstruction).
     """
-    __version__ = '2.0.1'
+    __version__ = '2.0.2'
     depends_on = ('truth', 'truth_matched', 'peak_basics', 'peak_id')
     provides = 'match_acceptance'
     data_kind = 'truth'
@@ -126,7 +126,7 @@ class AcceptanceComputer(strax.Plugin):
         # split (as long as their bias fraction is not too small).
         s2_mask = truth['type'] == 2
         s2_outcomes = truth['outcome'][s2_mask].copy()
-        s2_acceptance = (res['rec_bias'] > self.config['min_s2_bias_rec']).astype(np.float64)
+        s2_acceptance = (res[s2_mask]['rec_bias'] > self.config['min_s2_bias_rec']).astype(np.float64)
         for outcome, penalty in self.config['penalty_s2_by']:
             s2_out_mask = s2_outcomes == outcome
             s2_acceptance[s2_out_mask] = penalty
