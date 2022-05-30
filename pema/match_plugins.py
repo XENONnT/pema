@@ -110,13 +110,14 @@ class AcceptanceComputer(strax.Plugin):
             ]
 
             if len(sel_peaks) != len(sel_truth):
-                raise ValueError(f'Got {len(sel_peaks)} =! {len(sel_truth)}')
-            if np.all(sel_truth['matched_to'] != sel_peaks['id']):
-                for t_i, p_i in zip(peak_idx[mask], peaks[sel_peaks]['id']):
-                    print(t_i, p_i)
+                raise ValueError(f'Got {len(sel_peaks)} != {len(sel_truth)}')
+            not_match = sel_truth['matched_to'] != sel_peaks['id']
+            if np.any(not_match):
+                for i, t_i, p_i in zip(not_match,  sel_truth['matched_to'], sel_peaks['id']):
+                    print(i, t_i, p_i)
                 raise ValueError
             for k in self.keep_peak_fields:
-                res[f'rec_{k}'][mask] = peaks[k][sel_peaks]
+                res[f'rec_{k}'][mask] = sel_peaks[k]
 
         res['rec_bias'] = res['rec_area'] / res['raw_area']
 
