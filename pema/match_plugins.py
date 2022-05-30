@@ -71,7 +71,7 @@ class AcceptanceComputer(strax.Plugin):
     an S2 into small S1 signals that could affect event
     reconstruction).
     """
-    __version__ ='2.0.0'
+    __version__ = '2.0.0'
     depends_on = ('truth', 'truth_matched', 'peak_basics', 'peak_id')
     provides = 'match_acceptance'
     data_kind = 'truth'
@@ -80,13 +80,13 @@ class AcceptanceComputer(strax.Plugin):
         default=('area', 'range_50p_area', 'area_fraction_top', 'rise_time', 'tight_coincidence'),
         help='Add the reconstructed value of these variables',
     )
-    penalty_s2_by=straxen.URLConfig(
+    penalty_s2_by = straxen.URLConfig(
         default=(('misid_as_s1', -1.), ('split_and_misid', -1.),),
         help='Add a penalty to the acceptance fraction if the peak has the '
              'outcome. Should be tuple of tuples where each tuple should '
              'have the format of (outcome, penalty_factor)',
     )
-    min_s2_bias_rec=straxen.URLConfig(
+    min_s2_bias_rec = straxen.URLConfig(
         default=0.85,
         help='If the S2 fraction is greater or equal than this, consider a '
              'peak successfully found even if it is split or chopped.',
@@ -107,7 +107,7 @@ class AcceptanceComputer(strax.Plugin):
             sel_truth = peak_idx[mask]
             sel_peaks = peaks[
                 get_idx(truth[mask]['matched_to'], peaks['id'], INT_NAN)
-                ]
+            ]
 
             if len(sel_peaks) == len(sel_truth):
                 raise ValueError(f'Got {len(sel_peaks)} =! {len(sel_truth)}')
@@ -118,7 +118,7 @@ class AcceptanceComputer(strax.Plugin):
             for k in self.keep_peak_fields:
                 res[f'rec_{k}'][mask] = peaks[k][sel_peaks]
 
-        res['rec_bias'] = res['rec_area']/res['raw_area']
+        res['rec_bias'] = res['rec_area'] / res['raw_area']
 
         # S1 acceptance is simply is the peak found or not
         s1_mask = truth['type'] == 1
@@ -161,7 +161,6 @@ class AcceptanceComputer(strax.Plugin):
         assert 'area' in self.keep_peak_fields
 
 
-
 class AcceptanceExtended(strax.MergeOnlyPlugin):
     """Merge the matched acceptance to the extended truth"""
     __version__ = '0.1.0'
@@ -171,8 +170,10 @@ class AcceptanceExtended(strax.MergeOnlyPlugin):
     save_when = strax.SaveWhen.TARGET
 
     def setup(self):
-        warnings.warn(f'match_acceptance_extended is deprecated use truth_extended', DeprecationWarning)
+        warnings.warn(f'match_acceptance_extended is deprecated use truth_extended',
+                      DeprecationWarning)
         super().setup()
+
 
 @export
 class TruthExtended(strax.MergeOnlyPlugin):
@@ -295,6 +296,7 @@ def fill_start_end(truth, truth_event):
 def assert_ordered_truth(truth):
     assert np.all(np.diff(truth['time']) >= 0), "truth is not sorted!"
 
+
 @numba.njit
 def get_idx(search_item, in_list, not_found=-99999):
     """Get index in <in_list> where the value is <searc_value>
@@ -305,11 +307,11 @@ def get_idx(search_item, in_list, not_found=-99999):
         a list of length (search item) where each value refers to the item in <in_list>
     """
     result = np.ones(len(search_item), dtype=np.int64) * not_found
-    look_from=0
+    look_from = 0
     for i, search in enumerate(search_item):
         for k, v in enumerate(in_list[look_from:]):
             if v == search:
-                result[i] = look_from+k
+                result[i] = look_from + k
                 look_from += k
                 break
     for r in result:
