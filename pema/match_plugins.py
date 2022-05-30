@@ -117,7 +117,7 @@ class AcceptanceComputer(strax.Plugin):
             for k in self.keep_peak_fields:
                 res[f'rec_{k}'][mask] = sel_peaks[k]
 
-        res['rec_bias'] = res['rec_area'] / res['raw_area']
+        res['rec_bias'] = res['rec_area'] / truth['raw_area']
 
         # S1 acceptance is simply is the peak found or not
         s1_mask = truth['type'] == 1
