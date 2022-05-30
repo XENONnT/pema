@@ -104,16 +104,14 @@ class AcceptanceComputer(strax.Plugin):
         mask = peak_idx != INT_NAN
         if np.sum(mask):
             # need to get at least one peak for each, even if we are going to remove those later
-            sel_truth = peak_idx[mask]
-            sel_peaks = peaks[
-                get_idx(truth[mask]['matched_to'], peaks['id'], INT_NAN)
-            ]
+            sel_from_peaks = peak_idx[mask]
+            sel_peaks = peaks[get_idx(sel_from_peaks, peaks['id'], INT_NAN)]
 
-            if len(sel_peaks) != len(sel_truth):
-                raise ValueError(f'Got {len(sel_peaks)} != {len(sel_truth)}')
-            not_match = sel_truth['matched_to'] != sel_peaks['id']
+            if len(sel_peaks) != len(sel_from_peaks):
+                raise ValueError(f'Got {len(sel_peaks)} != {len(sel_from_peaks)}')
+            not_match = sel_from_peaks != sel_peaks['id']
             if np.any(not_match):
-                for i, t_i, p_i in zip(not_match,  sel_truth['matched_to'], sel_peaks['id']):
+                for i, t_i, p_i in zip(not_match, sel_from_peaks, sel_peaks['id']):
                     print(i, t_i, p_i)
                 raise ValueError
             for k in self.keep_peak_fields:
