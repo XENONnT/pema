@@ -83,6 +83,7 @@ class TestStack(unittest.TestCase):
              'allow_lazy': False,
              'timeout': 300,
              'max_messages': 10,
+             'allow_rechunk': False,
              }
         )
         script_writer = pema.ProcessRun(st, run_id,

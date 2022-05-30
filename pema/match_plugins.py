@@ -99,10 +99,26 @@ class AcceptanceComputer(strax.Plugin):
         res['is_found'] = truth['outcome'] == 'found'
 
         rec_bias = np.zeros(len(truth), dtype=np.float64)
-        compute_rec_bias(truth, peaks, rec_bias, pema.matching.INT_NAN)
-        if np.all(rec_bias == 0):
-            log.warning(f'Computed only 0 bias peaks, that looks unlikely')
-        res['rec_bias'] = rec_bias
+
+        peak_idx = truth['matched_to']
+        mask = peak_idx != INT_NAN
+        if np.sum(mask):
+            # need to get at least one peak for each, even if we are going to remove those later
+            sel_truth = peak_idx[mask]
+            sel_peaks = peaks[
+                get_idx(truth[mask]['matched_to'], peaks['id'], INT_NAN)
+                ]
+
+            if len(sel_peaks) == len(sel_truth):
+                raise ValueError(f'Got {len(sel_peaks)} =! {len(sel_truth)}')
+            if np.all(sel_truth['matched_to'] == sel_peaks['id']):
+                for t_i, p_i in zip(peak_idx[mask], peaks[sel_peaks]['id']):
+                    print(t_i, p_i)
+                raise ValueError
+            for k in self.keep_peak_fields:
+                res[f'rec_{k}'][mask] = peaks[k][sel_peaks]
+
+        res['rec_bias'][mask] = res['rec_area']/res['raw_area']
 
         # S1 acceptance is simply is the peak found or not
         s1_mask = truth['type'] == 1
@@ -121,17 +137,6 @@ class AcceptanceComputer(strax.Plugin):
         # now update the acceptance fraction in the results
         res['acceptance_fraction'][s2_mask] = s2_acceptance
 
-        peak_idx = truth['matched_to']
-        mask = peak_idx != INT_NAN
-        if np.sum(mask):
-            # need to get at least one peak for each, even if we are going to remove those later
-            sel_peaks = truth[mask]['matched_to']
-            if not np.all(peak_idx[mask] == peaks[sel_peaks]['id']):
-                for t_i, p_i in zip(peak_idx[mask], peaks[sel_peaks]['id']):
-                    print(t_i, p_i)
-                raise ValueError
-            for k in self.keep_peak_fields:
-                res[f'rec_{k}'][mask] = peaks[k][sel_peaks]
         return res
 
     def infer_dtype(self):
@@ -151,6 +156,9 @@ class AcceptanceComputer(strax.Plugin):
             if field in self.keep_peak_fields:
                 dtype += [((descr[0][0], f'rec_{field}'), descr[1])]
         return dtype
+
+    def setup(self):
+        assert 'area' in self.keep_peak_fields
 
 
 
@@ -287,45 +295,24 @@ def fill_start_end(truth, truth_event):
 def assert_ordered_truth(truth):
     assert np.all(np.diff(truth['time']) >= 0), "truth is not sorted!"
 
+@numba.njit
+def get_idx(search_item, in_list, not_found=-99999):
+    """Get index in <in_list> where the value is <searc_value>
 
-@numba.njit()
-def compute_rec_bias(truth, peaks, buffer, no_peak_found):
+    Assumes that <in_list> is sorted!
+
+    :returns:
+        a list of length (search item) where each value refers to the item in <in_list>
     """
-    For the truth, find the corresponding (main) peak and calculate
-        how much of the area is found correctly
-
-    :param truth: truth array
-    :param peaks: peaks array (reconstructed)
-    :param buffer: array of the same length as the truth for filling
-        the result
-    :param no_peak_found: classifier of the truth outcomes where no
-        matching peak was found
-    :return: None, the buffer is filled instead
-    """
-    t_length = len(truth)
-    for t_i in range(t_length):
-        t = truth[t_i]
-        peak_id = t['matched_to']
-        if peak_id != no_peak_found:
-            if t['raw_area'] <= 0:
-                # How do we get 0 photons in instruction?
-                continue
-            peak_i = get_idx(peaks['id'], peak_id, no_peak_found)
-            if peak_i == no_peak_found:
-                raise ValueError
-            matched_peak = peaks[peak_i]
-            if t['type'] == matched_peak['type']:
-                frac = matched_peak['area'] / t['raw_area']
-                buffer[t_i] = frac
-                continue
-        buffer[t_i] = 0
-
-
-@numba.njit()
-def get_idx(array, value, no_peak_found):
-    """Get the first idx where a value is true. Does not check if there are others"""
-    array_length = len(array)
-    for i in range(array_length):
-        if array[i] == value:
-            return i
-    return no_peak_found
+    result = np.ones(len(search_item), dtype=np.int64) * not_found
+    look_from=0
+    for i, search in enumerate(search_item):
+        for k, v in enumerate(in_list[look_from:]):
+            if v == search:
+                result[i] = look_from+k
+                look_from += k
+                break
+    for r in result:
+        if r == not_found:
+            raise ValueError()
+    return result
