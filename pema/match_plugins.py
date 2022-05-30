@@ -71,7 +71,7 @@ class AcceptanceComputer(strax.Plugin):
     an S2 into small S1 signals that could affect event
     reconstruction).
     """
-    __version__ = '1.0.0'
+    __version__ = '1.0.1'
     depends_on = ('truth', 'truth_matched', 'peak_basics', 'peak_id')
     provides = 'match_acceptance'
     data_kind = 'truth'
@@ -121,14 +121,13 @@ class AcceptanceComputer(strax.Plugin):
         # now update the acceptance fraction in the results
         res['acceptance_fraction'][s2_mask] = s2_acceptance
 
-
         peak_idx = truth['matched_to']
         mask = peak_idx != INT_NAN
         if np.sum(mask):
             # need to get at least one peak for each, even if we are going to remove those later
-            sel_peaks = np.clip(peak_idx, 0, np.inf).astype(np.int64)
+            sel_peaks = truth[mask]['matched_to']
             for k in self.keep_peak_fields:
-                res[mask][f'rec_{k}'] = peaks[sel_peaks][k][mask]
+                res[mask][f'rec_{k}'] = peaks[k][sel_peaks]
         return res
 
     def infer_dtype(self):
