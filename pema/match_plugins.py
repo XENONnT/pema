@@ -71,7 +71,7 @@ class AcceptanceComputer(strax.Plugin):
     an S2 into small S1 signals that could affect event
     reconstruction).
     """
-    __version__ ='1.0.2'
+    __version__ = '2.0.0'
     depends_on = ('truth', 'truth_matched', 'peak_basics', 'peak_id')
     provides = 'match_acceptance'
     data_kind = 'truth'
@@ -80,13 +80,13 @@ class AcceptanceComputer(strax.Plugin):
         default=('area', 'range_50p_area', 'area_fraction_top', 'rise_time', 'tight_coincidence'),
         help='Add the reconstructed value of these variables',
     )
-    penalty_s2_by=straxen.URLConfig(
+    penalty_s2_by = straxen.URLConfig(
         default=(('misid_as_s1', -1.), ('split_and_misid', -1.),),
         help='Add a penalty to the acceptance fraction if the peak has the '
              'outcome. Should be tuple of tuples where each tuple should '
              'have the format of (outcome, penalty_factor)',
     )
-    min_s2_bias_rec=straxen.URLConfig(
+    min_s2_bias_rec = straxen.URLConfig(
         default=0.85,
         help='If the S2 fraction is greater or equal than this, consider a '
              'peak successfully found even if it is split or chopped.',
@@ -99,10 +99,25 @@ class AcceptanceComputer(strax.Plugin):
         res['is_found'] = truth['outcome'] == 'found'
 
         rec_bias = np.zeros(len(truth), dtype=np.float64)
-        compute_rec_bias(truth, peaks, rec_bias, pema.matching.INT_NAN)
-        if np.all(rec_bias == 0):
-            log.warning(f'Computed only 0 bias peaks, that looks unlikely')
-        res['rec_bias'] = rec_bias
+
+        peak_idx = truth['matched_to']
+        mask = peak_idx != INT_NAN
+        if np.sum(mask):
+            # need to get at least one peak for each, even if we are going to remove those later
+            sel_from_peaks = peak_idx[mask]
+            sel_peaks = peaks[get_idx(sel_from_peaks, peaks['id'], INT_NAN)]
+
+            if len(sel_peaks) != len(sel_from_peaks):
+                raise ValueError(f'Got {len(sel_peaks)} != {len(sel_from_peaks)}')
+            not_match = sel_from_peaks != sel_peaks['id']
+            if np.any(not_match):
+                for i, t_i, p_i in zip(not_match, sel_from_peaks, sel_peaks['id']):
+                    print(i, t_i, p_i)
+                raise ValueError
+            for k in self.keep_peak_fields:
+                res[f'rec_{k}'][mask] = sel_peaks[k]
+
+        res['rec_bias'] = res['rec_area'] / truth['raw_area']
 
         # S1 acceptance is simply is the peak found or not
         s1_mask = truth['type'] == 1
@@ -121,17 +136,6 @@ class AcceptanceComputer(strax.Plugin):
         # now update the acceptance fraction in the results
         res['acceptance_fraction'][s2_mask] = s2_acceptance
 
-        peak_idx = truth['matched_to']
-        mask = peak_idx != INT_NAN
-        if np.sum(mask):
-            # need to get at least one peak for each, even if we are going to remove those later
-            sel_peaks = truth[mask]['matched_to']
-            if not np.all(peak_idx[mask] == peaks[sel_peaks]['id']):
-                for t_i, p_i in zip(peak_idx[mask], peaks[sel_peaks]['id']):
-                    print(t_i, p_i)
-                raise ValueError
-            for k in self.keep_peak_fields:
-                res[f'rec_{k}'][mask] = peaks[k][sel_peaks]
         return res
 
     def infer_dtype(self):
@@ -152,6 +156,8 @@ class AcceptanceComputer(strax.Plugin):
                 dtype += [((descr[0][0], f'rec_{field}'), descr[1])]
         return dtype
 
+    def setup(self):
+        assert 'area' in self.keep_peak_fields
 
 
 class AcceptanceExtended(strax.MergeOnlyPlugin):
@@ -163,8 +169,10 @@ class AcceptanceExtended(strax.MergeOnlyPlugin):
     save_when = strax.SaveWhen.TARGET
 
     def setup(self):
-        warnings.warn(f'match_acceptance_extended is deprecated use truth_extended', DeprecationWarning)
+        warnings.warn(f'match_acceptance_extended is deprecated use truth_extended',
+                      DeprecationWarning)
         super().setup()
+
 
 @export
 class TruthExtended(strax.MergeOnlyPlugin):
@@ -288,44 +296,24 @@ def assert_ordered_truth(truth):
     assert np.all(np.diff(truth['time']) >= 0), "truth is not sorted!"
 
 
-@numba.njit()
-def compute_rec_bias(truth, peaks, buffer, no_peak_found):
+@numba.njit
+def get_idx(search_item, in_list, not_found=-99999):
+    """Get index in <in_list> where the value is <searc_value>
+
+    Assumes that <in_list> is sorted!
+
+    :returns:
+        a list of length (search item) where each value refers to the item in <in_list>
     """
-    For the truth, find the corresponding (main) peak and calculate
-        how much of the area is found correctly
-
-    :param truth: truth array
-    :param peaks: peaks array (reconstructed)
-    :param buffer: array of the same length as the truth for filling
-        the result
-    :param no_peak_found: classifier of the truth outcomes where no
-        matching peak was found
-    :return: None, the buffer is filled instead
-    """
-    t_length = len(truth)
-    for t_i in range(t_length):
-        t = truth[t_i]
-        peak_id = t['matched_to']
-        if peak_id != no_peak_found:
-            if t['raw_area'] <= 0:
-                # How do we get 0 photons in instruction?
-                continue
-            peak_i = get_idx(peaks['id'], peak_id, no_peak_found)
-            if peak_i == no_peak_found:
-                raise ValueError
-            matched_peak = peaks[peak_i]
-            if t['type'] == matched_peak['type']:
-                frac = matched_peak['area'] / t['raw_area']
-                buffer[t_i] = frac
-                continue
-        buffer[t_i] = 0
-
-
-@numba.njit()
-def get_idx(array, value, no_peak_found):
-    """Get the first idx where a value is true. Does not check if there are others"""
-    array_length = len(array)
-    for i in range(array_length):
-        if array[i] == value:
-            return i
-    return no_peak_found
+    result = np.ones(len(search_item), dtype=np.int64) * not_found
+    look_from = 0
+    for i, search in enumerate(search_item):
+        for k, v in enumerate(in_list[look_from:]):
+            if v == search:
+                result[i] = look_from + k
+                look_from += k
+                break
+    for r in result:
+        if r == not_found:
+            raise ValueError()
+    return result
