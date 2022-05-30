@@ -42,7 +42,7 @@ setuptools.setup(name='pema',
                           'bin/pema_init.py',
                           ],
                  classifiers=[
-                     'Development Status :: 4 - Beta',
+                     'Development Status :: 5 - Production/Stable',
                      'License :: OSI Approved :: BSD License',
                      'Natural Language :: English',
                      'Programming Language :: Python :: 3.8',
