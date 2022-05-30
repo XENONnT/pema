@@ -154,7 +154,7 @@ class TestStack(unittest.TestCase):
         peaks_2 = st2.get_array(run_id, 'match_acceptance_extended')
 
         assert 'rec_area' in peaks_1.dtype.names
-        assert np.sum(peaks_1[peaks_1['outcome']=='missed']['rec_area']) == 0
+        assert np.sum(peaks_1[peaks_1['outcome'] == 'missed']['rec_area']) == 0
 
         if 'run_id' not in peaks_1.dtype.names:
             peaks_1 = pema.append_fields(peaks_1, 'run_id', [run_id] * len(peaks_1))
@@ -199,6 +199,8 @@ class TestStack(unittest.TestCase):
         st2 = st.new_context()
         peaks_1 = st.get_array(run_id, 'match_acceptance_extended')
         peaks_2 = st2.get_array(run_id, 'match_acceptance_extended')
+        peaks_1 = peaks_1[peaks_1['rec_bias'] > 0]
+        peaks_2 = peaks_2[peaks_2['rec_bias'] > 0]
         peaks_1_kwargs = dict(bins=10)
         if len(peaks_1):
             pema.summary_plots.rec_plot(peaks_1, **peaks_1_kwargs)
