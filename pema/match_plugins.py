@@ -71,7 +71,7 @@ class AcceptanceComputer(strax.Plugin):
     an S2 into small S1 signals that could affect event
     reconstruction).
     """
-    __version__ ='1.0.2'
+    __version__ ='2.0.0'
     depends_on = ('truth', 'truth_matched', 'peak_basics', 'peak_id')
     provides = 'match_acceptance'
     data_kind = 'truth'
@@ -118,7 +118,7 @@ class AcceptanceComputer(strax.Plugin):
             for k in self.keep_peak_fields:
                 res[f'rec_{k}'][mask] = peaks[k][sel_peaks]
 
-        res['rec_bias'][mask] = res['rec_area']/res['raw_area']
+        res['rec_bias'] = res['rec_area']/res['raw_area']
 
         # S1 acceptance is simply is the peak found or not
         s1_mask = truth['type'] == 1
