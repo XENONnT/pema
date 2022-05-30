@@ -109,7 +109,7 @@ class AcceptanceComputer(strax.Plugin):
                 get_idx(truth[mask]['matched_to'], peaks['id'], INT_NAN)
             ]
 
-            if len(sel_peaks) == len(sel_truth):
+            if len(sel_peaks) != len(sel_truth):
                 raise ValueError(f'Got {len(sel_peaks)} =! {len(sel_truth)}')
             if np.all(sel_truth['matched_to'] == sel_peaks['id']):
                 for t_i, p_i in zip(peak_idx[mask], peaks[sel_peaks]['id']):
