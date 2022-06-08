@@ -1,3 +1,16 @@
+0.6.3 / 2022-06-08
+------------------
+### What's Changed
+* allow kwargs to context by @JoranAngevaare in https://github.com/XENONnT/pema/pull/227
+* Test notebooks by @JoranAngevaare in https://github.com/XENONnT/pema/pull/228
+* Add plotting tweak by @JoranAngevaare in https://github.com/XENONnT/pema/pull/233
+* Bump nbsphinx from 0.8.8 to 0.8.9 in /extra_requirements by @dependabot in https://github.com/XENONnT/pema/pull/230
+* Bump strax from 1.2.2 to 1.2.3 in /extra_requirements by @dependabot in https://github.com/XENONnT/pema/pull/231
+* Bump straxen from 1.7.1 to 1.8.1 in /extra_requirements by @dependabot in https://github.com/XENONnT/pema/pull/232
+
+
+**Full Changelog**: https://github.com/XENONnT/pema/compare/v0.6.2...v0.6.3
+
 0.6.0 / 2022-05-30
 ------------------
 ## What's Changed
