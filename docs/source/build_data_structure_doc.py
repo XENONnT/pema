@@ -161,7 +161,10 @@ def get_context():
     :return: straxen context that mimics the xenonnt_online context without the rundb init
     """
     st = pema.pema_context(base_dir='.', fax_config='fax_config_nt_design.json', cmt_run_id_sim='0', raw_dir='.',)
-    pema_plugins = st._get_plugins(('truth_extended',), '0').keys()
+    pema_plugins = (
+        list(st._get_plugins(('truth_extended',), '0').keys()) +
+        list(st._get_plugins(('truth_events',), '0').keys())
+    )
     for p in list(st._plugin_class_registry.keys()):
         if p not in pema_plugins:
             del st._plugin_class_registry[p]
