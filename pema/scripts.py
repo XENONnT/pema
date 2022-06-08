@@ -12,7 +12,7 @@ import shutil
 job_script = """\
 #!/bin/bash
 #SBATCH --partition {partition}
-#SBATCH --qos {partition}
+#SBATCH --qos {qos}
 #SBATCH --account=pi-lgrandi
 #SBATCH --ntasks=1
 #SBATCH --output={log_file}
@@ -31,6 +31,7 @@ echo Environment activated
 echo Processing job ended
 """
 
+_qos = {'kicp': 'xenon1t-kicp'}
 
 def write_script(fn, script, **kwargs):
     with open(fn, mode='w') as f:
@@ -186,6 +187,7 @@ class ProcessRun:
             cmd=cmd,
             mem=mem,
             partition=partition,
+            qos=_qos.get(partition, partition),
             max_hours=max_hours)
         write_script(self.script_file, script)
         cp = subprocess.run(f'sbatch {self.script_file}', shell=True, capture_output=True)

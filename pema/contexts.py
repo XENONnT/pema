@@ -17,17 +17,21 @@ def pema_context(
         raw_dir=None,
         data_dir=None,
         raw_types=None,
+        **kwargs,
 ) -> strax.Context:
     """
     Central context for pema, allows to init from a config.
     :param base_dir: Where store instructions,
     :param fax_config: fax configuration file
     :param cmt_run_id_sim: run_id for CMT (see straxen.contexts.xenonnt_simulation)
+    :param cmt_version: the global correction version applied to the data
     :param config_update: Setup the config of the context
     :param raw_dir: Where to store the low level datatypes
     :param data_dir: Where to store the high level datatypes
     :param raw_types: Low level datatypes, stored separately from
         high level datatypes
+
+    :kwargs: any kwargs are directly passed to the context
     :return: context
     """
     if not os.path.exists(base_dir):
@@ -52,7 +56,8 @@ def pema_context(
         fax_config=config['fax_config'],
         cmt_run_id_sim=cmt_run_id_sim,
         cmt_version=cmt_version,
-        **context_options
+        **context_options,
+        **kwargs,
     )
     st.set_config(config)
 
