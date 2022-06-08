@@ -105,6 +105,7 @@ def _plot_peak_matching_histogram(hists):
                      label=outcome,
                      color=color,
                      linestyle='-' if outcome == 'found' else '',
+                     drawstyle='steps-mid',
                      marker='s')
 
         # Wald intervals: not so good
