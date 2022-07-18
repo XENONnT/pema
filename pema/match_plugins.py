@@ -221,7 +221,7 @@ class MatchEvents(strax.OverlapWindowPlugin):
         unique_numbers = np.unique(truth['event_number'])
         res = np.zeros(len(unique_numbers), self.dtype)
         res['truth_number'] = unique_numbers
-        fill_start_end(truth, res)
+        fill_start_end(truth, res, self.use_endtime_field)
         if self.check_event_endtime:
             assert np.all(res['endtime'] > res['time'])
         assert np.all(np.diff(res['time']) > 0)
