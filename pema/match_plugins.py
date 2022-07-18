@@ -217,7 +217,7 @@ class MatchEvents(strax.OverlapWindowPlugin):
     ]
 
     def compute(self, truth, events):
-        unique_numbers = np.unique(truth['event_number'])
+        unique_numbers = np.unique(truth[self.sim_id_field])
         res = np.zeros(len(unique_numbers), self.dtype)
         res['truth_number'] = unique_numbers
         fill_start_end(truth, res)
