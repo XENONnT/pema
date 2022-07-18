@@ -182,11 +182,6 @@ class TruthExtended(strax.MergeOnlyPlugin):
     save_when = strax.SaveWhen.TARGET
 
 
-@strax.takes_config(
-    strax.Option('truth_lookup_window',
-                 default=int(1e9),
-                 help='Look back and forth this many ns in the truth info'),
-)
 class MatchEvents(strax.OverlapWindowPlugin):
     """
     Match WFSim truth to the outcome peaks. To this end use the
@@ -199,6 +194,20 @@ class MatchEvents(strax.OverlapWindowPlugin):
     depends_on = ('truth', 'events')
     provides = 'truth_events'
     data_kind = 'truth_events'
+
+    truth_lookup_window = straxen.URLConfig(
+        default=int(1e9),
+        help='Look back and forth this many ns in the truth info',
+    )
+    check_event_endtime = straxen.URLConfig(
+        default=True,
+        help='Check that all events have a non-zero duration.',
+    )
+
+    use_endtime_field = straxen.URLConfig(
+        default='t_last_photon',
+        help='Field to use from truth info to use as a proxy for the stop of the instruction',
+    )
 
     dtype = strax.dtypes.time_fields + [
         ((f'First event number in event datatype within the truth event', 'start_match'), np.int64),
@@ -213,7 +222,8 @@ class MatchEvents(strax.OverlapWindowPlugin):
         res = np.zeros(len(unique_numbers), self.dtype)
         res['truth_number'] = unique_numbers
         fill_start_end(truth, res)
-        assert np.all(res['endtime'] > res['time'])
+        if self.check_event_endtime:
+            assert np.all(res['endtime'] > res['time'])
         assert np.all(np.diff(res['time']) > 0)
 
         tw = strax.touching_windows(events, res)
@@ -280,12 +290,21 @@ class TruthId(PeakId):
         return super().compute(truth)
 
 
+
+def fill_start_end(truth, truth_event, end_field='endtime'):
+    """Set the 'time' and 'endtime' fields based on the truth"""
+    truth_number = truth_event['truth_number']
+    starts = truth['time']
+    stops = truth[end_field]
+    _fill_start_end(truth_number, stops, starts, truth_event)
+
+
 @numba.njit()
-def fill_start_end(truth, truth_event):
-    for i, ev_i in enumerate(truth_event['truth_number']):
-        mask = truth['event_number'] == ev_i
-        start = truth[mask]['time'].min()
-        stop = truth[mask]['endtime'].max()
+def _fill_start_end(truth_number, stops, starts, truth_event):
+    for i, ev_i in enumerate(truth_number):
+        mask = truth_number == ev_i
+        start = starts[mask].min()
+        stop = stops[mask].max()
         truth_event['time'][i] = start
         truth_event['endtime'][i] = stop
 
