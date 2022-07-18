@@ -231,10 +231,10 @@ class TestStack(unittest.TestCase):
 
     def test_later_alternative_configs(self):
         st = self.script.st
-        st.set_config(check_event_endtime=False)
+        st.set_config(dict(check_event_endtime=False))
         st.make(run_id, 'truth_events')
 
-        st.set_config(use_endtime_field='endtime')
+        st.set_config(dict(use_endtime_field='endtime'))
         st.make(run_id, 'truth_events')
 
     @classmethod
