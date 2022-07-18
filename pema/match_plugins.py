@@ -126,7 +126,8 @@ class AcceptanceComputer(strax.Plugin):
         # split (as long as their bias fraction is not too small).
         s2_mask = truth['type'] == 2
         s2_outcomes = truth['outcome'][s2_mask].copy()
-        s2_acceptance = (res[s2_mask]['rec_bias'] > self.config['min_s2_bias_rec']).astype(np.float64)
+        s2_acceptance = (res[s2_mask]['rec_bias'] > self.config['min_s2_bias_rec']).astype(
+            np.float64)
         for outcome, penalty in self.config['penalty_s2_by']:
             s2_out_mask = s2_outcomes == outcome
             s2_acceptance[s2_out_mask] = penalty
@@ -203,12 +204,10 @@ class MatchEvents(strax.OverlapWindowPlugin):
         default=True,
         help='Check that all events have a non-zero duration.',
     )
-
-    use_endtime_field = straxen.URLConfig(
-        default='t_last_photon',
-        help='Field to use from truth info to use as a proxy for the stop of the instruction',
+    sim_id_field = straxen.URLConfig(
+        default='event_number',
+        help='Group the truth info by this field. Options: ["event_number", "g4id"]',
     )
-
     dtype = strax.dtypes.time_fields + [
         ((f'First event number in event datatype within the truth event', 'start_match'), np.int64),
         ((f'Last (inclusive!) event number in event datatype within the truth event', 'end_match'),
@@ -221,22 +220,24 @@ class MatchEvents(strax.OverlapWindowPlugin):
         unique_numbers = np.unique(truth['event_number'])
         res = np.zeros(len(unique_numbers), self.dtype)
         res['truth_number'] = unique_numbers
-        fill_start_end(truth, res, self.use_endtime_field)
+        fill_start_end(truth, res)
         if self.check_event_endtime:
             assert np.all(res['endtime'] > res['time'])
         assert np.all(np.diff(res['time']) > 0)
 
         tw = strax.touching_windows(events, res)
         tw_start = tw[:, 0]
-        tw_end = tw[:, 1] - 1
-        found = tw_end - tw_start > 0
+        tw_end = tw[:, 1] - 1  # NB! This is now INCLUSIVE
         diff = np.diff(tw, axis=1)[:, 0]
+        found = diff > 0
 
-        res['start_match'][found] = events[tw_start[found]]['event_number']
-        res['end_match'][found] = events[tw_end[found]]['event_number']
-        res['outcome'] = self.outcomes(diff)
+        # None unless found
         res['start_match'][~found] = pema.matching.INT_NAN
         res['end_match'][~found] = pema.matching.INT_NAN
+        res['start_match'][found] = events[tw_start[found]]['event_number']
+        res['end_match'][found] = events[tw_end[found]]['event_number']
+
+        res['outcome'] = self.outcomes(diff)
         return res
 
     def get_window_size(self):
@@ -244,10 +245,11 @@ class MatchEvents(strax.OverlapWindowPlugin):
 
     @staticmethod
     def outcomes(diff):
+        """Classify if the event_number"""
         outcome = np.empty(len(diff), dtype=pema.matching.OUTCOME_DTYPE)
-        not_found_mask = diff < 0
-        one_found_mask = diff == 0
-        many_found_mask = diff >= 1
+        not_found_mask = diff < 1
+        one_found_mask = diff == 1
+        many_found_mask = diff > 1
         outcome[not_found_mask] = 'missed'
         outcome[one_found_mask] = 'found'
         outcome[many_found_mask] = 'split'
@@ -288,7 +290,6 @@ class TruthId(PeakId):
     def compute(self, truth):
         assert_ordered_truth(truth)
         return super().compute(truth)
-
 
 
 def fill_start_end(truth, truth_event, end_field='endtime'):
