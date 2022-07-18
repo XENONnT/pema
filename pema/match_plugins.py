@@ -293,7 +293,7 @@ class TruthId(PeakId):
 
 def fill_start_end(truth, truth_event, end_field='endtime'):
     """Set the 'time' and 'endtime' fields based on the truth"""
-    truth_number = truth_event['truth_number']
+    truth_number = truth['event_number']
     starts = truth['time']
     stops = truth[end_field]
     _fill_start_end(truth_number, stops, starts, truth_event)
@@ -301,7 +301,7 @@ def fill_start_end(truth, truth_event, end_field='endtime'):
 
 @numba.njit()
 def _fill_start_end(truth_number, stops, starts, truth_event):
-    for i, ev_i in enumerate(truth_number):
+    for i, ev_i in enumerate(truth_event['truth_number']):
         mask = truth_number == ev_i
         start = starts[mask].min()
         stop = stops[mask].max()
