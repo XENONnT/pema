@@ -234,8 +234,8 @@ class TestStack(unittest.TestCase):
         st.set_config(dict(check_event_endtime=False))
         st.make(run_id, 'truth_events')
 
-        st.set_config(dict(sim_id_field='g4id'))
-        st.make(run_id, 'truth_events')
+#        st.set_config(dict(sim_id_field='g4id'))
+#        st.make(run_id, 'truth_events')
 
     @classmethod
     def tearDownClass(cls):
