@@ -126,7 +126,8 @@ class AcceptanceComputer(strax.Plugin):
         # split (as long as their bias fraction is not too small).
         s2_mask = truth['type'] == 2
         s2_outcomes = truth['outcome'][s2_mask].copy()
-        s2_acceptance = (res[s2_mask]['rec_bias'] > self.config['min_s2_bias_rec']).astype(np.float64)
+        s2_acceptance = (res[s2_mask]['rec_bias'] > self.config['min_s2_bias_rec']).astype(
+            np.float64)
         for outcome, penalty in self.config['penalty_s2_by']:
             s2_out_mask = s2_outcomes == outcome
             s2_acceptance[s2_out_mask] = penalty
@@ -182,11 +183,6 @@ class TruthExtended(strax.MergeOnlyPlugin):
     save_when = strax.SaveWhen.TARGET
 
 
-@strax.takes_config(
-    strax.Option('truth_lookup_window',
-                 default=int(1e9),
-                 help='Look back and forth this many ns in the truth info'),
-)
 class MatchEvents(strax.OverlapWindowPlugin):
     """
     Match WFSim truth to the outcome peaks. To this end use the
@@ -200,6 +196,18 @@ class MatchEvents(strax.OverlapWindowPlugin):
     provides = 'truth_events'
     data_kind = 'truth_events'
 
+    truth_lookup_window = straxen.URLConfig(
+        default=int(1e9),
+        help='Look back and forth this many ns in the truth info',
+    )
+    check_event_endtime = straxen.URLConfig(
+        default=True,
+        help='Check that all events have a non-zero duration.',
+    )
+    sim_id_field = straxen.URLConfig(
+        default='event_number',
+        help='Group the truth info by this field. Options: ["event_number", "g4id"]',
+    )
     dtype = strax.dtypes.time_fields + [
         ((f'First event number in event datatype within the truth event', 'start_match'), np.int64),
         ((f'Last (inclusive!) event number in event datatype within the truth event', 'end_match'),
@@ -209,24 +217,27 @@ class MatchEvents(strax.OverlapWindowPlugin):
     ]
 
     def compute(self, truth, events):
-        unique_numbers = np.unique(truth['event_number'])
+        unique_numbers = np.unique(truth[self.sim_id_field])
         res = np.zeros(len(unique_numbers), self.dtype)
         res['truth_number'] = unique_numbers
         fill_start_end(truth, res)
-        assert np.all(res['endtime'] > res['time'])
+        if self.check_event_endtime:
+            assert np.all(res['endtime'] > res['time'])
         assert np.all(np.diff(res['time']) > 0)
 
         tw = strax.touching_windows(events, res)
         tw_start = tw[:, 0]
-        tw_end = tw[:, 1] - 1
-        found = tw_end - tw_start > 0
+        tw_end = tw[:, 1] - 1  # NB! This is now INCLUSIVE
         diff = np.diff(tw, axis=1)[:, 0]
+        found = diff > 0
 
-        res['start_match'][found] = events[tw_start[found]]['event_number']
-        res['end_match'][found] = events[tw_end[found]]['event_number']
-        res['outcome'] = self.outcomes(diff)
+        # None unless found
         res['start_match'][~found] = pema.matching.INT_NAN
         res['end_match'][~found] = pema.matching.INT_NAN
+        res['start_match'][found] = events[tw_start[found]]['event_number']
+        res['end_match'][found] = events[tw_end[found]]['event_number']
+
+        res['outcome'] = self.outcomes(diff)
         return res
 
     def get_window_size(self):
@@ -234,10 +245,11 @@ class MatchEvents(strax.OverlapWindowPlugin):
 
     @staticmethod
     def outcomes(diff):
+        """Classify if the event_number"""
         outcome = np.empty(len(diff), dtype=pema.matching.OUTCOME_DTYPE)
-        not_found_mask = diff < 0
-        one_found_mask = diff == 0
-        many_found_mask = diff >= 1
+        not_found_mask = diff < 1
+        one_found_mask = diff == 1
+        many_found_mask = diff > 1
         outcome[not_found_mask] = 'missed'
         outcome[one_found_mask] = 'found'
         outcome[many_found_mask] = 'split'
@@ -280,12 +292,20 @@ class TruthId(PeakId):
         return super().compute(truth)
 
 
+def fill_start_end(truth, truth_event, end_field='endtime'):
+    """Set the 'time' and 'endtime' fields based on the truth"""
+    truth_number = truth['event_number']
+    starts = truth['time']
+    stops = truth[end_field]
+    _fill_start_end(truth_number, stops, starts, truth_event)
+
+
 @numba.njit()
-def fill_start_end(truth, truth_event):
+def _fill_start_end(truth_number, stops, starts, truth_event):
     for i, ev_i in enumerate(truth_event['truth_number']):
-        mask = truth['event_number'] == ev_i
-        start = truth[mask]['time'].min()
-        stop = truth[mask]['endtime'].max()
+        mask = truth_number == ev_i
+        start = starts[mask].min()
+        stop = stops[mask].max()
         truth_event['time'][i] = start
         truth_event['endtime'][i] = stop
 

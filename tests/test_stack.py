@@ -229,6 +229,14 @@ class TestStack(unittest.TestCase):
         st.plot_peaks(run_id, time_within=peaks[0], xaxis=False)
         pema.save_canvas('test_fig', os.path.join(self.tempdir, 'figs'), tight_layout=True)
 
+    def test_later_alternative_configs(self):
+        st = self.script.st
+        st.set_config(dict(check_event_endtime=False))
+        st.make(run_id, 'truth_events')
+
+#        st.set_config(dict(sim_id_field='g4id'))
+#        st.make(run_id, 'truth_events')
+
     @classmethod
     def tearDownClass(cls):
         shutil.rmtree(cls.tempdir)
