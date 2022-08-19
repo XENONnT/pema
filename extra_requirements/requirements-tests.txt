@@ -6,3 +6,14 @@ git+https://github.com/XENONnT/ax_env
 # For testing running notebooks
 nbmake
 pytest-xdist
+cython
+ipython
+nbconvert==6.4.3
+nbmake
+pytest
+coverage
+coveralls
+pytest-cov
+pytest-notebook
+ipython_genutils
+
