@@ -64,8 +64,6 @@ def pema_context(
     # Setup the plugins for nT
     # st.register(wfsim.RawRecordsFromFaxNT)
     st.register_all(pema.match_plugins)
-    st.register_all(straxen.plugins.position_reconstruction)
-    del st._plugin_class_registry['peak_positions_base_nt']
     st._plugin_class_registry['peaks'].save_when = strax.SaveWhen.ALWAYS
 
     if raw_types is None:
