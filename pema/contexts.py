@@ -68,7 +68,7 @@ def pema_context(
 
     if raw_types is None:
         raw_types = (wfsim.RawRecordsFromFaxNT.provides +
-                     straxen.plugins.pulse_processing.PulseProcessing.provides)
+                     straxen.plugins.PulseProcessing.provides)
 
     # Setup the storage, don't trust any of the stuff we get from xenonnt_simulation
     st.storage = []
