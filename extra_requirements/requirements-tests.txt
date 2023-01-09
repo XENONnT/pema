@@ -1,8 +1,20 @@
 strax==1.4.0
 straxen==2.0.3
 wfsim==1.0.2
+epix==0.3.3
 git+https://github.com/XENONnT/ax_env
 
 # For testing running notebooks
 nbmake
 pytest-xdist
+cython
+ipython
+nbconvert==6.4.3
+nbmake
+pytest
+coverage
+coveralls
+pytest-cov
+pytest-notebook
+ipython_genutils
+
