@@ -1,18 +1,18 @@
 # File for the requirements of the documentation
 autodocsumm==0.2.7
 commonmark==0.9.1
-gitpython==3.1.27
+gitpython==3.1.30
 graphviz==0.19.1
 nbsphinx==0.8.9
 numpy==1.22.4
 recommonmark==0.7.1
-scipy==1.9.0
+scipy==1.10.0
 sphinx_rtd_theme==1.0.0
 sphinx==4.5.0
-sphinxcontrib_applehelp==1.0.2
+sphinxcontrib_applehelp==1.0.3
 sphinxcontrib_devhelp==1.0.2
 sphinxcontrib_htmlhelp==2.0.0
 sphinxcontrib_jsmath==1.0.1
 sphinxcontrib_qthelp==1.0.3
-typing-extensions==4.3.0
+typing-extensions==4.4.0
 

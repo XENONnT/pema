@@ -1,3 +1,11 @@
+0.6.4 / 2022-10-18
+------------------
+* Add test for event matching customization by @JoranAngevaare in https://github.com/XENONnT/pema/pull/241
+* Update ax by @JoranAngevaare in https://github.com/XENONnT/pema/pull/259
+
+
+**Full Changelog**: https://github.com/XENONnT/pema/compare/v0.6.3...v0.6.4
+
 0.6.3 / 2022-06-08
 ------------------
 ### What's Changed
