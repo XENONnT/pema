@@ -93,7 +93,7 @@ jobs:
         if: matrix.test == 'coveralls' && env.HAVE_ACCESS_TO_SECTETS != null
         run: |
           pytest --cov pema -v --nbmake notebooks/Getting_started_with_Pema.ipynb --durations 0 --nb-coverage --nbmake-timeout=3600
-          pytest --cov --cov-append --source=pema -m pytest -v --durations 0
+          pytest --cov pema --cov-append -v --durations 0
       - name: Coveralls
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
