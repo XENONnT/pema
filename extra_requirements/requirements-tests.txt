@@ -1,6 +1,7 @@
 strax==1.4.0
 straxen==2.0.3
 wfsim==1.0.2
+epix==0.3.3
 git+https://github.com/XENONnT/ax_env
 
 # For testing running notebooks
