@@ -1,4 +1,4 @@
-strax==1.4.2
+strax==1.4.3
 straxen==2.0.6
 wfsim==1.0.2
 epix==0.3.3
