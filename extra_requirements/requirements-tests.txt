@@ -1,5 +1,5 @@
-strax==1.4.2
-straxen==2.0.6
+strax==1.5.0
+straxen==2.0.7
 wfsim==1.0.2
 epix==0.3.4
 git+https://github.com/XENONnT/ax_env
@@ -9,7 +9,7 @@ nbmake
 pytest-xdist
 cython
 ipython
-nbconvert==7.2.9
+nbconvert==7.4.0
 nbmake
 pytest
 coverage
