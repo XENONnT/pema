@@ -1,5 +1,5 @@
 strax==1.5.0
-straxen==2.0.7
+straxen==2.1.0
 wfsim==1.0.2
 epix==0.3.4
 git+https://github.com/XENONnT/ax_env
