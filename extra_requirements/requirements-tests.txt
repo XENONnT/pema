@@ -9,7 +9,7 @@ nbmake
 pytest-xdist
 cython
 ipython
-nbconvert==7.4.0
+nbconvert==7.7.1
 nbmake
 pytest
 coverage
