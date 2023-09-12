@@ -76,7 +76,20 @@ def match_peaks(allpeaks1,
     )
 
     log.debug('Getting windows')
-    windows = strax.touching_windows(allpeaks1, allpeaks2, window=matching_fuzz)
+    
+    # FIXME: This is a hack to get around the fact that we trigger bug in _check_objects_non_negative_length for truth
+    # WFSim for unknown reason is generating negative length truth and it is beyond the scope
+    # of this package to fix it. So we just ignore it here and print warning.
+    if np.any(allpeaks1['endtime']<0):
+        log.warning("Negative length truth found, ignoring it and changing the event_number to -1")    
+        windows = strax.processing.general._touching_windows(allpeaks1['time'], strax.endtime(allpeaks1), allpeaks2['time'], 
+                                                         strax.endtime(allpeaks2), window=matching_fuzz)
+        bad_event_numbers = allpeaks1[allpeaks1['endtime']<0]['event_number']
+        for event_number in bad_event_numbers:
+            allpeaks1[allpeaks1['event_number']==event_number]['event_number'] = -1
+    else:
+        windows = strax.touching_windows(allpeaks1, allpeaks2, window=matching_fuzz)
+
     deep_windows = np.empty((0, 2), dtype=(np.int64, np.int64))
     # Each of the windows projects to a set of peaks in allpeaks2
     # belonging to allpeaks1. We also need to go the reverse way, which
