@@ -1,3 +1,8 @@
+0.6.5 / 2023-09-12
+------------------
+### What's Changed
+* Trying to fix touching_windows bug by @FaroutYLq in https://github.com/XENONnT/pema/pull/333
+
 0.6.4 / 2022-10-18
 ------------------
 * Add test for event matching customization by @JoranAngevaare in https://github.com/XENONnT/pema/pull/241
