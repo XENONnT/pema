@@ -2,6 +2,9 @@
 # Though these are readonly, they should not be committed to a public repo.
 xenon_secrets.py
 
+# .vscode
+.vscode
+
 # Jupyter
 .ipynb_checkpoints
 
