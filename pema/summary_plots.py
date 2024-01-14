@@ -75,7 +75,7 @@ def _plot_peak_matching_histogram(hists):
     n_peaks_hist = hists['_total']
 
     for outcome, hist in hists.items():
-        hist = hist.histogram.astype(np.float)
+        hist = hist.histogram.astype(float)
 
         if outcome == '_total':
             continue
