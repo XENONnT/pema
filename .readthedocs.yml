@@ -7,12 +7,16 @@ sphinx:
   configuration: docs/source/conf.py
 
 build:
-  image: latest
+  os: ubuntu-22.04
+  apt_packages:
+    - graphviz
+  tools:
+    python: "3.9"
 
 python:
-  version: "3.8"
   install:
-    - requirements: extra_requirements/requirements-tests.txt
+    - requirements: requirements.txt
+    - requirements: extra_requirements/requirements-docs.txt
     - method: pip
       path: .
       extra_requirements:
@@ -21,5 +25,5 @@ python:
       path: .
 
 formats:
-  - pdf
+  - htmlzip
   - epub

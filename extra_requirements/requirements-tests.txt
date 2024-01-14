@@ -17,4 +17,3 @@ coveralls
 pytest-cov
 pytest-notebook
 ipython_genutils
-
