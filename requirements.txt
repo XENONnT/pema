@@ -1,6 +1,6 @@
 strax
 utilix>=0.4.1
-straxen>=1.1.0
+straxen>=2.2.0
 wfsim>=1.2.0
 multihist
 numba
