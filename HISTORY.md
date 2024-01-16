@@ -3,9 +3,6 @@
 * `np.float` is deprecated by @dachengx in https://github.com/XENONnT/pema/pull/341
 * Update RTD configuration by @dachengx in https://github.com/XENONnT/pema/pull/342
 
-New Contributors
-* @dachengx made their first contribution in https://github.com/XENONnT/pema/pull/341
-
 **Full Changelog**: https://github.com/XENONnT/pema/compare/v0.6.5...v0.6.6
 
 
