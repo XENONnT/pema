@@ -1,9 +1,10 @@
-0.6.6 / 2024-01-15
+0.7.0 / 2024-01-15
 ------------------
 * `np.float` is deprecated by @dachengx in https://github.com/XENONnT/pema/pull/341
 * Update RTD configuration by @dachengx in https://github.com/XENONnT/pema/pull/342
+* Move simulation context to wfsim by @dachengx in https://github.com/XENONnT/pema/pull/344
 
-**Full Changelog**: https://github.com/XENONnT/pema/compare/v0.6.5...v0.6.6
+**Full Changelog**: https://github.com/XENONnT/pema/compare/v0.6.5...v0.7.0
 
 
 0.6.5 / 2023-09-12
