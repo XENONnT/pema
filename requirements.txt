@@ -1,7 +1,7 @@
 strax
 utilix>=0.4.1
 straxen>=1.1.0
-wfsim>=0.5.12
+wfsim>=1.2.0
 multihist
 numba
 numpy
