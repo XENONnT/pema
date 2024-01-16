@@ -40,7 +40,7 @@ jobs:
           - python-version: "3.10"
             test: pytest_no_database
     env:
-      HAVE_ACCESS_TO_SECTETS: ${{ secrets.RUNDB_API_URL }}
+      HAVE_ACCESS_TO_SECRETS: ${{ secrets.RUNDB_API_URL }}
     steps:
       # Setup and installation
       - name: Setup python
@@ -76,7 +76,7 @@ jobs:
       - name: Create pre-apply function file
         # In case we do not have database. We need to make a local file for
         # The pre_apply_function (see #559).
-        if: env.HAVE_ACCESS_TO_SECTETS == null || matrix.test == 'pytest_no_database'
+        if: env.HAVE_ACCESS_TO_SECRETS == null || matrix.test == 'pytest_no_database'
         run: |
           bash .github/scripts/create_pre_apply_function.sh $HOME
 
@@ -90,14 +90,14 @@ jobs:
         # Make the coverage report and upload
         env:
           NUMBA_DISABLE_JIT: 1
-        if: matrix.test == 'coveralls' && env.HAVE_ACCESS_TO_SECTETS != null
+        if: matrix.test == 'coveralls' && env.HAVE_ACCESS_TO_SECRETS != null
         run: |
           pytest --cov pema -v --nbmake notebooks/Getting_started_with_Pema.ipynb --durations 0 --nb-coverage --nbmake-timeout=3600
           pytest --cov pema --cov-append -v --durations 0
       - name: Coveralls
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        if: matrix.test != 'pytest_no_database' && env.HAVE_ACCESS_TO_SECTETS != null
+        if: matrix.test != 'pytest_no_database' && env.HAVE_ACCESS_TO_SECRETS != null
         run: coveralls --service=github
       # Done
       - name: goodbye

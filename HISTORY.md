@@ -1,19 +1,27 @@
+0.7.0 / 2024-01-15
+------------------
+* `np.float` is deprecated by @dachengx in https://github.com/XENONnT/pema/pull/341
+* Update RTD configuration by @dachengx in https://github.com/XENONnT/pema/pull/342
+* Move simulation context to wfsim by @dachengx in https://github.com/XENONnT/pema/pull/344
+
+**Full Changelog**: https://github.com/XENONnT/pema/compare/v0.6.5...v0.7.0
+
+
 0.6.5 / 2023-09-12
 ------------------
-### What's Changed
 * Trying to fix touching_windows bug by @FaroutYLq in https://github.com/XENONnT/pema/pull/333
+
 
 0.6.4 / 2022-10-18
 ------------------
 * Add test for event matching customization by @JoranAngevaare in https://github.com/XENONnT/pema/pull/241
 * Update ax by @JoranAngevaare in https://github.com/XENONnT/pema/pull/259
 
-
 **Full Changelog**: https://github.com/XENONnT/pema/compare/v0.6.3...v0.6.4
+
 
 0.6.3 / 2022-06-08
 ------------------
-### What's Changed
 * allow kwargs to context by @JoranAngevaare in https://github.com/XENONnT/pema/pull/227
 * Test notebooks by @JoranAngevaare in https://github.com/XENONnT/pema/pull/228
 * Add plotting tweak by @JoranAngevaare in https://github.com/XENONnT/pema/pull/233
@@ -21,28 +29,25 @@
 * Bump strax from 1.2.2 to 1.2.3 in /extra_requirements by @dependabot in https://github.com/XENONnT/pema/pull/231
 * Bump straxen from 1.7.1 to 1.8.1 in /extra_requirements by @dependabot in https://github.com/XENONnT/pema/pull/232
 
-
 **Full Changelog**: https://github.com/XENONnT/pema/compare/v0.6.2...v0.6.3
+
 
 0.6.0 / 2022-05-30
 ------------------
-## What's Changed
 * simplify matching - keep multiple columns and fix + test chunking artefacts by @JoranAngevaare in https://github.com/XENONnT/pema/pull/225
-
 
 **Full Changelog**: https://github.com/XENONnT/pema/compare/v0.5.2...v0.6.0
 
+
 0.5.0 / 2022-05-29
 ------------------
-## What's Changed
 * Extend match_acceptance_extended with peak level info by @JoranAngevaare in https://github.com/XENONnT/pema/pull/224
-
 
 **Full Changelog**: https://github.com/XENONnT/pema/compare/v0.4.4...v0.5.0
 
+
 0.4.4 / 2022-05-29
 ------------------
-## What's Changed
 * Update requirements by @JoranAngevaare in https://github.com/XENONnT/pema/pull/211
 * Bump typing-extensions from 4.1.1 to 4.2.0 in /extra_requirements by @dependabot in https://github.com/XENONnT/pema/pull/212
 * Bump straxen from 1.6.1 to 1.6.2 in /extra_requirements by @dependabot in https://github.com/XENONnT/pema/pull/214
@@ -54,14 +59,11 @@
 * cmt_version by @JoranAngevaare in https://github.com/XENONnT/pema/pull/222
 * test with  wfsim pre release by @JoranAngevaare in https://github.com/XENONnT/pema/pull/223
 
-
 **Full Changelog**: https://github.com/XENONnT/pema/compare/v0.4.3...v0.4.4
 
 
 0.4.3 / 2022-04-12
 ------------------
-
-## What's Changed
 * Bump utilix from 0.6.6 to 0.6.7 in /extra_requirements by @dependabot in https://github.com/XENONnT/pema/pull/194
 * Bump actions/checkout from 2 to 3 by @dependabot in https://github.com/XENONnT/pema/pull/193
 * Bump xarray from 0.21.1 to 2022.3.0 in /extra_requirements by @dependabot in https://github.com/XENONnT/pema/pull/192
@@ -77,8 +79,8 @@
 * WFSim bump by @JoranAngevaare in https://github.com/XENONnT/pema/pull/208
 * Fix logger classes in pema by @JoranAngevaare in https://github.com/XENONnT/pema/pull/210
 
-
 **Full Changelog**: https://github.com/XENONnT/pema/compare/v0.4.2...v0.4.3
+
 
 0.4.2 / 2022-03-02
 ------------------
