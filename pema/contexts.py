@@ -23,7 +23,7 @@ def pema_context(
     Central context for pema, allows to init from a config.
     :param base_dir: Where store instructions,
     :param fax_config: fax configuration file
-    :param cmt_run_id_sim: run_id for CMT (see straxen.contexts.xenonnt_simulation)
+    :param cmt_run_id_sim: run_id for CMT (see wfsim.contexts.xenonnt_simulation)
     :param cmt_version: the global correction version applied to the data
     :param config_update: Setup the config of the context
     :param raw_dir: Where to store the low level datatypes
@@ -52,7 +52,7 @@ def pema_context(
         free_options= ('n_nveto_pmts', 'channel_map', 'n_mveto_pmts',
                        'gain_model_nv', 'gain_model_mv', 'cmt_run_id_sim'),
     )
-    st = straxen.contexts.xenonnt_simulation(
+    st = wfsim.contexts.xenonnt_simulation(
         fax_config=config['fax_config'],
         cmt_run_id_sim=cmt_run_id_sim,
         cmt_version=cmt_version,
